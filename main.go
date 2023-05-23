@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -7,11 +8,21 @@ import (
 	"log"
 	"meta-go-api/config"
 	"meta-go-api/handlers"
+)*/
+
+import (
+	"meta-go-api/environment"
+	"meta-go-api/s3client"
 )
 
-//say helloworld
 func main() {
+	environment.SetEnv()
 
+	//inside s3.go there is UploadFile() function:
+	s3client.UploadFile()
+	
+	
+	/*
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
@@ -51,5 +62,5 @@ func main() {
 	fmt.Println("Server started")
 
 	log.Fatal(app.Listen(":8001"))
-
+	*/
 }

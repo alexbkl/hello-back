@@ -157,7 +157,6 @@ func RegisterHandler(c *fiber.Ctx) error {
 	//where user.address = address
 	result := config.Database.Find(&user, "address = ?", p.Address)
 
-	fmt.Println("suka",result.RowsAffected)
 
 	if result.RowsAffected != 0 {
 		return c.Status(409).SendString("User already exists")

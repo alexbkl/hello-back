@@ -1,0 +1,10 @@
+package environment
+import (
+    "os"
+)
+func SetEnv() {
+    os.Setenv("FILEBASE_ACCESS_KEY", "access_key")
+    os.Setenv("FILEBASE_SECRET_ACCESS_KEY", "secret_access_key")
+    
+   
+}
