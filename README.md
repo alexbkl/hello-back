@@ -36,3 +36,37 @@ systemctl
 ```
 sudo apt-get install supervisord
 ```
+
+
+#Configurar dominio en VPS Ubuntu:
+
+```
+sudo apt update
+sudo apt install nginx
+sudo nano /etc/nginx/sites-available/ounn.space
+
+```
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com www.example.com;
+
+    location / {
+        proxy_pass http://raw_ip:8001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d your_domain
+
+```
+
+To make requests, use the https://domain.com/api/ endpoint. (WITHOUT the port) For example, baseUrl = https://ounn.space/api/

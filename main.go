@@ -33,6 +33,7 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 		AllowHeaders: "Content-Disposition, Origin, Content-Type, Accept, Authorization, Content-Length, Original-Filename",
+		AllowCredentials: true,
 	}))
 
 	var err error
