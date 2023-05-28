@@ -18,6 +18,7 @@ func GetDog(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var dog entities.Dog
 
+
 	result := config.Database.Find(&dog, id)
 
 	if result.RowsAffected == 0 {

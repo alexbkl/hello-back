@@ -1,18 +1,19 @@
 package handlers
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
 	"meta-go-api/config"
+	"meta-go-api/entities"
+	"meta-go-api/s3client"
 	"net/http"
 	"regexp"
 	"sync"
 	"time"
-
-	"meta-go-api/entities"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -21,6 +22,9 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/ipfs/go-cid"
+	mc "github.com/multiformats/go-multicodec"
+	mh "github.com/multiformats/go-multihash"
 )
 
 var (
@@ -80,8 +84,6 @@ func (j *JwtHmacProvider) Verify(tokenString string) (*jwt.RegisteredClaims, err
 	}
 	return nil, ErrAuthError
 }
-
-
 
 type MemStorage struct {
 	lock  sync.RWMutex
@@ -157,7 +159,6 @@ func RegisterHandler(c *fiber.Ctx) error {
 	//where user.address = address
 	result := config.Database.Find(&user, "address = ?", p.Address)
 
-
 	if result.RowsAffected != 0 {
 		return c.Status(409).SendString("User already exists")
 	}
@@ -179,31 +180,30 @@ func RegisterHandler(c *fiber.Ctx) error {
 
 func UserNonceHandler(c *fiber.Ctx) error {
 
-
-/*
-	return func(w http.ResponseWriter, r *http.Request) {
-		address := chi.URLParam(r, "address")
-		if !hexRegex.MatchString(address) {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		user, err := storage.Get(strings.ToLower(address))
-		if err != nil {
-			switch errors.Is(err, ErrUserNotExists) {
-			case true:
-				w.WriteHeader(http.StatusNotFound)
-			default:
-				w.WriteHeader(http.StatusInternalServerError)
+	/*
+		return func(w http.ResponseWriter, r *http.Request) {
+			address := chi.URLParam(r, "address")
+			if !hexRegex.MatchString(address) {
+				w.WriteHeader(http.StatusBadRequest)
+				return
 			}
-			return
+			user, err := storage.Get(strings.ToLower(address))
+			if err != nil {
+				switch errors.Is(err, ErrUserNotExists) {
+				case true:
+					w.WriteHeader(http.StatusNotFound)
+				default:
+					w.WriteHeader(http.StatusInternalServerError)
+				}
+				return
+			}
+			resp := struct {
+				Nonce string
+			}{
+				Nonce: user.Nonce,
+			}
+			renderJson(r, w, http.StatusOK, resp)
 		}
-		resp := struct {
-			Nonce string
-		}{
-			Nonce: user.Nonce,
-		}
-		renderJson(r, w, http.StatusOK, resp)
-	}
 	*/
 
 	//Refactored to use Fiber:
@@ -253,8 +253,6 @@ func (s SigninPayload) Validate() error {
 
 func SigninHandler(c *fiber.Ctx) error {
 
-	
-
 	var p SigninPayload
 
 	if err := c.BodyParser(&p); err != nil {
@@ -300,7 +298,212 @@ func WelcomeHandler(c *fiber.Ctx) error {
 	resp := struct {
 		Msg string `json:"msg"`
 	}{
-		Msg: "Congrats " + user.Address + " you made it\n",
+		Msg: "Welcome, address: " + user.Address + "\n",
+	}
+
+	return c.Status(200).JSON(resp)
+}
+
+//upload handler s3 client
+
+func UploadHandler(c *fiber.Ctx) error {
+	//get user and save it to database
+	var user entities.User
+
+	//get user from context
+	user = c.Locals("user").(entities.User)
+
+	//get file from request
+	file, err := c.FormFile("file")
+	if err != nil {
+		fmt.Println(err, "czchzhiíiííírrzzserrro")
+		return c.Status(500).SendString("Primero Internal server error: " + err.Error())
+	}
+
+	//open file
+	src, err := file.Open()
+	if err != nil {
+		fmt.Println(err, "prrarrrrrrrro")
+
+		return c.Status(500).SendString("Segundo Internal server error: " + err.Error())
+	}
+	defer src.Close()
+
+	//create a new file in s3 bucket
+
+
+	srcBytes, error := s3client.UploadFile(file, src)
+
+	if error != nil {
+		//if 		error is fmt.Errorf("File already exists"), return 409
+		if error.Error() == "File already exists" {
+			fmt.Println(error, "UploadFile error")
+
+			//return c.Status(409).SendString("File already exists")
+		}
+		fmt.Println(error, "Error UploadFile")
+
+		return c.Status(500).SendString("Tercero Internal server error: " + error.Error())
+	}
+
+	// Create a cid manually by specifying the 'prefix' parameters
+	pref := cid.Prefix{
+		Version:  1,
+		Codec:    uint64(mc.Raw),
+		MhType:   mh.SHA2_256,
+		MhLength: -1, // default length
+	}
+
+	// And then feed it some data
+	cid, err := pref.Sum(srcBytes)
+	if err != nil {
+		fmt.Println("Error creating CID: ", err)
+		return err
+	}
+
+	
+
+	// close file
+	src.Close()
+	if error != nil {
+		fmt.Println("Error creating CID: ", err)
+		return err
+	}
+
+	//save file to database
+	fileToUpload := entities.File{
+		FileName:    file.Filename,
+		UserAddress: user.Address,
+		CID:         cid.String(),
+	}
+
+	config.Database.Create(&fileToUpload)
+
+	resp := struct {
+		File entities.File `json:"files"`
+	}{
+		File: fileToUpload,
+	}
+
+	return c.Status(200).JSON(resp)
+
+}
+
+func DeleteFileHandler(c *fiber.Ctx) error {
+	//get user
+	var user entities.User
+
+	//get user from context
+	user = c.Locals("user").(entities.User)
+
+	//get address from user
+	address := user.Address
+	cid := c.Params("cid")
+	fmt.Println(cid)
+
+	//check if file from entities.File belongs to user
+	var file entities.File
+
+	config.Database.Where("c_id = ? AND user_address = ?", cid, address).First(&file)
+
+	if file.ID == 0 {
+		return c.Status(403).SendString("File not found")
+	}
+
+	//delete file from database
+	config.Database.Delete(&file)
+
+	//delete file from s3 bucket
+	err := s3client.DeleteFile(cid)
+
+	if err != nil {
+		return c.Status(500).SendString("Internal server error: " + err.Error())
+	}
+
+	resp := struct {
+		Msg string `json:"msg"`
+	}{
+		Msg: "File deleted successfully",
+	}
+
+	return c.Status(200).JSON(resp)
+
+}
+
+func DownloadFileHandler(c *fiber.Ctx) error {
+	//get user
+	var user entities.User
+
+	//get user from context
+	user = c.Locals("user").(entities.User)
+
+	//get address from user
+	address := user.Address
+
+	//get cid from params
+	cid := c.Params("cid")
+
+	//check if file from entities.File belongs to user
+	var file entities.File
+
+	config.Database.Where("c_id = ? AND user_address = ?", cid, address).First(&file)
+
+	if file.ID == 0 {
+		return c.Status(403).SendString("File not found")
+	}
+
+	//download file from s3 bucket
+	//result is *s3.GetObjectOutput type
+	result, err := s3client.DownloadFile(cid)
+
+	if err != nil {
+		return c.Status(500).SendString("Internal server error: " + err.Error())
+	}
+
+	
+	// Create a buffer to hold the file contents
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(result.Body)
+	
+	// You can also add a Content-Disposition header to the response to suggest a filename to the client
+	filename, ok := result.Metadata["filename"]
+	if !ok {
+		filename = &file.FileName
+	}
+
+	c.Response().Header.Set("Access-Control-Expose-Headers", "Original-Filename")
+
+	c.Response().Header.Set("Content-Disposition", "attachment; filename="+*filename)
+	//add all the metadata to the response
+	for key, value := range result.Metadata {
+		fmt.Println(key, *value)
+		c.Response().Header.Set(key, *value)
+	}
+
+
+	// Write the file contents into the response body
+	return c.Status(200).Send(buf.Bytes())
+
+
+}
+
+
+func GetFilesHandler(c *fiber.Ctx) error {
+	//get user
+	var user entities.User
+
+	//get user from context
+	user = c.Locals("user").(entities.User)
+
+	//get files from database
+	var files []entities.File
+
+	config.Database.Find(&files, "user_address = ?", user.Address)
+
+	resp := struct {
+		Files []entities.File `json:"files"`
+	}{
+		Files: files,
 	}
 
 	return c.Status(200).JSON(resp)
@@ -342,7 +545,6 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		return c.Status(401).SendString("Unauthorized")
 	}
 
-	
 	//set the user in the context
 	c.Locals("user", user)
 
@@ -350,19 +552,13 @@ func AuthMiddleware(c *fiber.Ctx) error {
 
 }
 
-
-
-
 func Authenticate(address string, nonce string, sigHex string) (entities.User, error) {
 	var user entities.User
 	result := config.Database.Find(&user, "address = ?", address)
 
-
-
 	if result.RowsAffected == 0 {
 		return user, ErrUserNotExists
 	}
-
 
 	if user.Nonce != nonce {
 		return user, ErrAuthError
@@ -440,20 +636,18 @@ func renderJson(r *http.Request, w http.ResponseWriter, statusCode int, res inte
 func Run() error {
 	// initialization of storage
 
-
 	// setup the endpoints
 	r := chi.NewRouter()
 
 	//  Just allow all for the reference implementation
 	r.Use(cors.AllowAll().Handler)
 
-
 	/*
-	r.Group(func(r chi.Router) {
-		r.Use(AuthMiddleware(jwtProvider))
-		r.Get("/welcome", WelcomeHandler())
-	})
-*/
+		r.Group(func(r chi.Router) {
+			r.Use(AuthMiddleware(jwtProvider))
+			r.Get("/welcome", WelcomeHandler())
+		})
+	*/
 	// start the server on port 8001
 	err := http.ListenAndServe("185.166.212.43:8001", r)
 	return err

@@ -28,6 +28,7 @@ func Connect() (*gorm.DB, error) {
 	// Migrate the schema
 	Database.AutoMigrate(&entities.Dog{})
 	Database.AutoMigrate(&entities.User{})
+	Database.AutoMigrate(&entities.File{})
 
 	return Database, nil
 }

@@ -5,6 +5,7 @@ import (
 func SetEnv() {
     os.Setenv("FILEBASE_ACCESS_KEY", "access_key")
     os.Setenv("FILEBASE_SECRET_ACCESS_KEY", "secret_access_key")
-    
+        os.Setenv("FILEBASE_PINNING_ACCESS_TOKEN", "pinning_access_token")
+
    
 }

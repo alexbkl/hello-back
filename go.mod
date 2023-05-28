@@ -22,6 +22,15 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.19.0 // indirect
 	github.com/aws/smithy-go v1.13.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/klauspost/cpuid/v2 v2.0.4 // indirect
+	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
+	github.com/minio/sha256-simd v1.0.0 // indirect
+	github.com/mr-tron/base58 v1.2.0 // indirect
+	github.com/multiformats/go-base32 v0.0.3 // indirect
+	github.com/multiformats/go-base36 v0.1.0 // indirect
+	github.com/multiformats/go-multibase v0.0.3 // indirect
+	github.com/multiformats/go-multihash v0.0.15 // indirect
+	github.com/multiformats/go-varint v0.0.6 // indirect
 )
 
 require (
@@ -38,6 +47,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c // indirect
+	github.com/ipfs/go-cid v0.4.1
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.3.1 // indirect
@@ -47,6 +57,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
+	github.com/multiformats/go-multicodec v0.9.0
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/savsgio/dictpool v0.0.0-20221023140959-7bf2e61cea94 // indirect

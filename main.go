@@ -1,33 +1,38 @@
 package main
 
-/*
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"log"
 	"meta-go-api/config"
+	"meta-go-api/environment"
 	"meta-go-api/handlers"
-)*/
+	"meta-go-api/s3client"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+)
+
+/*
 import (
 	"meta-go-api/environment"
 	"meta-go-api/s3client"
 )
-
+*/
 func main() {
-	environment.SetEnv()
+	
+	//set environment variables
+	environment.SetEnv()	
+	
+	//init s3client credentials and connection
+	s3client.Init()
 
-	//inside s3.go there is UploadFile() function:
-	s3client.UploadFile()
 	
 	
-	/*
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowHeaders: "Content-Disposition, Origin, Content-Type, Accept, Authorization, Content-Length, Original-Filename",
 	}))
 
 	var err error
@@ -48,9 +53,22 @@ func main() {
 	//create a /api group with cors, handlers.AuthMiddleware and handlers.WelcomeHandler
 	api := app.Group("/api")
 
+
 	api.Use(handlers.AuthMiddleware)
 
 	api.Get("/welcome", handlers.WelcomeHandler)
+
+	//post method to upload file to s3 and save the file name to database
+	//TODO add CID to database
+	api.Post("/upload", handlers.UploadHandler)
+	//delete method to delete file from s3 and database 
+	api.Delete("/file/:cid", handlers.DeleteFileHandler)
+	api.Get("/file/:cid", handlers.DownloadFileHandler)
+
+	//get method to get all files from database
+	api.Get("/files", handlers.GetFilesHandler)
+
+	
 
 	//doggos
 	app.Get("/dogs", handlers.GetDogs)
@@ -59,8 +77,9 @@ func main() {
 	app.Put("/dogs/:id", handlers.UpdateDog)
 	app.Delete("/dogs/:id", handlers.DeleteDog)
 
+
 	fmt.Println("Server started")
 
 	log.Fatal(app.Listen(":8001"))
-	*/
+	
 }
