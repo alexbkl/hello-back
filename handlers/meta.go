@@ -389,6 +389,8 @@ func UploadHandler(c *fiber.Ctx) error {
 
 }
 
+
+
 func DeleteFileHandler(c *fiber.Ctx) error {
 	//get user
 	var user entities.User
@@ -398,13 +400,13 @@ func DeleteFileHandler(c *fiber.Ctx) error {
 
 	//get address from user
 	address := user.Address
-	cid := c.Params("cid")
-	fmt.Println(cid)
+	fileId := c.Params("fileId")
+	fmt.Println(fileId)
 
 	//check if file from entities.File belongs to user
 	var file entities.File
 
-	config.Database.Where("c_id = ? AND user_address = ?", cid, address).First(&file)
+	config.Database.Where("id = ? AND user_address = ?", fileId, address).First(&file)
 
 	if file.ID == 0 {
 		return c.Status(403).SendString("File not found")
@@ -413,12 +415,20 @@ func DeleteFileHandler(c *fiber.Ctx) error {
 	//delete file from database
 	config.Database.Delete(&file)
 
-	//delete file from s3 bucket
-	err := s3client.DeleteFile(cid)
+	//check if there are other files with the same cid
+	var otherFiles []entities.File
+	config.Database.Where("c_id = ?", file.CID).Find(&otherFiles)
 
-	if err != nil {
-		return c.Status(500).SendString("Internal server error: " + err.Error())
+	//delete file from s3 bucket only if no other files with the same CID exist in the database
+	if len(otherFiles) == 0 {
+		err := s3client.DeleteFile(file.CID)
+
+		if err != nil {
+			return c.Status(500).SendString("Internal server error: " + err.Error())
+		}
 	}
+
+	
 
 	resp := struct {
 		Msg string `json:"msg"`

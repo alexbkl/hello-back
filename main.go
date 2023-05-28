@@ -62,7 +62,7 @@ func main() {
 	//TODO add CID to database
 	api.Post("/upload", handlers.UploadHandler)
 	//delete method to delete file from s3 and database 
-	api.Delete("/file/:cid", handlers.DeleteFileHandler)
+	api.Delete("/file/:fileId", handlers.DeleteFileHandler)
 	api.Get("/file/:cid", handlers.DownloadFileHandler)
 
 	//get method to get all files from database

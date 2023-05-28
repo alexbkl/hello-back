@@ -96,24 +96,16 @@ func UploadFile(fileHeader *multipart.FileHeader, src multipart.File) ([]byte, e
 		return nil, err
 	}
 
-	fmt.Println("Created CID: ", c)
 
-	//if CID exists in the database, return error
 
-	//if cid exists in database and name of the file is the same, return error
+	//if cid exists in database and name of the file is the same, return the file without uploading to s3
 	var fileExists entities.File
-	//print c.String() and fileHeader.Filename
-	fmt.Println(c.String())
-	fmt.Println(fileHeader.Filename)
-	result := config.Database.Where("c_id = ? AND file_name = ?", c.String(), fileHeader.Filename).First(&fileExists)
+
+	//check if cid exists in database
+	result := config.Database.Where("c_id = ? AND file_name = ?", c.String(), fileHeader.Filename).Find(&fileExists)
 	//print the result
-	fmt.Println("Result:")
-	fmt.Println(result.RowsAffected)
 	if result.RowsAffected != 0 {
-		fmt.Print("File already exists")
-		//create error variable that file exists
-		//error := fmt.Errorf("File already exists")
-		
+		//fmt.Print("File already exists")		
 		return srcBytes, nil
 	}
 
