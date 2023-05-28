@@ -14,19 +14,29 @@ cd meta-go-api
 
 #Compilar la aplicación Go
 ```
-go build main.go
+go build .
 ```
 Esto resultará en un archivo ejecutable llamado main (o main.exe en Windows)
 
 #Ejecutar la aplicación de fondo
 ```
-nohup ./main > meta-go-api.log 2>&1 &
+nohup ./meta-go-api > meta-go-api.log 2>&1 &
 ```
 
 #Verificar que la aplicación se esté ejecutando
 ```
-ps aux | grep main
+ps aux | grep meta-go-api
 ```
+
+#Terminar proceso o reiniciar en caso de cambios
+
+
+```
+kill <PID>
+
+kill -HUP <PID>
+```
+
 
 #En caso de necesitar gestionar la aplicación de una manera más avanzada, se puede usar un process supervisor
 
