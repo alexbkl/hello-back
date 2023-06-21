@@ -77,7 +77,7 @@ func main() {
 	app.Post("/dogs", handlers.CreateDog)
 	app.Put("/dogs/:id", handlers.UpdateDog)
 	app.Delete("/dogs/:id", handlers.DeleteDog)
-
+	app.Post("email/submit", handlers.SubmitEmail)
 
 	fmt.Println("Server started")
 

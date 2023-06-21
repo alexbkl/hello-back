@@ -13,4 +13,7 @@ type User struct {
 	Files []File `gorm:"foreignKey:UserAddress;references:Address"`  
   }  
   
-
+type Email struct {
+	gorm.Model
+	Email string `gorm:"unique;not null" json:"email"`
+}	

@@ -29,6 +29,7 @@ func Connect() (*gorm.DB, error) {
 	Database.AutoMigrate(&entities.Dog{})
 	Database.AutoMigrate(&entities.User{})
 	Database.AutoMigrate(&entities.File{})
+	Database.AutoMigrate(&entities.Email{})
 
 	return Database, nil
 }
