@@ -74,6 +74,17 @@ func Init() {
 	S3Client = s3Client
 }
 
+func encrypt(src []byte, key string) ([]byte, error) {
+	//create a new buffer
+	buf := new(bytes.Buffer)
+	//write the src to the buffer
+	buf.Write(src)
+	//print the buffer
+	fmt.Println(buf)
+
+	return buf.Bytes(), nil
+}
+
 func UploadFile(fileHeader *multipart.FileHeader, src multipart.File) ([]byte, error) {
 
 	bucketName := "hello-storage"
@@ -95,6 +106,11 @@ func UploadFile(fileHeader *multipart.FileHeader, src multipart.File) ([]byte, e
 		fmt.Println("Error creating CID: ", err)
 		return nil, err
 	}
+
+	//"c" variable is the CID of the srcBytes
+	
+	//now, we've got to encrypt the file with the cid as the key
+	encrypt(srcBytes, c.String())
 
 
 

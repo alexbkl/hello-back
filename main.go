@@ -57,6 +57,8 @@ func main() {
 
 	api.Use(handlers.AuthMiddleware)
 
+	api.Post("/password", handlers.SubmitPasswordHandler)
+
 	api.Get("/welcome", handlers.WelcomeHandler)
 
 	//post method to upload file to s3 and save the file name to database
@@ -81,6 +83,8 @@ func main() {
 
 	fmt.Println("Server started")
 
-	log.Fatal(app.Listen(":8001"))
+	//PROD: 8001
+	//DEV: 6969
+	log.Fatal(app.Listen(":6969"))
 	
 }

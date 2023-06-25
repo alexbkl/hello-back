@@ -160,7 +160,7 @@ func RegisterHandler(c *fiber.Ctx) error {
 	result := config.Database.Find(&user, "address = ?", p.Address)
 
 	if result.RowsAffected != 0 {
-		return c.Status(409).SendString("User already exists")
+		return c.Status(203).SendString("User already exists")
 	}
 
 	nonce, err := GetNonce()
@@ -310,20 +310,19 @@ func UploadHandler(c *fiber.Ctx) error {
 	//get user and save it to database
 	var user entities.User
 
+
 	//get user from context
 	user = c.Locals("user").(entities.User)
 
 	//get file from request
 	file, err := c.FormFile("file")
 	if err != nil {
-		fmt.Println(err, "czchzhiíiííírrzzserrro")
 		return c.Status(500).SendString("Primero Internal server error: " + err.Error())
 	}
 
 	//open file
 	src, err := file.Open()
 	if err != nil {
-		fmt.Println(err, "prrarrrrrrrro")
 
 		return c.Status(500).SendString("Segundo Internal server error: " + err.Error())
 	}
@@ -343,7 +342,7 @@ func UploadHandler(c *fiber.Ctx) error {
 		}
 		fmt.Println(error, "Error UploadFile")
 
-		return c.Status(500).SendString("Tercero Internal server error: " + error.Error())
+		return c.Status(500).SendString("Internal server error: " + error.Error())
 	}
 
 	// Create a cid manually by specifying the 'prefix' parameters

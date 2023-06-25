@@ -7,21 +7,10 @@ Server started
  │               http://127.0.0.1:8001               │ 
  │       (bound on host 0.0.0.0 and port 8001)       │ 
  │                                                   │ 
- │ Handlers ............ 21  Processes ........... 1 │ 
- │ Prefork ....... Disabled  PID .............. 1876 │ 
+ │ Handlers ............ 22  Processes ........... 1 │ 
+ │ Prefork ....... Disabled  PID .............. 5964 │ 
  └───────────────────────────────────────────────────┘ 
 
-Metadata:
-  Content-Type: image/png
-  Content-Length: 271329
-  Original-Filename: Group 1vater.png
-Content-Type image/png
-Content-Length 271329
-Original-Filename Group 1vater.png
-Metadata:
-  Content-Length: 362537
-  Content-Type: image/jpeg
-  Original-Filename: IMG-20230525-WA0004.jpg
-Content-Length 362537
-Content-Type image/jpeg
-Original-Filename IMG-20230525-WA0004.jpg
+
+2023/06/25 09:56:17 [31;1m/home/xrdpuser/Desktop/meta-go-api/handlers/meta.go:552 [35;1mERROR: cached plan must not change result type (SQLSTATE 0A000)
+[0m[33m[104.683ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE address = '0x05804e9f10D4Bc10C7183C1D7521b45dbbE66C8a' AND "users"."deleted_at" IS NULL
