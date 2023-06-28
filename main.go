@@ -63,7 +63,7 @@ func main() {
 
 	//post method to upload file to s3 and save the file name to database
 	//TODO add CID to database
-	api.Post("/upload", handlers.UploadHandler)
+	api.Post("/file/upload", handlers.UploadHandler)
 	//delete method to delete file from s3 and database 
 	api.Delete("/file/:fileId", handlers.DeleteFileHandler)
 	api.Get("/file/:cid", handlers.DownloadFileHandler)

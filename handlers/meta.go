@@ -314,29 +314,37 @@ func UploadHandler(c *fiber.Ctx) error {
 	//get user from context
 	user = c.Locals("user").(entities.User)
 
-	//get file from request
-	file, err := c.FormFile("file")
-	if err != nil {
-		return c.Status(500).SendString("Primero Internal server error: " + err.Error())
-	}
+	//get encryptedFileBlob from request
+	file, err := c.FormFile("encryptedFileBlob")
+
+	//get encryptedMetadataStr from request
+	encryptedMetadataStr := c.FormValue("encryptedMetadataStr")
+
+	//get encryptedCidStr
+	cidOfEncryptedBufferStr := c.FormValue("cidOfEncryptedBufferStr")
+
+	//get cidEncryptedOriginalStr
+	cidEncryptedOriginalStr := c.FormValue("cidEncryptedOriginalStr")
+
+	//get ivString
+	ivString := c.FormValue("ivString")
 
 	//open file
 	src, err := file.Open()
 	if err != nil {
 
-		return c.Status(500).SendString("Segundo Internal server error: " + err.Error())
+		return c.Status(500).SendString("Internal server error: " + err.Error())
 	}
 	defer src.Close()
 
 	//create a new file in s3 bucket
 
-
-	srcBytes, error := s3client.UploadFile(file, src)
+	srcBytes, error := s3client.UploadFile(cidOfEncryptedBufferStr, src)
 
 	if error != nil {
 		//if 		error is fmt.Errorf("File already exists"), return 409
 		if error.Error() == "File already exists" {
-			fmt.Println(error, "UploadFile error")
+			fmt.Println(error, "UploadFile error: File already exists")
 
 			//return c.Status(409).SendString("File already exists")
 		}
@@ -344,7 +352,6 @@ func UploadHandler(c *fiber.Ctx) error {
 
 		return c.Status(500).SendString("Internal server error: " + error.Error())
 	}
-
 	// Create a cid manually by specifying the 'prefix' parameters
 	pref := cid.Prefix{
 		Version:  1,
@@ -360,7 +367,16 @@ func UploadHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	
+	//print the cid and the cidOfEncryptedBufferStr
+	//fmt.Println("CID: ", cid)
+	//fmt.Println("cidOfEncryptedBufferStr: ", cidOfEncryptedBufferStr)
+
+	//compare cid and cidOfEncryptedBufferStr, if not equal, return 400
+	if cid.String() != cidOfEncryptedBufferStr {
+		fmt.Println("cid and cidOfEncryptedBufferStr are not equal")
+		return c.Status(400).SendString("Backend CID and Frontend CID of encrypted buffer are not equal")
+	}
+
 
 	// close file
 	src.Close()
@@ -368,22 +384,23 @@ func UploadHandler(c *fiber.Ctx) error {
 		fmt.Println("Error creating CID: ", err)
 		return err
 	}
-
 	//save file to database
 	fileToUpload := entities.File{
-		FileName:    file.Filename,
+		EncryptedMetadata:    encryptedMetadataStr,
 		UserAddress: user.Address,
-		CID:         cid.String(),
+		CIDOfEncryptedBuffer: cid.String(),
+		CIDEncryptedOriginalStr: cidEncryptedOriginalStr,
+		IV: ivString,
 	}
 
 	config.Database.Create(&fileToUpload)
 
 	resp := struct {
-		File entities.File `json:"files"`
+		File entities.File `json:"file"`
 	}{
 		File: fileToUpload,
 	}
-
+	fmt.Println("File uploaded successfully")
 	return c.Status(200).JSON(resp)
 
 }
@@ -416,11 +433,11 @@ func DeleteFileHandler(c *fiber.Ctx) error {
 
 	//check if there are other files with the same cid
 	var otherFiles []entities.File
-	config.Database.Where("c_id = ?", file.CID).Find(&otherFiles)
+	config.Database.Where("c_id_of_encrypted_buffer = ?", file.CIDOfEncryptedBuffer).Find(&otherFiles)
 
 	//delete file from s3 bucket only if no other files with the same CID exist in the database
 	if len(otherFiles) == 0 {
-		err := s3client.DeleteFile(file.CID)
+		err := s3client.DeleteFile(file.CIDOfEncryptedBuffer)
 
 		if err != nil {
 			return c.Status(500).SendString("Internal server error: " + err.Error())
@@ -455,7 +472,7 @@ func DownloadFileHandler(c *fiber.Ctx) error {
 	//check if file from entities.File belongs to user
 	var file entities.File
 
-	config.Database.Where("c_id = ? AND user_address = ?", cid, address).First(&file)
+	config.Database.Where("c_id_of_encrypted_buffer = ? AND user_address = ?", cid, address).First(&file)
 
 	if file.ID == 0 {
 		return c.Status(403).SendString("File not found")
@@ -477,7 +494,7 @@ func DownloadFileHandler(c *fiber.Ctx) error {
 	// You can also add a Content-Disposition header to the response to suggest a filename to the client
 	filename, ok := result.Metadata["filename"]
 	if !ok {
-		filename = &file.FileName
+		filename = &file.CIDOfEncryptedBuffer
 	}
 
 	c.Response().Header.Set("Access-Control-Expose-Headers", "Original-Filename")

@@ -14,8 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ipfs/go-cid"
-	mc "github.com/multiformats/go-multicodec"
-	mh "github.com/multiformats/go-multihash"
 )
 
 var S3Client *s3.S3
@@ -74,51 +72,21 @@ func Init() {
 	S3Client = s3Client
 }
 
-func encrypt(src []byte, key string) ([]byte, error) {
-	//create a new buffer
-	buf := new(bytes.Buffer)
-	//write the src to the buffer
-	buf.Write(src)
-	//print the buffer
-	fmt.Println(buf)
 
-	return buf.Bytes(), nil
-}
-
-func UploadFile(fileHeader *multipart.FileHeader, src multipart.File) ([]byte, error) {
+func UploadFile(cidOfEncryptedBufferStr string, src multipart.File) ([]byte, error) {
 
 	bucketName := "hello-storage"
 
-	// Create a cid manually by specifying the 'prefix' parameters
-	pref := cid.Prefix{
-		Version:  1,
-		Codec:    uint64(mc.Raw),
-		MhType:   mh.SHA2_256,
-		MhLength: -1, // default length
-	}
-
 	//transform src to []byte
 	srcBytes, err := ioutil.ReadAll(src)
-	// And then feed it some data
-	//print srcBytes length
-	c, err := pref.Sum(srcBytes)
-	if err != nil {
-		fmt.Println("Error creating CID: ", err)
-		return nil, err
-	}
-
-	//"c" variable is the CID of the srcBytes
 	
-	//now, we've got to encrypt the file with the cid as the key
-	encrypt(srcBytes, c.String())
-
 
 
 	//if cid exists in database and name of the file is the same, return the file without uploading to s3
 	var fileExists entities.File
 
 	//check if cid exists in database
-	result := config.Database.Where("c_id = ? AND file_name = ?", c.String(), fileHeader.Filename).Find(&fileExists)
+	result := config.Database.Where("c_id_of_encrypted_buffer = ?", cidOfEncryptedBufferStr).Find(&fileExists)
 	//print the result
 	if result.RowsAffected != 0 {
 		//fmt.Print("File already exists")		
@@ -134,20 +102,19 @@ func UploadFile(fileHeader *multipart.FileHeader, src multipart.File) ([]byte, e
 		}
 		fmt.Println("Got CID: ", decodedC)
 	*/
+	/*
 	metadata := map[string]*string{
 		"Content-Type":      aws.String(fileHeader.Header.Get("Content-Type")),
 		"Original-Filename": aws.String(fileHeader.Filename),
 		"Content-Length":    aws.String(fmt.Sprintf("%d", fileHeader.Size)),
-	}
-
+	}*/
 	// create put object input
 	putObjectInput := &s3.PutObjectInput{
 		Body:     bytes.NewReader(srcBytes),
 		Bucket:   aws.String(bucketName),
-		Key:      aws.String(c.String()),
-		Metadata: metadata,
+		Key:      aws.String(cidOfEncryptedBufferStr),
+		//Metadata: metadata,
 	}
-	fmt.Println(S3Client)
 	//upload file
 	_, err = S3Client.PutObject(putObjectInput)
 	// print if there is an error
@@ -155,7 +122,6 @@ func UploadFile(fileHeader *multipart.FileHeader, src multipart.File) ([]byte, e
 		fmt.Println("Error uploading file ", err)
 		return nil, err
 	}
-
 	//err = PinCID(c)
 
 	return srcBytes, nil

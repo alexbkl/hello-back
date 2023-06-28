@@ -6,7 +6,9 @@ import (
 
 type File struct {
 	gorm.Model
-	FileName string `json:"filename"`
+	EncryptedMetadata string `json:"encryptedMetadata"`
 	UserAddress string `json:"userAddress"`
-	CID string `json:"cid"`
+	CIDOfEncryptedBuffer string `json:"cidOfEncryptedBuffer"`
+	CIDEncryptedOriginalStr string `json:"cidEncryptedOriginalStr"`
+	IV string `json:"iv"`
 }
