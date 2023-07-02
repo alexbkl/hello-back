@@ -80,7 +80,6 @@ func main() {
 	app.Put("/dogs/:id", handlers.UpdateDog)
 	app.Delete("/dogs/:id", handlers.DeleteDog)
 	app.Post("email/submit", handlers.SubmitEmail)
-
 	fmt.Println("Server started")
 
 	//PROD: 8001

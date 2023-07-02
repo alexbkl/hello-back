@@ -7,10 +7,10 @@ Server started
  │               http://127.0.0.1:8001               │ 
  │       (bound on host 0.0.0.0 and port 8001)       │ 
  │                                                   │ 
- │ Handlers ............ 22  Processes ........... 1 │ 
- │ Prefork ....... Disabled  PID .............. 5964 │ 
+ │ Handlers ............ 23  Processes ........... 1 │ 
+ │ Prefork ....... Disabled  PID ............. 24944 │ 
  └───────────────────────────────────────────────────┘ 
 
 
-2023/06/25 09:56:17 [31;1m/home/xrdpuser/Desktop/meta-go-api/handlers/meta.go:552 [35;1mERROR: cached plan must not change result type (SQLSTATE 0A000)
-[0m[33m[104.683ms] [34;1m[rows:0][0m SELECT * FROM "users" WHERE address = '0x05804e9f10D4Bc10C7183C1D7521b45dbbE66C8a' AND "users"."deleted_at" IS NULL
+2023/06/30 11:00:06 [32m/home/xrdpuser/Desktop/meta-go-api/handlers/dog.go:13 [33mSLOW SQL >= 200ms
+[0m[31;1m[1177.399ms] [33m[rows:2][35m SELECT * FROM "dogs" WHERE "dogs"."deleted_at" IS NULL[0m
