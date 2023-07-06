@@ -71,6 +71,13 @@ func main() {
 	//get method to get all files from database
 	api.Get("/files", handlers.GetFilesHandler)
 
+	//get method to get datacap of a certain address (/datacap/:address)
+	api.Get("/storage/datacap/get/:address", handlers.GetDatacapHandler)
+	//get method for used storage
+	api.Get("/storage/used/get/:address", handlers.GetUsedStorageHandler)
+	//get method for uploaded files count
+	api.Get("/storage/uploaded/count/get/:address", handlers.GetUploadedFilesCountHandler)
+
 	
 
 	//doggos

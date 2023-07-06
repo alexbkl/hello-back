@@ -143,11 +143,11 @@ func DownloadFile(cid string) (*s3.GetObjectOutput, error) {
 		return nil, err
 	}
 
-	fmt.Println("Metadata:")
-	for key, value := range result.Metadata {
+	//fmt.Println("Metadata:")
+	//for key, value := range result.Metadata {
 		// Need to dereference the value pointer to get the actual string.
-		fmt.Printf("  %s: %s\n", key, *value)
-	}
+	//	fmt.Printf("  %s: %s\n", key, *value)
+	//}
 
 	return result, nil
 }

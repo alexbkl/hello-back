@@ -41,7 +41,32 @@ var jwtProvider = NewJwtHmacProvider(
 	"hello-storage",
 	time.Minute*60,
 )
+/*
+func printFileSize(weight int) {
+	const (
+		KB = 1024
+		MB = KB * 1024
+		GB = MB * 1024
+		TB = GB * 1024
+	)
 
+	var size string
+	switch {
+	case weight >= TB:
+		size = fmt.Sprintf("%.2fTB", float64(weight)/TB)
+	case weight >= GB:
+		size = fmt.Sprintf("%.2fGB", float64(weight)/GB)
+	case weight >= MB:
+		size = fmt.Sprintf("%.2fMB", float64(weight)/MB)
+	case weight >= KB:
+		size = fmt.Sprintf("%.2fKB", float64(weight)/KB)
+	default:
+		size = fmt.Sprintf("%dB", weight)
+	}
+
+	fmt.Println("File Size:", size)
+}
+*/
 type JwtHmacProvider struct {
 	hmacSecret []byte
 	issuer     string
@@ -171,6 +196,7 @@ func RegisterHandler(c *fiber.Ctx) error {
 	u := entities.User{
 		Address: p.Address,
 		Nonce:   nonce,
+		DataCap: 100,
 	}
 
 	config.Database.Create(&u)
@@ -341,6 +367,17 @@ func UploadHandler(c *fiber.Ctx) error {
 
 	srcBytes, error := s3client.UploadFile(cidOfEncryptedBufferStr, src)
 
+	//get the weight of the file
+	weight := len(srcBytes)
+
+
+
+	//print the weight and process is accordingly (TB, GB, MB, KB, B,...)
+
+	//printFileSize(weight)
+
+
+
 	if error != nil {
 		//if 		error is fmt.Errorf("File already exists"), return 409
 		if error.Error() == "File already exists" {
@@ -391,16 +428,22 @@ func UploadHandler(c *fiber.Ctx) error {
 		CIDOfEncryptedBuffer: cid.String(),
 		CIDEncryptedOriginalStr: cidEncryptedOriginalStr,
 		IV: ivString,
+		BytesLength: weight,
 	}
 
 	config.Database.Create(&fileToUpload)
+
+	//add weight of the file to user's total UsedStorage (be aware that UsedStorage is an int64)
+	user.UsedStorage += int64(weight)
+	user.TotalUploadedFiles += 1
+	config.Database.Save(&user)
+
 
 	resp := struct {
 		File entities.File `json:"file"`
 	}{
 		File: fileToUpload,
 	}
-	fmt.Println("File uploaded successfully")
 	return c.Status(200).JSON(resp)
 
 }
@@ -427,6 +470,12 @@ func DeleteFileHandler(c *fiber.Ctx) error {
 	if file.ID == 0 {
 		return c.Status(403).SendString("File not found")
 	}
+
+	//get weight of the file
+	weight := file.BytesLength
+
+	//subtract weight of the file from user's total UsedStorage (be aware that UsedStorage is an int64)
+	user.UsedStorage -= int64(weight)
 
 	//delete file from database
 	config.Database.Delete(&file)
