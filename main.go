@@ -75,6 +75,11 @@ func main() {
 	//get method for uploaded files count
 	api.Get("/storage/uploaded/count/get/:address", handlers.GetUploadedFilesCountHandler)
 
+	//get shared file states for frontend
+	api.Get("/v0/file/states", handlers.GetSharedFileStatesHandler)
+	//publish file (post method that returns personalized sharable URL as long as it exists in database)
+	api.Post(("/v0/file/publish"), handlers.PublishFileHandler)
+
 	//doggos
 	app.Get("/dogs", handlers.GetDogs)
 	app.Get("/gods/:id", handlers.GetDog)

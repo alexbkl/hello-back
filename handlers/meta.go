@@ -333,7 +333,6 @@ func WelcomeHandler(c *fiber.Ctx) error {
 //upload handler s3 client
 
 func UploadHandler(c *fiber.Ctx) error {
-	fmt.Println("Upload handler")
 	//get user and save it to database
 	var user entities.User
 
@@ -341,12 +340,10 @@ func UploadHandler(c *fiber.Ctx) error {
 	//get user from context
 	user = c.Locals("user").(entities.User)
 
-	fmt.Println("Upload handler2")
 	//get encryptedFileBlob from request
 	file, err := c.FormFile("encryptedFileBlob")
 
 	//print formatted the file name
-	fmt.Printf("Uploaded filename: %s\n", file.Filename)
 
 	//get encryptedMetadataStr from request
 	encryptedMetadataStr := c.FormValue("encryptedMetadataStr")
@@ -357,7 +354,6 @@ func UploadHandler(c *fiber.Ctx) error {
 	//get cidEncryptedOriginalStr
 	cidEncryptedOriginalStr := c.FormValue("cidEncryptedOriginalStr")
 
-	fmt.Println("Upload handler3")
 	//get ivString
 	ivString := c.FormValue("ivString")
 
@@ -369,7 +365,6 @@ func UploadHandler(c *fiber.Ctx) error {
 	}
 	defer src.Close()
 
-	fmt.Println("Upload handler4")
 	//create a new file in s3 bucket
 
 	srcBytes, error := s3client.UploadFile(cidOfEncryptedBufferStr, src)
@@ -396,7 +391,6 @@ func UploadHandler(c *fiber.Ctx) error {
 
 		return c.Status(500).SendString("Internal server error: " + error.Error())
 	}
-	fmt.Println("Upload handler5")
 	// Create a cid manually by specifying the 'prefix' parameters
 	pref := cid.Prefix{
 		Version:  1,
@@ -439,7 +433,6 @@ func UploadHandler(c *fiber.Ctx) error {
 		BytesLength: weight,
 	}
 
-	fmt.Println("Upload handler7")
 	config.Database.Create(&fileToUpload)
 
 	//add weight of the file to user's total UsedStorage (be aware that UsedStorage is an int64)
