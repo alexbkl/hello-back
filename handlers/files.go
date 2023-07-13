@@ -229,3 +229,26 @@ func GetSharedFileStateHandler(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fileSharedState)
 
 }
+
+func GetPublicFileMetadataHandler(c *fiber.Ctx) error {
+	//get the hash from the URL parameters
+	hash := c.Params("hash")
+
+	// if hash is empty, return an error
+	if hash == "" {
+		return c.Status(400).SendString("Hash is invalid")
+	}
+
+	//query the database for the published file with the matching hash
+	var publishedFile entities.PublishedFile
+	result := config.Database.Where("hash = ?", hash).First(&publishedFile)
+
+	//if the file was not found, return an error
+	if result.Error != nil {
+		fmt.Printf("Error retrieving file: %s", result.Error.Error())
+		return c.Status(404).SendString("File not found")
+	}
+
+	//if the file was found, return the metadata
+	return c.Status(200).JSON(publishedFile.Metadata)
+}

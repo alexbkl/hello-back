@@ -77,11 +77,16 @@ func main() {
 
 	//get shared file states for frontend
 	api.Get("/v0/file/share/states/:fileId", handlers.GetSharedFileStateHandler)
+	
+
+
+	//public
 	//publish file (post method that returns personalized sharable URL as long as it exists in database)
 	api.Post(("/v0/file/publish"), handlers.PublishFileHandler)
-
 	api.Delete(("/v0/file/unpublish/:fileId"), handlers.UnpublishFileHandler)
-	
+	//get method to get metadata of public file based on hash from database
+	api.Get("/v0/file/public/metadata/:hash", handlers.GetPublicFileMetadataHandler)
+
 
 	//doggos
 	app.Get("/dogs", handlers.GetDogs)
