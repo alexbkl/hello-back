@@ -76,9 +76,12 @@ func main() {
 	api.Get("/storage/uploaded/count/get/:address", handlers.GetUploadedFilesCountHandler)
 
 	//get shared file states for frontend
-	api.Get("/v0/file/states", handlers.GetSharedFileStatesHandler)
+	api.Get("/v0/file/share/states/:fileId", handlers.GetSharedFileStateHandler)
 	//publish file (post method that returns personalized sharable URL as long as it exists in database)
 	api.Post(("/v0/file/publish"), handlers.PublishFileHandler)
+
+	api.Delete(("/v0/file/unpublish/:fileId"), handlers.UnpublishFileHandler)
+	
 
 	//doggos
 	app.Get("/dogs", handlers.GetDogs)
@@ -92,5 +95,6 @@ func main() {
 	//PROD: 8001
 	//DEV: 6969
 	log.Fatal(app.Listen(":6969"))
+	log.Println("Listening to port 6969")
 
 }

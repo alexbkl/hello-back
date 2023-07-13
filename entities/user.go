@@ -9,7 +9,7 @@ type User struct {
 	Address     string `gorm:"unique;not null;max:43" json:"address"`
 	Nonce       string `json:"nonce"`
 	DataCap     int64  `json:"dataCap"`
-	UsedStorage int64  `json:"usedStorage"`
+	UsedStorage uint64  `json:"usedStorage"`
 	TotalUploadedFiles int64 `json:"totalUploadedFiles"`
 	Files       []File `gorm:"foreignKey:UserAddress;references:Address"`
 	PublishedFiles []PublishedFile `gorm:"foreignKey:UserAddress;references:Address"`

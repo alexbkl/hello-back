@@ -335,6 +335,7 @@ func WelcomeHandler(c *fiber.Ctx) error {
 func UploadHandler(c *fiber.Ctx) error {
 	//get user and save it to database
 	var user entities.User
+	var fileSharedState entities.FileSharedState
 
 
 	//get user from context
@@ -430,15 +431,24 @@ func UploadHandler(c *fiber.Ctx) error {
 		CIDOfEncryptedBuffer: cid.String(),
 		CIDEncryptedOriginalStr: cidEncryptedOriginalStr,
 		IV: ivString,
-		BytesLength: weight,
+		BytesLength: uint64(weight),
 	}
 
 	config.Database.Create(&fileToUpload)
 
 	//add weight of the file to user's total UsedStorage (be aware that UsedStorage is an int64)
-	user.UsedStorage += int64(weight)
+	user.UsedStorage += uint64(weight)
 	user.TotalUploadedFiles += 1
 	config.Database.Save(&user)
+
+	//create a new FileSharedState
+	fileSharedState = entities.FileSharedState{
+		UserAddress: user.Address,
+		FileID: fileToUpload.ID,
+	}
+
+	//save fileSharedState to database
+	config.Database.Create(&fileSharedState)
 
 
 	resp := struct {
@@ -477,7 +487,7 @@ func DeleteFileHandler(c *fiber.Ctx) error {
 	weight := file.BytesLength
 
 	//subtract weight of the file from user's total UsedStorage (be aware that UsedStorage is an int64)
-	user.UsedStorage -= int64(weight)
+	user.UsedStorage -= uint64(weight)
 
 	//delete file from database
 	config.Database.Delete(&file)
