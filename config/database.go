@@ -1,10 +1,14 @@
 package config
 
 import (
+	"log"
 	"meta-go-api/entities"
+	"os"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var Database *gorm.DB
@@ -14,9 +18,20 @@ var DATABASE_URI string = "host=localhost user=postgres password=12345 dbname=me
 func Connect() (*gorm.DB, error) {
 	var err error
 
+
+	filterLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold: 200 * time.Millisecond, // Slow SQL threshold
+			LogLevel: 	logger.Warn,            // Log level
+			IgnoreRecordNotFoundError: true,       // Ignore ErrRecordNotFound error for logger
+		},
+	)
+
 	Database, err := gorm.Open(postgres.Open(DATABASE_URI), &gorm.Config{
 		SkipDefaultTransaction: true,
         PrepareStmt:            true,
+		Logger: 			    filterLogger,
 	})
 
 	if err != nil {
@@ -25,6 +40,7 @@ func Connect() (*gorm.DB, error) {
 		println("Database connected successfully")
 	}
 
+	
 	// Migrate the schema
 	Database.AutoMigrate(&entities.Dog{})
 	Database.AutoMigrate(&entities.User{})

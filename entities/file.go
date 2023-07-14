@@ -34,6 +34,13 @@ type FileSharedState struct {
 	FileID uint `json:"fileID" gorm:"not null"`
 }
 
+type OneTimeFile struct {
+	gorm.Model
+	Visited bool `json:"visited" gorm:"not null;default:false"`
+	PublishedFileID uint `json:"publishedFileID" gorm:"not null"`
+	PublishedFile PublishedFile `gorm:"foreignKey:PublishedFileID;references:ID"`
+}
+
 /*
 	OneTime bool `json:"oneTime"`
 	AddressRestricted bool `json:"addressRestricted"`
