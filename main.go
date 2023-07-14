@@ -85,7 +85,7 @@ func main() {
 	api.Post(("/v0/file/publish"), handlers.PublishFileHandler)
 	api.Delete(("/v0/file/unpublish/:fileId"), handlers.UnpublishFileHandler)
 	//get method to get metadata of public file based on hash from database
-	api.Get("/v0/file/public/metadata/:hash", handlers.GetPublicFileMetadataHandler)
+	api.Get("/v0/file/public/file/:hash", handlers.GetPublishedFileHandler)
 
 
 	//doggos

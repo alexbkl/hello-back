@@ -8,7 +8,9 @@ import (
 	"meta-go-api/config"
 	"meta-go-api/entities"
 	"strconv"
+
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type PublishPayload struct {
@@ -53,9 +55,15 @@ func createHash(p PublishPayload) string {
 func getSharedFile(fileId string, userAddress string) (*entities.FileSharedState, error) {
 	var fileSharedState entities.FileSharedState
 	//find FileSharedState where file's id is equal to the id of the file in the request
-	if err := config.Database.Preload("PublishedFile").Where("file_id = ? AND user_address = ?", fileId, userAddress).First(&fileSharedState).Error; err != nil {
-		fmt.Printf("Error getting fileSharedState: %s", err.Error())
-		return nil, err
+	result := config.Database.Preload("PublishedFile").Where("file_id = ? AND user_address = ?", fileId, userAddress).First(&fileSharedState)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			//No error, just no result
+			return nil, nil 
+		} else {
+			fmt.Printf("Error getting fileSharedState: %s", result.Error.Error())
+			return nil, result.Error
+		}
 	}
 
 	return &fileSharedState, nil
@@ -188,7 +196,6 @@ func UnpublishFileHandler(c *fiber.Ctx) error {
 		return c.Status(503).SendString(result.Error.Error())
 	}
 
-
 	//reload fileSharedState without PublishedFile
 	fileSharedStatePtr, err := getSharedFile(fileID, user.Address)
 	if err != nil {
@@ -230,7 +237,7 @@ func GetSharedFileStateHandler(c *fiber.Ctx) error {
 
 }
 
-func GetPublicFileMetadataHandler(c *fiber.Ctx) error {
+func GetPublishedFileHandler(c *fiber.Ctx) error {
 	//get the hash from the URL parameters
 	hash := c.Params("hash")
 
@@ -250,5 +257,5 @@ func GetPublicFileMetadataHandler(c *fiber.Ctx) error {
 	}
 
 	//if the file was found, return the metadata
-	return c.Status(200).JSON(publishedFile.Metadata)
+	return c.Status(200).JSON(publishedFile)
 }
