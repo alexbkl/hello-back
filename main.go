@@ -3,27 +3,19 @@ package main
 import (
 	"fmt"
 	"log"
-	"meta-go-api/config"
-	"meta-go-api/environment"
-	"meta-go-api/handlers"
-	"meta-go-api/s3client"
+
+	"github.com/Hello-Storage/hello-back/config"
+	"github.com/Hello-Storage/hello-back/handlers"
+	"github.com/Hello-Storage/hello-back/s3client"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-/*
-import (
-
-	"meta-go-api/environment"
-	"meta-go-api/s3client"
-
-)
-*/
 func main() {
 
 	//set environment variables
-	environment.SetEnv()
+	// environment.SetEnv()
 
 	//init s3client credentials and connection
 	s3client.Init()

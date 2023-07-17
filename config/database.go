@@ -1,7 +1,7 @@
 package config
 
 import (
-	"meta-go-api/entities"
+	"github.com/Hello-Storage/hello-back/entities"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -10,13 +10,12 @@ import (
 var Database *gorm.DB
 var DATABASE_URI string = "host=localhost user=postgres password=12345 dbname=metamask port=5432 sslmode=disable TimeZone=Europe/Madrid"
 
-
 func Connect() (*gorm.DB, error) {
 	var err error
 
 	Database, err := gorm.Open(postgres.Open(DATABASE_URI), &gorm.Config{
 		SkipDefaultTransaction: true,
-        PrepareStmt:            true,
+		PrepareStmt:            true,
 	})
 
 	if err != nil {

@@ -7,13 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"meta-go-api/config"
-	"meta-go-api/entities"
-	"meta-go-api/s3client"
 	"net/http"
 	"regexp"
 	"sync"
 	"time"
+
+	"github.com/Hello-Storage/hello-back/config"
+	"github.com/Hello-Storage/hello-back/entities"
+	"github.com/Hello-Storage/hello-back/s3client"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -41,31 +42,32 @@ var jwtProvider = NewJwtHmacProvider(
 	"hello-storage",
 	time.Minute*60,
 )
+
 /*
-func printFileSize(weight int) {
-	const (
-		KB = 1024
-		MB = KB * 1024
-		GB = MB * 1024
-		TB = GB * 1024
-	)
+	func printFileSize(weight int) {
+		const (
+			KB = 1024
+			MB = KB * 1024
+			GB = MB * 1024
+			TB = GB * 1024
+		)
 
-	var size string
-	switch {
-	case weight >= TB:
-		size = fmt.Sprintf("%.2fTB", float64(weight)/TB)
-	case weight >= GB:
-		size = fmt.Sprintf("%.2fGB", float64(weight)/GB)
-	case weight >= MB:
-		size = fmt.Sprintf("%.2fMB", float64(weight)/MB)
-	case weight >= KB:
-		size = fmt.Sprintf("%.2fKB", float64(weight)/KB)
-	default:
-		size = fmt.Sprintf("%dB", weight)
+		var size string
+		switch {
+		case weight >= TB:
+			size = fmt.Sprintf("%.2fTB", float64(weight)/TB)
+		case weight >= GB:
+			size = fmt.Sprintf("%.2fGB", float64(weight)/GB)
+		case weight >= MB:
+			size = fmt.Sprintf("%.2fMB", float64(weight)/MB)
+		case weight >= KB:
+			size = fmt.Sprintf("%.2fKB", float64(weight)/KB)
+		default:
+			size = fmt.Sprintf("%dB", weight)
+		}
+
+		fmt.Println("File Size:", size)
 	}
-
-	fmt.Println("File Size:", size)
-}
 */
 type JwtHmacProvider struct {
 	hmacSecret []byte
@@ -336,7 +338,6 @@ func UploadHandler(c *fiber.Ctx) error {
 	//get user and save it to database
 	var user entities.User
 
-
 	//get user from context
 	user = c.Locals("user").(entities.User)
 
@@ -372,13 +373,9 @@ func UploadHandler(c *fiber.Ctx) error {
 	//get the weight of the file
 	weight := len(srcBytes)
 
-
-
 	//print the weight and process is accordingly (TB, GB, MB, KB, B,...)
 
 	//printFileSize(weight)
-
-
 
 	if error != nil {
 		//if 		error is fmt.Errorf("File already exists"), return 409
@@ -416,7 +413,6 @@ func UploadHandler(c *fiber.Ctx) error {
 		return c.Status(400).SendString("Backend CID and Frontend CID of encrypted buffer are not equal")
 	}
 
-
 	// close file
 	src.Close()
 	if error != nil {
@@ -425,12 +421,12 @@ func UploadHandler(c *fiber.Ctx) error {
 	}
 	//save file to database
 	fileToUpload := entities.File{
-		EncryptedMetadata:    encryptedMetadataStr,
-		UserAddress: user.Address,
-		CIDOfEncryptedBuffer: cid.String(),
+		EncryptedMetadata:       encryptedMetadataStr,
+		UserAddress:             user.Address,
+		CIDOfEncryptedBuffer:    cid.String(),
 		CIDEncryptedOriginalStr: cidEncryptedOriginalStr,
-		IV: ivString,
-		BytesLength: weight,
+		IV:                      ivString,
+		BytesLength:             weight,
 	}
 
 	config.Database.Create(&fileToUpload)
@@ -440,7 +436,6 @@ func UploadHandler(c *fiber.Ctx) error {
 	user.TotalUploadedFiles += 1
 	config.Database.Save(&user)
 
-
 	resp := struct {
 		File entities.File `json:"file"`
 	}{
@@ -449,8 +444,6 @@ func UploadHandler(c *fiber.Ctx) error {
 	return c.Status(200).JSON(resp)
 
 }
-
-
 
 func DeleteFileHandler(c *fiber.Ctx) error {
 	//get user
@@ -495,8 +488,6 @@ func DeleteFileHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	
-
 	resp := struct {
 		Msg string `json:"msg"`
 	}{
@@ -537,11 +528,10 @@ func DownloadFileHandler(c *fiber.Ctx) error {
 		return c.Status(500).SendString("Internal server error: " + err.Error())
 	}
 
-	
 	// Create a buffer to hold the file contents
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(result.Body)
-	
+
 	// You can also add a Content-Disposition header to the response to suggest a filename to the client
 	filename, ok := result.Metadata["filename"]
 	if !ok {
@@ -557,13 +547,10 @@ func DownloadFileHandler(c *fiber.Ctx) error {
 		c.Response().Header.Set(key, *value)
 	}
 
-
 	// Write the file contents into the response body
 	return c.Status(200).Send(buf.Bytes())
 
-
 }
-
 
 func GetFilesHandler(c *fiber.Ctx) error {
 	//get user

@@ -3,9 +3,10 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"meta-go-api/config"
-	"meta-go-api/entities"
 	"strings"
+
+	"github.com/Hello-Storage/hello-back/config"
+	"github.com/Hello-Storage/hello-back/entities"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -72,9 +73,6 @@ func SubmitPasswordHandler(c *fiber.Ctx) error {
 			return c.Status(200).SendString("Signed in successfully")
 		}
 	}
-
-
-
 
 	if err != nil {
 		fmt.Printf("Error hashing password: %s", err.Error())
@@ -168,7 +166,6 @@ type Email struct {
 	Email string `gorm:"unique;not null" json:"email"`
 }
 */
-
 
 func GetUploadedFilesCountHandler(c *fiber.Ctx) error {
 	var user entities.User

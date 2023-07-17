@@ -5,22 +5,23 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"meta-go-api/config"
-	"meta-go-api/entities"
+
+	"github.com/Hello-Storage/hello-back/config"
+	"github.com/Hello-Storage/hello-back/entities"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type PublishPayload struct {
-	CidOriginalStr string `json:"cidOriginalStr"` //this is the cid of the original buffer
-	CidOfEncryptedBuffer    string `json:"cidOfEncryptedBuffer"`
-	Metadata                string `json:"metadata"`
+	CidOriginalStr       string `json:"cidOriginalStr"` //this is the cid of the original buffer
+	CidOfEncryptedBuffer string `json:"cidOfEncryptedBuffer"`
+	Metadata             string `json:"metadata"`
 }
 
 var (
-	ErrInvalidCidOriginalBuffer = errors.New("cidOriginalBuffer is invalid")
-	ErrInvalidCidOfEncryptedBuffer    = errors.New("cidOfEncryptedBuffer is invalid")
-	ErrInvalidMetadata                = errors.New("metadata is invalid")
+	ErrInvalidCidOriginalBuffer    = errors.New("cidOriginalBuffer is invalid")
+	ErrInvalidCidOfEncryptedBuffer = errors.New("cidOfEncryptedBuffer is invalid")
+	ErrInvalidMetadata             = errors.New("metadata is invalid")
 )
 
 func (p *PublishPayload) Validate() error {
@@ -61,7 +62,6 @@ func PublishFileHandler(c *fiber.Ctx) error {
 		return c.Status(503).SendString("Validation error: " + err.Error())
 	}
 
-
 	hash := createHash(p)
 
 	fmt.Println("hash: ", hash)
@@ -69,27 +69,22 @@ func PublishFileHandler(c *fiber.Ctx) error {
 	fmt.Println("cidOfEncryptedBuffer: ", p.CidOfEncryptedBuffer)
 	fmt.Println("metadata: ", p.Metadata)
 
-	
 	//store details in database and generate hash based on content, then return link (hash) to user
 	publishedFile := entities.PublishedFile{
-		Metadata: p.Metadata,
-		CIDOriginalStr: p.CidOriginalStr,
+		Metadata:             p.Metadata,
+		CIDOriginalStr:       p.CidOriginalStr,
 		CIDOfEncryptedBuffer: p.CidOfEncryptedBuffer,
-		UserAddress: user.Address,
-		Hash: hash,
+		UserAddress:          user.Address,
+		Hash:                 hash,
 	}
 
 	//create published file
 	config.Database.Create(&publishedFile)
-	
+
 	//return link to user
 	return c.Status(200).SendString("File published successfully")
 
-
 }
-
-
-
 
 func GetSharedFileStatesHandler(c *fiber.Ctx) error {
 	var user entities.User
