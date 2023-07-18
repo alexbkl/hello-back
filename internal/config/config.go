@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -11,29 +10,19 @@ type Config struct {
 	FilebasePinningAccessToken string `mapstructure:"FILEBASE_PINNING_ACCESS_TOKEN"`
 }
 
-var config Config
-
-func Init() *Config {
-	var err error
-
-	config, err := load(".")
-
-	if err != nil {
-		logrus.Fatal("Could not load config: ", err)
-	}
-
-	return &config
-}
-
-func load(path string) (conf Config, err error) {
-	viper.AddConfigPath(path)
+func LoadConfig() (c Config, err error) {
+	viper.AddConfigPath("./pkg/common/env")
 	viper.SetConfigFile(".env")
 
+	viper.AutomaticEnv()
+
 	err = viper.ReadInConfig()
+
 	if err != nil {
 		return
 	}
 
-	err = viper.Unmarshal(&conf)
+	err = viper.Unmarshal(&c)
+
 	return
 }

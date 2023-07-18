@@ -2,10 +2,10 @@ install:
 	go get .
 
 build:
-	go build -o bin/main main.go
+	go build -o bin/main cmd/main.go
 
 run:
-	go run main.go
+	go run cmd/main.go
 
 format:
 	go fmt ./...
