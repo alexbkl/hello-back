@@ -315,7 +315,7 @@ func SigninHandler(c *fiber.Ctx) error {
 	return c.Status(200).JSON(resp)
 }
 
-func WelcomeHandler(c *fiber.Ctx) error {
+func AuthenticationHandler(c *fiber.Ctx) error {
 	var user entities.User
 
 	//get user from context
@@ -355,8 +355,6 @@ func UploadHandler(c *fiber.Ctx) error {
 	//get cidEncryptedOriginalStr
 	cidEncryptedOriginalStr := c.FormValue("cidEncryptedOriginalStr")
 
-	//get ivString
-	ivString := c.FormValue("ivString")
 
 	//open file
 	src, err := file.Open()
@@ -430,7 +428,6 @@ func UploadHandler(c *fiber.Ctx) error {
 		UserAddress: user.Address,
 		CIDOfEncryptedBuffer: cid.String(),
 		CIDEncryptedOriginalStr: cidEncryptedOriginalStr,
-		IV: ivString,
 		BytesLength: uint64(weight),
 	}
 

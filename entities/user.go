@@ -13,7 +13,7 @@ type User struct {
 	TotalUploadedFiles int64 `json:"totalUploadedFiles"`
 	Files       []File `gorm:"foreignKey:UserAddress;references:Address"`
 	PublishedFiles []PublishedFile `gorm:"foreignKey:UserAddress;references:Address"`
-	Password    string `json:"password"`
+	HashedPersonalSignature string `json:"hashedPersonalSignature"`
 }
 
 type Email struct {

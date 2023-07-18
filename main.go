@@ -55,9 +55,9 @@ func main() {
 
 	api.Use(handlers.AuthMiddleware)
 
-	api.Post("/password", handlers.SubmitPasswordHandler)
+	api.Post("/personalSignature", handlers.SubmitPersonalSignatureHandler)
 
-	api.Get("/welcome", handlers.WelcomeHandler)
+	api.Get("/authenticate", handlers.AuthenticationHandler)
 
 	//post method to upload file to s3 and save the file name to database
 	api.Post("/file/upload", handlers.UploadHandler)

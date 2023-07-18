@@ -10,7 +10,6 @@ type File struct {
 	UserAddress             string `json:"userAddress" gorm:"not null;max:255"`
 	CIDOfEncryptedBuffer    string `json:"cidOfEncryptedBuffer" gorm:"not null;max:2550"`
 	CIDEncryptedOriginalStr string `json:"cidEncryptedOriginalStr" gorm:"not null;max:2550"`
-	IV                      string `json:"iv" gorm:"not null;max:255"`
 	BytesLength             uint64    `json:"bytesLength" gorm:"not null;"`
 }
 
