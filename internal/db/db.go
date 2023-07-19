@@ -1,8 +1,11 @@
 package db
 
 import (
+	"github.com/Hello-Storage/hello-back/internal/event"
 	"gorm.io/gorm"
 )
+
+var log = event.Log
 
 // Db returns the default *gorm.DB connection.
 func Db() *gorm.DB {

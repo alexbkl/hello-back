@@ -10,8 +10,6 @@ import (
 func (c *Config) ConnectDB() error {
 	dbDsn := c.DatabaseDsn()
 
-	log.Info("config: dbdsn is ", dbDsn)
-
 	if dbDsn == "" {
 		return errors.New("config: database DSN not specified")
 	}

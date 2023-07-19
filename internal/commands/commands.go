@@ -20,8 +20,6 @@ func Start() {
 		log.Fatal("cannot load config:", err)
 	}
 
-	log.Info("config: file base access key is ", config.FilebaseAccessKey)
-
 	// connect db
 	config.ConnectDB()
 

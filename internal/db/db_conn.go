@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"log"
+	slog "log"
 	"os"
 	"sync"
 	"time"
@@ -38,7 +38,7 @@ func (g *DbConn) Db() *gorm.DB {
 // Open creates a new gorm db connection.
 func (g *DbConn) Open() {
 	dbLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		slog.New(os.Stdout, "\r\n", slog.LstdFlags), // io writer
 		logger.Config{
 			SlowThreshold:             time.Second,   // Slow SQL threshold
 			LogLevel:                  logger.Silent, // Log level
@@ -68,6 +68,10 @@ func (g *DbConn) Open() {
 			fmt.Println(err)
 			log.Fatal(err)
 		}
+	}
+
+	if err == nil {
+		log.Infof("database: %s connected!", g.Dsn)
 	}
 
 	g.db = db
