@@ -9,4 +9,4 @@ var TextFormatter = &logrus.TextFormatter{
 }
 
 // Log is the global default logger.
-var Log Logger
+var Log = logrus.New()

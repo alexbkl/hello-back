@@ -1,5 +1,5 @@
 /*
-Package s3 provides aws s3 functions
+Package s3 provides AWS s3 functions
 */
 
 package s3

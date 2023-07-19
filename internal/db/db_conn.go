@@ -13,12 +13,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// dbConn is the global gorm.DB connection provider.
-var dbConn Gorm
-
-type Gorm interface {
-	Db() *gorm.DB
-}
+var dbConn DbConn
 
 // DbConn is a gorm.DB connection provider.
 type DbConn struct {
@@ -78,12 +73,6 @@ func (g *DbConn) Open() {
 	g.db = db
 }
 
-// SetDbProvider sets the Gorm database connection provider.
-func SetDbProvider(conn Gorm) {
+func SetDbConn(conn DbConn) {
 	dbConn = conn
-}
-
-// HasDbProvider returns true if a db provider exists.
-func HasDbProvider() bool {
-	return dbConn != nil
 }

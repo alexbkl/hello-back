@@ -6,7 +6,7 @@ import (
 
 // Db returns the default *gorm.DB connection.
 func Db() *gorm.DB {
-	if dbConn == nil {
+	if dbConn.db == nil {
 		return nil
 	}
 

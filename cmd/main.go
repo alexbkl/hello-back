@@ -1,11 +1,9 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/Hello-Storage/hello-back/internal/commands"
 )
 
 func main() {
-	r := gin.Default()
-
-	r.Run(":8080")
+	commands.Start()
 }
