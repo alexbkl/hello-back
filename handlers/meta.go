@@ -339,7 +339,6 @@ func UploadHandler(c *fiber.Ctx) error {
 	var user entities.User
 	var fileSharedState entities.FileSharedState
 
-
 	//get user from context
 	user = c.Locals("user").(entities.User)
 
@@ -356,7 +355,6 @@ func UploadHandler(c *fiber.Ctx) error {
 
 	//get cidEncryptedOriginalStr
 	cidEncryptedOriginalStr := c.FormValue("cidEncryptedOriginalStr")
-
 
 	//open file
 	src, err := file.Open()
@@ -425,7 +423,7 @@ func UploadHandler(c *fiber.Ctx) error {
 		UserAddress:             user.Address,
 		CIDOfEncryptedBuffer:    cid.String(),
 		CIDEncryptedOriginalStr: cidEncryptedOriginalStr,
-		BytesLength: uint64(weight),
+		BytesLength:             uint64(weight),
 	}
 
 	config.Database.Create(&fileToUpload)
@@ -438,12 +436,11 @@ func UploadHandler(c *fiber.Ctx) error {
 	//create a new FileSharedState
 	fileSharedState = entities.FileSharedState{
 		UserAddress: user.Address,
-		FileID: fileToUpload.ID,
+		FileID:      fileToUpload.ID,
 	}
 
 	//save fileSharedState to database
 	config.Database.Create(&fileSharedState)
-
 
 	resp := struct {
 		File entities.File `json:"file"`

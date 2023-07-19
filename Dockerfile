@@ -1,5 +1,5 @@
 # Start from the latest golang base image
-FROM golang:latest
+FROM golang:latest AS builder
 
 # Add Maintainer Info
 LABEL maintainer="Hello Decentralized <hi@hello.ws>"
@@ -18,10 +18,18 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o hello-back .
+RUN go build -o bin/hello-back main.go
+
+# Final stage
+FROM golang:latest
+
+WORKDIR /app
+
+# Copy the binary from the builder stage
+COPY --from=builder /app/bin/hello-back /app/hello-back
 
 # Expose port 6969 to the outside world
 EXPOSE 6969
 
 # Run the binary program produced by `go build`
-CMD ["./hello-back"]
+CMD ["/app/hello-back"]
