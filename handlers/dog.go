@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"meta-go-api/config"
-	"meta-go-api/entities"
+	"github.com/Hello-Storage/hello-back/config"
+	"github.com/Hello-Storage/hello-back/entities"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,7 +18,6 @@ func GetDog(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var dog entities.Dog
 
-
 	result := config.Database.Find(&dog, id)
 
 	if result.RowsAffected == 0 {
@@ -29,14 +28,14 @@ func GetDog(c *fiber.Ctx) error {
 }
 
 func CreateDog(c *fiber.Ctx) error {
-    dog := new(entities.Dog)
+	dog := new(entities.Dog)
 
-    if err := c.BodyParser(dog); err != nil {
-        return c.Status(503).SendString(err.Error())
-    }
+	if err := c.BodyParser(dog); err != nil {
+		return c.Status(503).SendString(err.Error())
+	}
 
-    config.Database.Create(&dog)
-    return c.Status(201).JSON(dog)
+	config.Database.Create(&dog)
+	return c.Status(201).JSON(dog)
 }
 
 func UpdateDog(c *fiber.Ctx) error {

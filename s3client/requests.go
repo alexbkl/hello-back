@@ -39,6 +39,3 @@ func SendRequest(method string, url string, headers map[string]string, body stri
 
 	return bodyString, nil
 }
-
-
-

@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"meta-go-api/config"
-	"meta-go-api/entities"
 	"mime/multipart"
 	"os"
+
+	"github.com/Hello-Storage/hello-back/config"
+	"github.com/Hello-Storage/hello-back/entities"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -72,15 +73,12 @@ func Init() {
 	S3Client = s3Client
 }
 
-
 func UploadFile(cidOfEncryptedBufferStr string, src multipart.File) ([]byte, error) {
 
 	bucketName := "hello-storage"
 
 	//transform src to []byte
 	srcBytes, err := ioutil.ReadAll(src)
-	
-
 
 	//if cid exists in database and name of the file is the same, return the file without uploading to s3
 	var fileExists entities.File
@@ -89,7 +87,7 @@ func UploadFile(cidOfEncryptedBufferStr string, src multipart.File) ([]byte, err
 	result := config.Database.Where("c_id_of_encrypted_buffer = ?", cidOfEncryptedBufferStr).Find(&fileExists)
 	//print the result
 	if result.RowsAffected != 0 {
-		//fmt.Print("File already exists")		
+		//fmt.Print("File already exists")
 		return srcBytes, nil
 	}
 
@@ -103,16 +101,16 @@ func UploadFile(cidOfEncryptedBufferStr string, src multipart.File) ([]byte, err
 		fmt.Println("Got CID: ", decodedC)
 	*/
 	/*
-	metadata := map[string]*string{
-		"Content-Type":      aws.String(fileHeader.Header.Get("Content-Type")),
-		"Original-Filename": aws.String(fileHeader.Filename),
-		"Content-Length":    aws.String(fmt.Sprintf("%d", fileHeader.Size)),
-	}*/
+		metadata := map[string]*string{
+			"Content-Type":      aws.String(fileHeader.Header.Get("Content-Type")),
+			"Original-Filename": aws.String(fileHeader.Filename),
+			"Content-Length":    aws.String(fmt.Sprintf("%d", fileHeader.Size)),
+		}*/
 	// create put object input
 	putObjectInput := &s3.PutObjectInput{
-		Body:     bytes.NewReader(srcBytes),
-		Bucket:   aws.String(bucketName),
-		Key:      aws.String(cidOfEncryptedBufferStr),
+		Body:   bytes.NewReader(srcBytes),
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(cidOfEncryptedBufferStr),
 		//Metadata: metadata,
 	}
 	//upload file
@@ -145,7 +143,7 @@ func DownloadFile(cid string) (*s3.GetObjectOutput, error) {
 
 	//fmt.Println("Metadata:")
 	//for key, value := range result.Metadata {
-		// Need to dereference the value pointer to get the actual string.
+	// Need to dereference the value pointer to get the actual string.
 	//	fmt.Printf("  %s: %s\n", key, *value)
 	//}
 

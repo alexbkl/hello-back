@@ -2,14 +2,15 @@ package handlers
 
 import (
 	"errors"
-	"meta-go-api/config"
-	"meta-go-api/entities"
+
+	"github.com/Hello-Storage/hello-back/config"
+	"github.com/Hello-Storage/hello-back/entities"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 var (
-	ErrInvalidEmail = errors.New("email is invalid")	
+	ErrInvalidEmail = errors.New("email is invalid")
 )
 
 type emailPayload struct {
