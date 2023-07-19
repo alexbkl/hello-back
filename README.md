@@ -11,6 +11,21 @@ git clone https://github.com/Hello-Storage/hello-back.git
 ```
 cd hello-back
 ```
+
+# Environment variables
+
+Environment variables are stored at .env file. You can change them if you need.
+
+For database connecetion, DATABASE_URI has to be set. For example:
+
+## Local:
+
+var DATABASE_URI string = "host=localhoset user=postgres password=12345 dbname=metamask port=5432 sslmode=disable TimeZone=Europe/Madrid"
+
+## Docker:
+
+var DATABASE_URI string = "host=host.docker.internal user=postgres password=12345 dbname=metamask port=5432 sslmode=disable TimeZone=Europe/Madrid"
+
 # Local
 
 #Build and run the application on the local machine:

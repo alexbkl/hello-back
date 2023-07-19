@@ -12,7 +12,7 @@ import (
 )
 
 var Database *gorm.DB
-var DATABASE_URI string = "host=host.docker.internal user=postgres password=12345 dbname=metamask port=5432 sslmode=disable TimeZone=Europe/Madrid"
+var DATABASE_URI string = "host=localhost user=postgres password=12345 dbname=metamask port=5432 sslmode=disable TimeZone=Europe/Madrid"
 
 func Connect() (*gorm.DB, error) {
 	var err error
