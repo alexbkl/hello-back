@@ -17,7 +17,7 @@ type User struct {
 	gorm.Model
 	UUID uuid.UUID `gorm:"type:uuid;column:user_uuid;index;default:uuid_generate_v4()"`
 	Name string    `gorm:"unique;not null;max:50" json:"name"`
-	Role role      `gorm:"type:role;default:user" json:"role"`
+	Role role      `gorm:"not null;default:user" json:"role"`
 }
 
 // TableName returns the entity table name.

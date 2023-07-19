@@ -81,12 +81,12 @@ func (list Tables) Migrate(db *gorm.DB, opt migrate.Options) {
 	// Run ORM auto migrations.
 	if opt.AutoMigrate {
 		for name, entity = range list {
-			if err := db.AutoMigrate(entity).Error; err != nil {
+			if err := db.AutoMigrate(entity); err != nil {
 				log.Debugf("migrate: %s (waiting 1s)", err)
 
 				time.Sleep(time.Second)
 
-				if err = db.AutoMigrate(entity).Error; err != nil {
+				if err = db.AutoMigrate(entity); err != nil {
 					log.Errorf("migrate: failed migrating %s", name)
 					panic(err)
 				}

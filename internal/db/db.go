@@ -13,7 +13,7 @@ func Db() *gorm.DB {
 		return nil
 	}
 
-	return dbConn.Db()
+	return dbConn.db
 }
 
 // UnscopedDb returns an unscoped *gorm.DB connection

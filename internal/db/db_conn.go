@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Hello-Storage/hello-back/internal/event"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -22,17 +21,6 @@ type DbConn struct {
 
 	once sync.Once
 	db   *gorm.DB
-}
-
-// Db returns the gorm db connection.
-func (g *DbConn) Db() *gorm.DB {
-	g.once.Do(g.Open)
-
-	if g.db == nil {
-		event.Log.Fatal("migrate: database not connected")
-	}
-
-	return g.db
 }
 
 // Open creates a new gorm db connection.

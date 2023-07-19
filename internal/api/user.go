@@ -11,7 +11,7 @@ import (
 //
 // PUT /api/v1/users/:uid
 func UpdateUser(router *gin.RouterGroup) {
-	router.GET("/user/:id", func(ctx *gin.Context) {
+	router.GET("/user", func(ctx *gin.Context) {
 		user := entity.User{
 			Name: "abc",
 		}
@@ -19,9 +19,20 @@ func UpdateUser(router *gin.RouterGroup) {
 		err := user.Create()
 
 		if err != nil {
-			ctx.AbortWithStatus(http.StatusInternalServerError)
+			ctx.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				gin.H{
+					"message": "internal server error",
+				},
+			)
+			return
 		}
 
-		ctx.Status(200)
+		ctx.JSON(
+			http.StatusOK,
+			gin.H{
+				"message": "pong",
+			},
+		)
 	})
 }

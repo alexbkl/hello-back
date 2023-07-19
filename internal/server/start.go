@@ -19,7 +19,7 @@ func Start(ctx context.Context, conf *config.Config) {
 
 	start := time.Now()
 
-	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 
 	// Create new HTTP router engine without standard middleware.
 	router := gin.New()

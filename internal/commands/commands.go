@@ -23,6 +23,8 @@ func Start() {
 	// connect db
 	config.ConnectDB()
 
+	config.InitDb()
+
 	// Pass this context down the chain.
 	cctx, _ := context.WithCancel(context.Background())
 

@@ -9,6 +9,11 @@ import (
 	"github.com/Hello-Storage/hello-back/internal/migrate"
 )
 
+// InitDb initializes the database without running previously failed migrations.
+func (c *Config) InitDb() {
+	c.MigrateDb(false, nil)
+}
+
 func (c *Config) ConnectDB() error {
 	dbDsn := c.DatabaseDsn()
 
