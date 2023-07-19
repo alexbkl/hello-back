@@ -19,7 +19,8 @@ func Start(ctx context.Context, conf *config.Config) {
 
 	start := time.Now()
 
-	gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.ReleaseMode)
+
 	// Create new HTTP router engine without standard middleware.
 	router := gin.New()
 
@@ -28,6 +29,9 @@ func Start(ctx context.Context, conf *config.Config) {
 
 	// Create REST API router group.
 	APIv1 = router.Group("/api")
+
+	// Register HTTP route handlers.
+	registerRoutes(router)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", "0.0.0.0", conf.AppPort),

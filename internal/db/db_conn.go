@@ -77,6 +77,12 @@ func (g *DbConn) Open() {
 	g.db = db
 }
 
-func SetDbConn(conn DbConn) {
+// SetDbProvider sets the Gorm database connection provider.
+func SetDbProvider(conn DbConn) {
 	dbConn = conn
+}
+
+// HasDbProvider returns true if a db provider exists.
+func HasDbProvider() bool {
+	return dbConn.db != nil
 }

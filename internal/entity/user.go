@@ -1,8 +1,7 @@
 package entity
 
 import (
-	"time"
-
+	"github.com/Hello-Storage/hello-back/internal/db"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -15,10 +14,17 @@ const (
 )
 
 type User struct {
-	ID        uuid.UUID `gorm:"primarykey"`
-	Name      string    `gorm:"unique;not null;max:50" json:"name"`
-	Role      role      `gorm:"type:role;default:user" json:"role"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	gorm.Model
+	UUID uuid.UUID `gorm:"type:uuid;column:user_uuid;index;default:uuid_generate_v4()"`
+	Name string    `gorm:"unique;not null;max:50" json:"name"`
+	Role role      `gorm:"type:role;default:user" json:"role"`
+}
+
+// TableName returns the entity table name.
+func (User) TableName() string {
+	return "users"
+}
+
+func (m *User) Create() error {
+	return db.Db().Create(m).Error
 }

@@ -1,6 +1,9 @@
 package server
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/Hello-Storage/hello-back/internal/api"
+	"github.com/gin-gonic/gin"
+)
 
 var APIv1 *gin.RouterGroup
 
@@ -9,4 +12,5 @@ func registerRoutes(router *gin.Engine) {
 	// handler for the path with (without) the trailing slash exists.
 	router.RedirectTrailingSlash = true
 
+	api.UpdateUser(APIv1)
 }
