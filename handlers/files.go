@@ -89,6 +89,7 @@ func PublishFileHandler(c *fiber.Ctx) error {
 		fmt.Println("Error validating body: ", err)
 		return c.Status(400).SendString("Validation error: " + err.Error())
 	}
+
 	//check if file already exists
 	result := config.Database.Where("c_id_of_encrypted_buffer = ? and user_address = ?", p.CidOfEncryptedBuffer, user.Address).Find(&publishedFileExists)
 	if result.RowsAffected > 0 {
@@ -96,7 +97,6 @@ func PublishFileHandler(c *fiber.Ctx) error {
 		return c.Status(400).SendString("File already published")
 	}
 	//create hash based on content
-
 	hash := createHash(p)
 
 	//store details in database and generate hash based on content, then return link (hash) to user
@@ -110,8 +110,41 @@ func PublishFileHandler(c *fiber.Ctx) error {
 	}
 
 	//create published file
-	config.Database.Create(&publishedFile)
-	
+	if err := config.Database.Create(&publishedFile).Error; err != nil {
+		fmt.Println("Error creating published file: ", err)
+		return c.Status(400).SendString("Error creating published file: " + err.Error())
+	}
+
+	//get file shared state
+	fileSharedState, err := getSharedFile(strconv.Itoa(int(p.FileID)), user.Address)
+
+	if err != nil || fileSharedState == nil {
+		// create file shared state
+		fileSharedState = &entities.FileSharedState{
+			UserAddress:     user.Address,
+			PublishedFileID: &publishedFile.ID,
+			FileID:          p.FileID,
+		}
+		if err := config.Database.Create(fileSharedState).Error; err != nil {
+			fmt.Println("Error creating file shared state: ", err)
+			return c.Status(400).SendString("Error creating file shared state: " + err.Error())
+		}
+	} else {
+		//invalid memory address error
+		fileSharedState.PublishedFileID = &publishedFile.ID
+		if err := config.Database.Save(fileSharedState).Error; err != nil {
+			fmt.Printf("Error updating file shared state: %s", err.Error())
+			return c.Status(503).SendString("Error updating file shared state: " + err.Error())
+		}
+	}
+
+	//reload fileSharedState with PublishedFile
+	fileSharedState, err = getSharedFile(strconv.Itoa(int(p.FileID)), user.Address)
+	if err != nil || fileSharedState == nil {
+		fmt.Printf("Error reloading file shared state: %s", err.Error())
+		return c.Status(503).SendString("Error reloading file shared state: " + err.Error())
+	}
+
 	//return link to user
 	return c.Status(200).JSON(fileSharedState)
 
@@ -273,26 +306,29 @@ func OneTimeShareHandler(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fileSharedState)
 
 }
+
 /*
 // to check if a file is visited and delete it if it is
-func (o *entities.OneTimeFile) CheckAndDelete() error {
-	if o.Visited {
-		//if the file has been visited, delete it
-		if err := config.Database.Delete(o).Error; err != nil {
-			return err
+
+	func (o *entities.OneTimeFile) CheckAndDelete() error {
+		if o.Visited {
+			//if the file has been visited, delete it
+			if err := config.Database.Delete(o).Error; err != nil {
+				return err
+			}
 		}
+		return nil
 	}
-	return nil
-}
 
 // to mark file as visited
-func (o *entities.OneTimeFile) MarkAsVisited() error {
-	o.Visited = true
-	if err := config.Database.Save(o).Error; err != nil {
-		return err
+
+	func (o *entities.OneTimeFile) MarkAsVisited() error {
+		o.Visited = true
+		if err := config.Database.Save(o).Error; err != nil {
+			return err
+		}
+		return nil
 	}
-	return nil
-}
 */
 func GetSharedFileStateHandler(c *fiber.Ctx) error {
 	var user entities.User
@@ -346,4 +382,3 @@ func GetPublishedFileHandler(c *fiber.Ctx) error {
 	//if the file was found, return the metadata
 	return c.Status(200).JSON(publishedFile)
 }
-
