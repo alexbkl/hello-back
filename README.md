@@ -1,34 +1,69 @@
-#Parte backend para proyecto final de Desarrollo de Aplicaciones Web
+#Backend part of Hello.Storage app
 
-##requisitos: Golang, PostgreSQL
+##Requirements: Golang, PostgreSQL for a Database
 
-## Instalación
+## Installation
 ```
-git clone https://github.com/alexanderbkl/meta-go-api.git
-```
-
-## Uso
-```
-cd meta-go-api
+git clone https://github.com/Hello-Storage/hello-back.git
 ```
 
-#Compilar la aplicación Go
+## Use
+```
+cd hello-back
+```
+# Local
+
+#Build and run the application on the local machine:
 ```
 go build .
 ```
-Esto resultará en un archivo ejecutable llamado main (o main.exe en Windows)
+This will output an executable file named hello-back (or hello-back.exe on Windows)
+#Build and run the application in local machine:
 
-#Ejecutar la aplicación de fondo (poner puerto 80 en main.go app.Listen(":80"))
 ```
-nohup ./meta-go-api > meta-go-api.log 2>&1 &
+go run main.go
 ```
 
-#Verificar que la aplicación se esté ejecutando
+##Build and run in Docker container
+
+##From the root directory of the project, run the following command:
+
+```
+docker build -t hello-back .
+```
+
+##Run the container:
+
+```
+docker run -p 8001:8001 hello-back
+```
+
+##Your app should now be running inside a Docker container, and it should be accessible at localhost:8080 on your host machine.
+
+
+#Run in background in Linux
+
+##Execute the background application (for example, put port 80 in main.go app.Listen(":80"))
+
+```
+nohup ./hello-back > hello-back.log 2>&1 &
+```
+
+#This will output the logs to hello-back.log
+
+#Verify that the application is running
+
 ```
 ps aux | grep meta-go-api
 ```
 
-#Terminar proceso o reiniciar en caso de cambios
+#Check the PID and the port number of the app:
+
+```
+lsof -i :80
+```
+
+#Stop the application or reset in case of changes
 
 
 ```
@@ -38,7 +73,8 @@ kill -HUP <PID>
 ```
 
 
-#En caso de necesitar gestionar la aplicación de una manera más avanzada, se puede usar un process supervisor
+#In case of advanced management of the application, a process supervisor can be used
+
 
 ```
 systemctl
@@ -48,7 +84,8 @@ sudo apt-get install supervisord
 ```
 
 
-#Configurar dominio en VPS Ubuntu:
+#Configure domain in VPS Ubuntu:
+
 
 ```
 sudo apt update
