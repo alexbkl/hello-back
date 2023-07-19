@@ -16,31 +16,25 @@ var (
 	ErrInvalidPassword = errors.New("password is invalid")
 )
 
-type passwordPayload struct {
-	Password string `json:"password"`
+type personalSignaturePayload struct {
+	PersonalSignatureClientHash string `json:"personalSignatureClientHash"`
 }
 
-func (p *passwordPayload) Validate() error {
+func (p *personalSignaturePayload) Validate() error {
 	//if pass is empty, does not contain at least 8 characters, does not contain at least 1 uppercase letter, does not contain at least 1 lowercase letter, does not contain at least 1 number, does not contain at least 1 special character
-	if p.Password == "" {
-		return errors.New("password is required")
-	} else if len(p.Password) < 8 {
-		return errors.New("password must be at least 8 characters")
-	} else if !strings.ContainsAny(p.Password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
-		return errors.New("password must contain at least 1 uppercase letter")
-	} else if !strings.ContainsAny(p.Password, "abcdefghijklmnopqrstuvwxyz") {
-		return errors.New("password must contain at least 1 lowercase letter")
-	} else if !strings.ContainsAny(p.Password, "0123456789") {
-		return errors.New("password must contain at least 1 number")
-	} else if !strings.ContainsAny(p.Password, "!@#$%^&*()_+-=,./<>?;:'\"[]{}\\|`~") {
-		return errors.New("password must contain at least 1 special character")
+	if p.PersonalSignatureClientHash == "" {
+		return errors.New("Personal signature hash is required")
+	} else if len(p.PersonalSignatureClientHash) < 16 {
+		return errors.New("Personal signature must be at least 16 bytes")
+	} else if !strings.ContainsAny(p.PersonalSignatureClientHash, "0x") {
+		return errors.New("Invalid signature")
 	}
 
 	return nil
 }
 
-func SubmitPasswordHandler(c *fiber.Ctx) error {
-	var p = new(passwordPayload)
+func SubmitPersonalSignatureHandler(c *fiber.Ctx) error {
+	var p = new(personalSignaturePayload)
 
 	if err := c.BodyParser(p); err != nil {
 		fmt.Printf("Parsing error: %s", err.Error())
@@ -58,16 +52,16 @@ func SubmitPasswordHandler(c *fiber.Ctx) error {
 	user = c.Locals("user").(entities.User)
 
 	//hash password using bcrypt
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(p.Password), bcrypt.DefaultCost)
+	hashedPersonalSignature, err := bcrypt.GenerateFromPassword([]byte(p.PersonalSignatureClientHash), bcrypt.DefaultCost)
 
 	//check if user already has a password
-	if user.Password != "" {
+	if user.HashedPersonalSignature != "" {
 		//fmt.Printf("user already has a password")
 		//compare password with existing password
-		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(p.Password))
+		err = bcrypt.CompareHashAndPassword([]byte(user.HashedPersonalSignature), []byte(p.PersonalSignatureClientHash))
 		if err != nil {
-			fmt.Printf("Error comparing password: %s", err.Error())
-			return c.Status(503).SendString("Passwords don't match")
+			fmt.Printf("Error comparing signature: %s", err.Error())
+			return c.Status(503).SendString("Signature hashes don't match")
 		} else {
 			//fmt.Printf("Passwords match")
 			return c.Status(200).SendString("Signed in successfully")
@@ -80,7 +74,7 @@ func SubmitPasswordHandler(c *fiber.Ctx) error {
 	}
 
 	//update user password
-	user.Password = string(hashedPassword)
+	user.HashedPersonalSignature = string(hashedPersonalSignature)
 
 	//update user in database
 	config.Database.Save(&user)
@@ -144,7 +138,6 @@ type File struct {
 	UserAddress string `json:"userAddress" gorm:"unique;not null;max:255"`
 	CIDOfEncryptedBuffer string `json:"cidOfEncryptedBuffer" gorm:"unique;not null;max:255"`
 	CIDEncryptedOriginalStr string `json:"cidEncryptedOriginalStr" gorm:"unique;not null;max:255"`
-	IV string `json:"iv" gorm:"unique;not null;max:255"`
 	BytesLength int `json:"bytesLength" gorm:"not null;max:255"`
 }
 */
@@ -180,10 +173,6 @@ func GetUploadedFilesCountHandler(c *fiber.Ctx) error {
 	if result.Error != nil {
 		fmt.Printf("Error getting number of uploaded files: %s", result.Error.Error())
 		return c.Status(503).SendString(result.Error.Error())
-	}
-
-	if count == 0 {
-		return c.SendStatus(404)
 	}
 
 	return c.Status(200).JSON(count)

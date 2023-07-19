@@ -47,9 +47,9 @@ func main() {
 
 	api.Use(handlers.AuthMiddleware)
 
-	api.Post("/password", handlers.SubmitPasswordHandler)
+	api.Post("/personalSignature", handlers.SubmitPersonalSignatureHandler)
 
-	api.Get("/welcome", handlers.WelcomeHandler)
+	api.Get("/authenticate", handlers.AuthenticationHandler)
 
 	//post method to upload file to s3 and save the file name to database
 	api.Post("/file/upload", handlers.UploadHandler)
@@ -68,9 +68,18 @@ func main() {
 	api.Get("/storage/uploaded/count/get/:address", handlers.GetUploadedFilesCountHandler)
 
 	//get shared file states for frontend
-	api.Get("/v0/file/states", handlers.GetSharedFileStatesHandler)
+	api.Get("/v0/file/share/states/:fileId", handlers.GetSharedFileStateHandler)
+	
+
+
+	//public
 	//publish file (post method that returns personalized sharable URL as long as it exists in database)
-	api.Post(("/v0/file/publish"), handlers.PublishFileHandler)
+	api.Post(("/v0/file/share/publish"), handlers.PublishFileHandler)
+	api.Post(("/v0/file/share/one-time/"), handlers.OneTimeShareHandler)
+	api.Delete(("/v0/file/share/unpublish/:fileId"), handlers.UnpublishFileHandler)
+	//get method to get metadata of public file based on hash from database
+	api.Get("/v0/file/share/file/:hash", handlers.GetPublishedFileHandler)
+
 
 	//doggos
 	app.Get("/dogs", handlers.GetDogs)
@@ -84,5 +93,6 @@ func main() {
 	//PROD: 8001
 	//DEV: 6969
 	log.Fatal(app.Listen(":6969"))
+	log.Println("Listening to port 6969")
 
 }
