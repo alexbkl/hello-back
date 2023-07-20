@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/Hello-Storage/hello-back/internal/config"
+	"github.com/Hello-Storage/hello-back/internal/entity"
+	"github.com/Hello-Storage/hello-back/pkg/fs"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -24,14 +26,33 @@ func UploadFiles(router *gin.RouterGroup) {
 		files := form.File["files"]
 
 		for _, file := range files {
-			log.Infof("api-upload: %s", file.Filename)
+			log.Infof("api: upload %s", file.Filename)
 
-			if err := UploadFile(file); err != nil {
+			mime, err := fs.GetFileContentType(file)
+
+			if err != nil {
+				log.Errorf("api: upload %s", err)
 				AbortInternalServerError(c)
 				return
 			}
-			// Upload the file to specific dst.
-			// c.SaveUploadedFile(file, dst)
+
+			f := entity.File{
+				FileName: file.Filename,
+				FileRoot: "/",
+				FileMime: mime,
+				FileSize: file.Size,
+			}
+
+			if err := f.Create(); err != nil {
+				log.Errorf("api: upload %s", err)
+				AbortInternalServerError(c)
+				return
+			}
+
+			// if err := UploadFile(file); err != nil {
+			// 	AbortInternalServerError(c)
+			// 	return
+			// }
 		}
 		c.JSON(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 

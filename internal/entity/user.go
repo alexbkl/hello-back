@@ -33,6 +33,10 @@ func (m *User) Create() error {
 	return db.Db().Create(m).Error
 }
 
+func (m *User) Save() error {
+	return db.Db().Save(m).Error
+}
+
 // BeforeCreate sets a random UID if needed before inserting a new row to the database.
 func (m *User) BeforeCreate(db *gorm.DB) error {
 

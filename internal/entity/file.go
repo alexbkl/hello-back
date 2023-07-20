@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"github.com/Hello-Storage/hello-back/internal/db"
 	"github.com/Hello-Storage/hello-back/pkg/media"
 	"github.com/Hello-Storage/hello-back/pkg/rnd"
 	"gorm.io/gorm"
@@ -19,7 +20,6 @@ type File struct {
 	FileName  string `gorm:"type:varchar(1024);uniqueIndex:idx_files_name_root;" json:"name"`
 	FileRoot  string `gorm:"type:varchar(255);default:'/';uniqueIndex:idx_files_name_root;" json:"root"`
 	FileMime  string `gorm:"type:varchar(64)" json:"mime"`
-	FileHash  string `gorm:"type:varchar(128);index" json:"hash"`
 	FileSize  int64  `json:"Size"`
 	MediaType string `gorm:"type:varchar(16)" json:"MediaType"`
 }
@@ -27,6 +27,14 @@ type File struct {
 // TableName returns the entity table name.
 func (File) TableName() string {
 	return "files"
+}
+
+func (m *File) Create() error {
+	return db.Db().Create(m).Error
+}
+
+func (m *File) Save() error {
+	return db.Db().Save(m).Error
 }
 
 // BeforeCreate creates a random UID if needed before inserting a new row to the database.
