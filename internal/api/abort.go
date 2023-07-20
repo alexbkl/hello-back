@@ -36,6 +36,11 @@ func AbortForbidden(c *gin.Context) {
 	Abort(c, http.StatusForbidden, "Permission denied")
 }
 
+// AbortInternalServerError aborts with status code 500.
+func AbortInternalServerError(c *gin.Context) {
+	Abort(c, http.StatusForbidden, "internal server error")
+}
+
 // AbortNotFound aborts with status code 404.
 func AbortNotFound(c *gin.Context) {
 	Abort(c, http.StatusNotFound, "Not found")

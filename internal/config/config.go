@@ -11,7 +11,7 @@ type Config struct {
 	DBName     string `mapstructure:"DB_NAME"`
 	DBPort     string `mapstructure:"DB_PORT"`
 	// Filebase credential
-	FilebaseAccessKey          string `mapstructure:"FILEBASE_ACCESS_KEY"`
-	FilebaseSecretAcessKey     string `mapstructure:"FILEBASE_SECRET_ACCESS_KEY"`
-	FilebasePinningAccessToken string `mapstructure:"FILEBASE_PINNING_ACCESS_TOKEN"`
+	FilebaseAccessKey  string `mapstructure:"FILEBASE_ACCESS_KEY"`
+	FilebaseSecretKey  string `mapstructure:"FILEBASE_SECRET_KEY"`
+	FilebasePinningKey string `mapstructure:"FILEBASE_PINNING_KEY"`
 }

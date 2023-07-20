@@ -19,12 +19,7 @@ func UpdateUser(router *gin.RouterGroup) {
 		err := user.Create()
 
 		if err != nil {
-			ctx.AbortWithStatusJSON(
-				http.StatusInternalServerError,
-				gin.H{
-					"message": "internal server error",
-				},
-			)
+			AbortInternalServerError(ctx)
 			return
 		}
 
