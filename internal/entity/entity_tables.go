@@ -12,7 +12,10 @@ type Tables map[string]interface{}
 
 // Entities contains database entities and their table names.
 var Entities = Tables{
-	User{}.TableName(): &User{},
+	User{}.TableName():   &User{},
+	Folder{}.TableName(): &Folder{},
+	File{}.TableName():   &File{},
+	Error{}.TableName():  &Error{},
 }
 
 // WaitForMigration waits for the database migration to be successful.
@@ -103,7 +106,7 @@ func (list Tables) Migrate(db *gorm.DB, opt migrate.Options) {
 // Drop drops all database tables of registered entities.
 func (list Tables) Drop(db *gorm.DB) {
 	for _, entity := range list {
-		if err := db.Migrator().DropTable(entity).Error; err != nil {
+		if err := db.Migrator().DropTable(entity); err != nil {
 			panic(err)
 		}
 	}

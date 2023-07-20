@@ -9,9 +9,9 @@ import (
 
 // UpdateUser updates the profile information of the currently authenticated user.
 //
-// PUT /api/v1/users/:uid
+// PUT /api/v1/user/:uid
 func UpdateUser(router *gin.RouterGroup) {
-	router.GET("/user", func(ctx *gin.Context) {
+	router.PUT("/user", func(ctx *gin.Context) {
 		user := entity.User{
 			Name: "abc",
 		}
