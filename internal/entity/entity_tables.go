@@ -12,10 +12,12 @@ type Tables map[string]interface{}
 
 // Entities contains database entities and their table names.
 var Entities = Tables{
-	User{}.TableName():   &User{},
-	Folder{}.TableName(): &Folder{},
-	File{}.TableName():   &File{},
-	Error{}.TableName():  &Error{},
+	Error{}.TableName():      &Error{},
+	User{}.TableName():       &User{},
+	File{}.TableName():       &File{},
+	Folder{}.TableName():     &Folder{},
+	FileUser{}.TableName():   &FileUser{},
+	FolderUser{}.TableName(): &FolderUser{},
 }
 
 // WaitForMigration waits for the database migration to be successful.
