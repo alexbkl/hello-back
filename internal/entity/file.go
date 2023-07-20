@@ -17,8 +17,8 @@ type Files []File
 type File struct {
 	gorm.Model
 	FileUID   string `gorm:"type:varchar(42);index;" json:"UID"`
-	FileName  string `gorm:"type:varchar(1024);uniqueIndex:idx_files_name_root;" json:"name"`
-	FileRoot  string `gorm:"type:varchar(255);default:'/';uniqueIndex:idx_files_name_root;" json:"root"`
+	FileName  string `gorm:"type:varchar(1024);" json:"name"`
+	FileRoot  string `gorm:"type:varchar(255);default:'/';" json:"root"`
 	FileMime  string `gorm:"type:varchar(64)" json:"mime"`
 	FileSize  int64  `json:"Size"`
 	MediaType string `gorm:"type:varchar(16)" json:"MediaType"`

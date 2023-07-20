@@ -49,10 +49,10 @@ func UploadFiles(router *gin.RouterGroup) {
 				return
 			}
 
-			// if err := UploadFile(file); err != nil {
-			// 	AbortInternalServerError(c)
-			// 	return
-			// }
+			if err := UploadFile(file, f.FileUID); err != nil {
+				AbortInternalServerError(c)
+				return
+			}
 		}
 		c.JSON(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 
@@ -60,7 +60,7 @@ func UploadFiles(router *gin.RouterGroup) {
 }
 
 // internal upload one file
-func UploadFile(file *multipart.FileHeader) error {
+func UploadFile(file *multipart.FileHeader, key string) error {
 	config, _ := config.LoadEnv()
 
 	s3Config := aws.Config{
@@ -70,7 +70,7 @@ func UploadFile(file *multipart.FileHeader) error {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(s3Config, file)
+	err := s3.UploadObject(s3Config, file, key)
 
 	return err
 }

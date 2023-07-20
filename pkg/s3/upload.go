@@ -1,6 +1,7 @@
 package s3
 
 import (
+	"fmt"
 	"mime/multipart"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -8,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func UploadObject(s3Config aws.Config, file *multipart.FileHeader) error {
+func UploadObject(s3Config aws.Config, file *multipart.FileHeader, key string) error {
 
 	// create a new session using the config above and profile
 	goSession, err := session.NewSessionWithOptions(session.Options{
@@ -33,8 +34,8 @@ func UploadObject(s3Config aws.Config, file *multipart.FileHeader) error {
 	// create put object input
 	putObjectInput := &s3.PutObjectInput{
 		Body:   src,
-		Bucket: aws.String("eroist"), // bucket name
-		Key:    aws.String("first"),
+		Bucket: aws.String("eroist"),                      // bucket name
+		Key:    aws.String(fmt.Sprintf("eroist/%s", key)), // TO-DO eroist -> UserID
 	}
 
 	// upload file

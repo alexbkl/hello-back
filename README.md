@@ -1,7 +1,12 @@
-#Backend part of Hello.Storage app
+# Hello.Storage Backend Repository 👋
 
-##Requirements: Golang, PostgreSQL for a Database
+## TechStacks: Golang, PostgreSQL, Docker
 
+## TO-DO
+commented to-do list like following 🚀
+```
+// TO-DO *****
+```
 ## Installation
 ```
 git clone https://github.com/Hello-Storage/hello-back.git
@@ -11,59 +16,59 @@ git clone https://github.com/Hello-Storage/hello-back.git
 ```
 cd hello-back
 ```
-# Local
+## Local
 
-#Build and run the application on the local machine:
+### Build and run the application on the local machine:
 ```
 go build .
 ```
 This will output an executable file named hello-back (or hello-back.exe on Windows)
-#Build and run the application in local machine:
+### Build and run the application in local machine:
 
 ```
 go run main.go
 ```
 
-##Build and run in Docker container
+## Build and run in Docker container
 
-##From the root directory of the project, run the following command:
+### From the root directory of the project, run the following command:
 
 ```
 docker build -t hello-back .
 ```
 
-##Run the container:
+### Run the container:
 
 ```
 docker run -p 8001:8001 hello-back
 ```
 
-##Your app should now be running inside a Docker container, and it should be accessible at localhost:8080 on your host machine.
+### Your app should now be running inside a Docker container, and it should be accessible at localhost:8080 on your host machine.
 
 
 #Run in background in Linux
 
-##Execute the background application (for example, put port 80 in main.go app.Listen(":80"))
+## Execute the background application (for example, put port 80 in main.go app.Listen(":80"))
 
 ```
 nohup ./hello-back > hello-back.log 2>&1 &
 ```
 
-#This will output the logs to hello-back.log
+## This will output the logs to hello-back.log
 
-#Verify that the application is running
+## Verify that the application is running
 
 ```
 ps aux | grep meta-go-api
 ```
 
-#Check the PID and the port number of the app:
+## Check the PID and the port number of the app:
 
 ```
 lsof -i :80
 ```
 
-#Stop the application or reset in case of changes
+## Stop the application or reset in case of changes
 
 
 ```
@@ -73,7 +78,7 @@ kill -HUP <PID>
 ```
 
 
-#In case of advanced management of the application, a process supervisor can be used
+## In case of advanced management of the application, a process supervisor can be used
 
 
 ```
@@ -84,7 +89,7 @@ sudo apt-get install supervisord
 ```
 
 
-#Configure domain in VPS Ubuntu:
+# Configure domain in VPS Ubuntu:
 
 
 ```
