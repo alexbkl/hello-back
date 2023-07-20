@@ -10,9 +10,9 @@ import (
 
 type Response struct {
 	Code    int    `json:"code"`
-	Err     string `json:"error,omitempty"`
-	Msg     string `json:"message,omitempty"`
-	Details string `json:"details,omitempty"`
+	Err     string `json:"error"`
+	Msg     string `json:"message"`
+	Details string `json:"details"`
 }
 
 func Abort(c *gin.Context, code int, msg string, params ...interface{}) {
