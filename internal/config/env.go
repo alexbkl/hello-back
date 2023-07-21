@@ -27,7 +27,10 @@ type EnvVar struct {
 var Env EnvVar
 
 func LoadEnv() (err error) {
-	err = godotenv.Load(".env")
+	// skip load env when docker
+	if os.Getenv("APP_PORT") == "" {
+		err = godotenv.Load(".env")
+	}
 
 	Env = EnvVar{
 		AppPort:            os.Getenv("APP_PORT"),
