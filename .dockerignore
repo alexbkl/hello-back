@@ -1,0 +1,7 @@
+/build/*
+/coverage.*
+Dockerfile
+docker-compose*
+.dockerignore
+.github
+.env

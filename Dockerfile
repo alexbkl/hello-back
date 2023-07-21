@@ -1,5 +1,5 @@
-# Start from the latest golang base image
-FROM golang:latest AS builder
+# Start from the alpine3.17 golang base image
+FROM golang:alpine3.17 as builder
 
 # Add Maintainer Info
 LABEL maintainer="Hello Decentralized <hi@hello.ws>"
@@ -15,21 +15,19 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the source from the current directory to the Working Directory inside the container
-COPY . .
+COPY . /app
 
 # Build the Go app
-RUN go build -o bin/hello-back main.go
+RUN go build -o build/hello-back cmd/main.go
 
 # Final stage
-FROM golang:latest
-
-WORKDIR /app
+FROM golang:alpine3.17
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/bin/hello-back /app/hello-back
+COPY --from=builder /app/build/hello-back /
 
-# Expose port 6969 to the outside world
-EXPOSE 6969
+# Expose port 8080 to the outside world
+EXPOSE 8080
 
 # Run the binary program produced by `go build`
-CMD ["/app/hello-back"]
+CMD ["/hello-back"]
