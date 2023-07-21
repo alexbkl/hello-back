@@ -7,28 +7,24 @@ import (
 	"github.com/Hello-Storage/hello-back/internal/entity"
 )
 
-// FileByUID finds a file entity for the given UID.
-func FileByUID(fileUID string) (*entity.File, error) {
+// FileByUID returns file for the given UID.
+func FileByUID(uid string) (*entity.File, error) {
 	f := entity.File{}
 
-	if fileUID == "" {
+	if uid == "" {
 		return &f, fmt.Errorf("file uid required")
 	}
 
-	err := db.Db().Where("file_uid = ?", fileUID).First(&f).Error
+	err := db.Db().Where("uid = ?", uid).First(&f).Error
 
 	return &f, err
 }
 
-// FileByHash finds a file with a given hash string.
-func FileByHash(fileHash string) (*entity.File, error) {
-	f := entity.File{}
-
-	if fileHash == "" {
-		return &f, fmt.Errorf("file hash required")
+// FilesByRoot return files in a given folder root.
+func FilesByRoot(root string) (files entity.Files, err error) {
+	if err := db.Db().Where("root = ?", root).Find(&files).Error; err != nil {
+		return files, err
 	}
 
-	err := db.Db().Where("file_hash = ?", fileHash).First(&f).Error
-
-	return &f, err
+	return files, err
 }

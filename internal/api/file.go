@@ -9,14 +9,15 @@ import (
 
 // GetFile returns file details as JSON.
 //
-// GET /api/file/:hash
+// GET /api/file/:uid
 // Params:
-// - hash (string) SHA-1 hash of the file
+// - uid
 func GetFile(router *gin.RouterGroup) {
-	router.GET("/file/:hash", func(c *gin.Context) {
+	router.GET("/file/:uid", func(c *gin.Context) {
 		// To Do check access grant
+		uid := c.Param("uid")
 
-		p, err := query.FileByHash(c.Param("hash"))
+		p, err := query.FileByUID(uid)
 
 		if err != nil {
 			AbortEntityNotFound(c)

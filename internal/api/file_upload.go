@@ -37,10 +37,10 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 			f := entity.File{
-				FileName: file.Filename,
-				FileRoot: "/",
-				FileMime: mime,
-				FileSize: file.Size,
+				Name: file.Filename,
+				Root: "/",
+				Mime: mime,
+				Size: file.Size,
 			}
 
 			if err := f.Create(); err != nil {
@@ -49,7 +49,7 @@ func UploadFiles(router *gin.RouterGroup) {
 				return
 			}
 
-			if err := UploadFile(file, f.FileUID); err != nil {
+			if err := UploadFile(file, f.UID); err != nil {
 				AbortInternalServerError(c)
 				return
 			}
