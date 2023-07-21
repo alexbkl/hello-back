@@ -42,7 +42,7 @@ func MigrateDb(runFailed bool, ids []string) {
 
 // DatabaseDsn returns the database data source name (DSN).
 func DatabaseDsn() string {
-	dbDsn := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable", Env.DBHost, Env.DBPort, Env.DBName, Env.DBUser, Env.DBPassword)
+	dbDsn := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable", env.DBHost, env.DBPort, env.DBName, env.DBUser, env.DBPassword)
 
 	return dbDsn
 }

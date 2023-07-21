@@ -10,21 +10,37 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    expose:
+      - 8080
+    ports:
+      - "8080:8080" # database port (host:container)
     env_file:
       - .env
-      
+    links:
+      - "db:postgres"
+    networks: 
+     - network-backend
+
   db:
     container_name: db
     image: postgres:alpine
+    user: postgres
     restart: always
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     expose:
-      - 5432 # database port
+      - 5435
+    ports:
+      - "5435:5432" # database port (host:container)
     env_file:
       - .env
+    networks: 
+     - network-backend
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+networks:
+  network-backend:

@@ -9,7 +9,6 @@ import (
 )
 
 var log = event.Log
-var env = config.Env
 
 func Start() {
 	// init logger

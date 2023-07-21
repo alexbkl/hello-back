@@ -24,7 +24,7 @@ type EnvVar struct {
 	FilebasePinningKey string `mapstructure:"FILEBASE_PINNING_KEY"`
 }
 
-var Env EnvVar
+var env EnvVar
 
 func LoadEnv() (err error) {
 	// skip load env when docker
@@ -32,7 +32,7 @@ func LoadEnv() (err error) {
 		err = godotenv.Load(".env")
 	}
 
-	Env = EnvVar{
+	env = EnvVar{
 		AppPort:            os.Getenv("APP_PORT"),
 		AppEnv:             os.Getenv("APP_ENV"),
 		DBHost:             os.Getenv("POSTGRES_HOST"),
@@ -45,7 +45,7 @@ func LoadEnv() (err error) {
 		FilebasePinningKey: os.Getenv("FILEBASE_PINNING_KEY"),
 	}
 
-	values := reflect.ValueOf(Env)
+	values := reflect.ValueOf(env)
 	types := values.Type()
 	for i := 0; i < values.NumField(); i++ {
 		if values.Field(i).String() == "" {
@@ -58,4 +58,8 @@ func LoadEnv() (err error) {
 	}
 
 	return
+}
+
+func Env() EnvVar {
+	return env
 }

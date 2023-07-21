@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 	"net/http"
 
+	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/entity"
 	"github.com/Hello-Storage/hello-back/pkg/fs"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
@@ -62,7 +63,7 @@ func UploadFiles(router *gin.RouterGroup) {
 func UploadFile(file *multipart.FileHeader, key string) error {
 
 	s3Config := aws.Config{
-		Credentials:      credentials.NewStaticCredentials(env.FilebaseAccessKey, env.FilebaseSecretKey, ""),
+		Credentials:      credentials.NewStaticCredentials(config.Env().FilebaseAccessKey, config.Env().FilebaseSecretKey, ""),
 		Endpoint:         aws.String("https://s3.filebase.com"),
 		Region:           aws.String("us-east-1"),
 		S3ForcePathStyle: aws.Bool(true),

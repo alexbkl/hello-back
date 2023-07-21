@@ -5,9 +5,7 @@ Package server provides REST and web server routing, request handling and loggin
 package server
 
 import (
-	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/event"
 )
 
 var log = event.Log
-var env = config.Env

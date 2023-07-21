@@ -7,13 +7,11 @@ package api
 import (
 	"net/http"
 
-	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/event"
 	"github.com/gin-gonic/gin"
 )
 
 var log = event.Log
-var env = config.Env
 
 func Ping(router *gin.RouterGroup) {
 	router.GET("/", func(c *gin.Context) {
