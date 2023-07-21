@@ -1,0 +1,30 @@
+version: '3.5'
+
+## FOR TEST AND DEVELOPMENT ONLY, DO NOT USE IN PRODUCTION   ##
+
+services:
+  backend:
+    container_name: backend
+    build: .
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+      
+  db:
+    container_name: db
+    image: postgres:alpine
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    expose:
+      - 5432 # database port
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

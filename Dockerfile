@@ -1,5 +1,5 @@
 # Start from the alpine3.17 golang base image
-FROM golang:alpine3.17 as builder
+FROM golang:alpine as builder
 
 # Add Maintainer Info
 LABEL maintainer="Hello Decentralized <hi@hello.ws>"
@@ -18,16 +18,19 @@ RUN go mod download
 COPY . /app
 
 # Build the Go app
-RUN go build -o build/hello-back cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o build/backend cmd/main.go
 
 # Final stage
-FROM golang:alpine3.17
+FROM golang:alpine
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/build/hello-back /
+COPY --from=builder /app/build/backend /app/backend
+
+# Copy the env file
+# COPY --from=builder .env /app
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
 # Run the binary program produced by `go build`
-CMD ["/hello-back"]
+CMD ["/app/backend"]

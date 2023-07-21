@@ -6,11 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/gin-gonic/gin"
 )
 
-func Start(ctx context.Context, conf *config.Config) {
+func Start(ctx context.Context) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error(err)
@@ -34,7 +33,7 @@ func Start(ctx context.Context, conf *config.Config) {
 	registerRoutes(router)
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", "0.0.0.0", conf.AppPort),
+		Addr:    fmt.Sprintf("%s:%s", "0.0.0.0", env.AppPort),
 		Handler: router,
 	}
 	log.Infof("server: listening on %s [%s]", server.Addr, time.Since(start))

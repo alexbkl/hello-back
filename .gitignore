@@ -43,3 +43,5 @@
 # Go workspace file
 go.work
 
+# postgres-data
+/postgres-data
