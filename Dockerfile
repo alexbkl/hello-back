@@ -33,4 +33,5 @@ COPY --from=builder /app/build/backend /app/backend
 EXPOSE 8080
 
 # Run the binary program produced by `go build`
+
 CMD ["/app/backend"]

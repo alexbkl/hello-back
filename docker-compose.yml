@@ -2,13 +2,16 @@ version: '3.5'
 
 ## FOR TEST AND DEVELOPMENT ONLY, DO NOT USE IN PRODUCTION   ##
 
+name: hello
+
 services:
   backend:
     container_name: backend
+    image: hello-backend
     build: .
     restart: always
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
     expose:
       - 8080
@@ -16,13 +19,11 @@ services:
       - "8080:8080" # database port (host:container)
     env_file:
       - .env
-    links:
-      - "db:postgres"
     networks: 
      - network-backend
 
-  db:
-    container_name: db
+  postgres:
+    container_name: postgres
     image: postgres:alpine
     user: postgres
     restart: always
