@@ -15,11 +15,13 @@ BUILD_DATE=$(/bin/date -u +%y%m%d)
 
 echo "Building image 'hello-backend'";
 
-docker build \
+docker buildx build \
+  --pull \
   --no-cache \
   --rm \
   --build-arg BUILD_TAG=$BUILD_DATE \
   -t hello-backend:latest \
-  -f Dockerfile .
+  -f Dockerfile \
+  --push .
 
 echo "Done."

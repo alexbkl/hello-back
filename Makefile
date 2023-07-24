@@ -8,6 +8,10 @@ DOCKER_COMPOSE=docker compose
 GOTEST=go test
 
 # 
+develop:
+	scripts/docker/build.sh develop
+developx:
+	scripts/docker/buildx.sh develop
 start-local:
 	$(DOCKER_COMPOSE) -f docker-compose.dev.yml up -d --wait
 stop-local:
