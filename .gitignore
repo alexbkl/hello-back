@@ -43,5 +43,7 @@
 # Go workspace file
 go.work
 
+/vendor
+
 # postgres-data
 /postgres-data
