@@ -1,0 +1,47 @@
+version: '3.5'
+
+## FOR TEST AND DEVELOPMENT ONLY, DO NOT USE IN PRODUCTION   ##
+
+name: hello
+
+services:
+  backend:
+    container_name: backend
+    image: hello-backend
+    build: .
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - 8080
+    ports:
+      - "8080:8080" # database port (host:container)
+    env_file:
+      - .env
+    networks: 
+     - network-backend
+
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    user: postgres
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    expose:
+      - 5435
+    ports:
+      - "5435:5432" # database port (host:container)
+    env_file:
+      - .env
+    networks: 
+     - network-backend
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  network-backend:

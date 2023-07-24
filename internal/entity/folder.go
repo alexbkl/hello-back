@@ -13,10 +13,10 @@ type Folders []Folder
 
 type Folder struct {
 	gorm.Model
-	FolderUID   string `gorm:"type:varchar(42);index;" json:"UID"`
-	Path        string `gorm:"type:varchar(1024);uniqueIndex:idx_folders_path_root;" json:"Path"`
-	Root        string `gorm:"type:varchar(16);default:'';uniqueIndex:idx_folders_path_root;" json:"Root"`
-	FolderTitle string `gorm:"type:varchar(255);" json:"Title"`
+	UID   string `gorm:"type:varchar(42);index;" json:"UID"`
+	Title string `gorm:"type:varchar(255);" json:"Title"`
+	Path  string `gorm:"type:varchar(1024);default:'/';" json:"Path"` // folderA/folderB/***
+	Root  string `gorm:"type:varchar(42);default:'/';" json:"Root"`   // parent folder uid
 }
 
 // TableName returns the entity table name.
@@ -26,11 +26,11 @@ func (Folder) TableName() string {
 
 // BeforeCreate creates a random UID if needed before inserting a new row to the database.
 func (m *Folder) BeforeCreate(db *gorm.DB) error {
-	if rnd.IsUnique(m.FolderUID, 'd') {
+	if rnd.IsUnique(m.UID, 'd') {
 		return nil
 	}
 
-	db.Statement.SetColumn("FolderUID", rnd.GenerateUID(FolderUID))
+	db.Statement.SetColumn("UID", rnd.GenerateUID(FolderUID))
 
 	return nil
 }

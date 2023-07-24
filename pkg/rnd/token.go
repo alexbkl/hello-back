@@ -2,31 +2,38 @@ package rnd
 
 import (
 	"crypto/rand"
-	"encoding/binary"
-	"fmt"
-	"strconv"
+	"math/big"
 )
 
-// GenerateToken returns a random token with length of up to 10 characters.
-func GenerateToken(size uint) string {
-	if size > 10 || size < 1 {
-		panic(fmt.Sprintf("size out of range: %d", size))
+// GenerateRandomBytes returns securely generated random bytes.
+// It will return an error if the system's secure random
+// number generator fails to function correctly, in which
+// case the caller should not continue.
+func GenerateRandomBytes(n int) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	// Note that err == nil only if we read len(b) bytes.
+	if err != nil {
+		return nil, err
 	}
 
-	result := make([]byte, 0, 14)
-	b := make([]byte, 8)
+	return b, nil
+}
 
-	if _, err := rand.Read(b); err != nil {
-		panic(err)
+// GenerateRandomString returns a securely generated random string.
+// It will return an error if the system's secure random
+// number generator fails to function correctly, in which
+// case the caller should not continue.
+func GenerateRandomString(n int) (string, error) {
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	ret := make([]byte, n)
+	for i := 0; i < n; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			return "", err
+		}
+		ret[i] = letters[num.Int64()]
 	}
 
-	randomInt := binary.BigEndian.Uint64(b)
-
-	result = append(result, strconv.FormatUint(randomInt, 36)...)
-
-	for i := len(result); i < cap(result); i++ {
-		result = append(result, byte(123-(cap(result)-i)))
-	}
-
-	return string(result[:size])
+	return string(ret), nil
 }

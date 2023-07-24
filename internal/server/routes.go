@@ -14,6 +14,11 @@ func registerRoutes(router *gin.Engine) {
 
 	// routes
 	api.Ping(APIv1)
+
 	api.UpdateUser(APIv1)
 	api.GetFile(APIv1)
+
+	api.UploadFiles(APIv1)
+
+	api.SearchFolderByRoot(APIv1)
 }

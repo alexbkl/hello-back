@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Start(ctx context.Context, conf *config.Config) {
+func Start(ctx context.Context) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error(err)
@@ -30,11 +30,13 @@ func Start(ctx context.Context, conf *config.Config) {
 	// Create REST API router group.
 	APIv1 = router.Group("/api")
 
+	config.LoadEnv()
 	// Register HTTP route handlers.
 	registerRoutes(router)
 
+	log.Infof("port: %s", config.Env().AppPort)
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", "0.0.0.0", conf.AppPort),
+		Addr:    fmt.Sprintf("%s:%s", "0.0.0.0", config.Env().AppPort),
 		Handler: router,
 	}
 	log.Infof("server: listening on %s [%s]", server.Addr, time.Since(start))

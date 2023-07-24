@@ -15,7 +15,7 @@ func Start() {
 	config.InitLogger()
 
 	// load env
-	config, err := config.LoadEnv()
+	err := config.LoadEnv()
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
@@ -28,5 +28,5 @@ func Start() {
 	// Pass this context down the chain.
 	cctx, _ := context.WithCancel(context.Background())
 
-	server.Start(cctx, &config)
+	server.Start(cctx)
 }
