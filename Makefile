@@ -9,8 +9,12 @@ GOTEST=go test
 
 # 
 develop:
+	$(DOCKER_COMPOSE) -f docker-compose.dev.yml up -d --build --wait
+production:
+	$(DOCKER_COMPOSE) up -d
+build:
 	scripts/docker/build.sh develop
-developx:
+buildx:
 	scripts/docker/buildx.sh develop
 start-local:
 	$(DOCKER_COMPOSE) -f docker-compose.dev.yml up -d --wait
@@ -32,6 +36,8 @@ install:
 	go get .
 tidy:
 	go mod tidy
+clean:
+	docker image prune
 
 # TO-DO drone configure
 # drone:

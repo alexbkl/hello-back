@@ -8,7 +8,9 @@ services:
   backend:
     container_name: backend
     image: hello-backend
-    build: .
+    build:
+      context: docker
+      dockerfile: Dockerfile
     restart: always
     depends_on:
       postgres:
