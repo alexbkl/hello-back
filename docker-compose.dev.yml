@@ -2,13 +2,15 @@ version: '3.5'
 
 ## FOR TEST AND DEVELOPMENT ONLY, DO NOT USE IN PRODUCTION   ##
 
-name: hello
+name: hello-dev
 
 services:
   backend:
-    container_name: backend
-    image: hello-backend
-    build: .
+    container_name: backend-dev
+    image: hello-backend-dev
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile.dev
     restart: always
     depends_on:
       postgres:
@@ -19,11 +21,13 @@ services:
       - "8080:8080" # database port (host:container)
     env_file:
       - .env
+    volumes:
+      - ./:/app
     networks: 
      - network-backend
 
   postgres:
-    container_name: postgres
+    container_name: postgres-dev
     image: postgres:alpine
     user: postgres
     restart: always
