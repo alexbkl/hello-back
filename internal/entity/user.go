@@ -8,6 +8,8 @@ import (
 
 type role string
 
+type Users []User
+
 const (
 	AdminRole role = "admin"
 	UserRole  role = "user"

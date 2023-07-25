@@ -30,7 +30,7 @@ services:
     user: postgres
     restart: always
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     expose:
       - 5435
     ports:
@@ -47,3 +47,7 @@ services:
 
 networks:
   network-backend:
+volumes:
+  postgres-data:
+    external: true
+    name: postgres-data
