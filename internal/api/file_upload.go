@@ -19,11 +19,28 @@ import (
 // POST /api/file/upload
 // Form: MultipartForm
 // - files
+// - root
 func UploadFiles(router *gin.RouterGroup) {
-	router.POST("/upload", func(c *gin.Context) {
+	router.POST("/upload", func(ctx *gin.Context) {
+		// TO-DO check user auth & add user uid
+
 		// Multipart form
-		form, _ := c.MultipartForm()
+		form, err := ctx.MultipartForm()
+
+		if err != nil {
+			AbortBadRequest(ctx)
+			return
+		}
+
 		files := form.File["files"]
+		root := form.Value["root"]
+
+		var r string
+		if len(root) > 0 {
+			r = root[0]
+		} else {
+			r = "/"
+		}
 
 		for _, file := range files {
 			log.Infof("api: upload %s", file.Filename)
@@ -32,35 +49,34 @@ func UploadFiles(router *gin.RouterGroup) {
 
 			if err != nil {
 				log.Errorf("api: upload %s", err)
-				AbortInternalServerError(c)
+				AbortInternalServerError(ctx)
 				return
 			}
 
 			f := entity.File{
 				Name: file.Filename,
-				Root: "/",
+				Root: r,
 				Mime: mime,
 				Size: file.Size,
 			}
 
 			if err := f.Create(); err != nil {
 				log.Errorf("api: upload %s", err)
-				AbortInternalServerError(c)
+				AbortInternalServerError(ctx)
 				return
 			}
 
-			if err := UploadFile(file, f.UID); err != nil {
-				AbortInternalServerError(c)
+			if err := UploadFile(file, "uryccyssiQy3GIjtG6dWg4AXFTkqVMd1", f.UID); err != nil {
+				AbortInternalServerError(ctx)
 				return
 			}
 		}
-		c.JSON(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
-
+		ctx.JSON(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 	})
 }
 
 // internal upload one file
-func UploadFile(file *multipart.FileHeader, key string) error {
+func UploadFile(file *multipart.FileHeader, user_uid, key string) error {
 
 	s3Config := aws.Config{
 		Credentials:      credentials.NewStaticCredentials(config.Env().FilebaseAccessKey, config.Env().FilebaseSecretKey, ""),
@@ -69,7 +85,7 @@ func UploadFile(file *multipart.FileHeader, key string) error {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(s3Config, file, key)
+	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, user_uid, key)
 
 	return err
 }
