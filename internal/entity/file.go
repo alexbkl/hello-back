@@ -18,7 +18,7 @@ type File struct {
 	gorm.Model
 	UID       string `gorm:"type:varchar(42);index;" json:"UID"`
 	Name      string `gorm:"type:varchar(1024);" json:"name"`
-	Root      string `gorm:"type:varchar(255);default:'/';" json:"root"`
+	Root      string `gorm:"type:varchar(42);default:'/';" json:"root"` // parent folder uid
 	Mime      string `gorm:"type:varchar(64)" json:"mime"`
 	Size      int64  `json:"Size"`
 	MediaType string `gorm:"type:varchar(16)" json:"MediaType"`

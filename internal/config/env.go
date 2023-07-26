@@ -19,6 +19,7 @@ type EnvVar struct {
 	DBPassword string `mapstructure:"POSTGRES_PASSWORD"`
 	DBPort     string `mapstructure:"POSTGRES_PORT"`
 	// Filebase credential
+	FilebaseBucket     string `mapstructure:"FILEBASE_BUCKET"`
 	FilebaseAccessKey  string `mapstructure:"FILEBASE_ACCESS_KEY"`
 	FilebaseSecretKey  string `mapstructure:"FILEBASE_SECRET_KEY"`
 	FilebasePinningKey string `mapstructure:"FILEBASE_PINNING_KEY"`
