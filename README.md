@@ -72,9 +72,9 @@ building fully decentralized storage protocol!
 
 ### Built With
 
-* [![Go][Go]][Go-url]
-* [![Postgres][Postgres]][Postgres-url]
-* [![Docker][Docker]][Docker-url]
+[![Go][Go]][Go-url]
+[![Postgres][Postgres]][Postgres-url]
+[![Docker][Docker]][Docker-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
