@@ -16,7 +16,7 @@ func InitDb(opt migrate.Options) {
 	start := time.Now()
 
 	Entities.Migrate(db.Db(), opt)
-	// Entities.WaitForMigration(db.Db())
+	Entities.WaitForMigration(db.Db())
 
 	log.Debugf("migrate: completed in %s", time.Since(start))
 }
