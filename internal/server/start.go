@@ -27,6 +27,9 @@ func Start(ctx context.Context) {
 	// Register common middleware.
 	router.Use(gin.Recovery(), Logger())
 
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, "hello backend api endpoints")
+	})
 	// Create REST API router group.
 	APIv1 = router.Group("/api")
 

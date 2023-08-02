@@ -15,8 +15,6 @@ var log = event.Log
 
 func Ping(router *gin.RouterGroup) {
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "hello backend api endpoints",
-		})
+		c.JSON(http.StatusOK, "hello backend api endpoints")
 	})
 }
