@@ -16,12 +16,12 @@ type Files []File
 
 type File struct {
 	gorm.Model
-	UID       string `gorm:"type:varchar(42);index;" json:"UID"`
+	UID       string `gorm:"type:varchar(42);index;" json:"uid"`
 	Name      string `gorm:"type:varchar(1024);" json:"name"`
 	Root      string `gorm:"type:varchar(42);default:'/';" json:"root"` // parent folder uid
-	Mime      string `gorm:"type:varchar(64)" json:"mime"`
+	Mime      string `gorm:"type:varchar(64)" json:"mimeType"`
 	Size      int64  `json:"Size"`
-	MediaType string `gorm:"type:varchar(16)" json:"MediaType"`
+	MediaType string `gorm:"type:varchar(16)" json:"mediaType"`
 }
 
 // TableName returns the entity table name.
