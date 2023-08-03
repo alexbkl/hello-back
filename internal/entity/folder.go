@@ -13,10 +13,10 @@ type Folders []Folder
 
 type Folder struct {
 	gorm.Model
-	UID   string `gorm:"type:varchar(42);index;" json:"UID"`
-	Title string `gorm:"type:varchar(255);" json:"Title"`
-	Path  string `gorm:"type:varchar(1024);default:'/';" json:"Path"` // folderA/folderB/***
-	Root  string `gorm:"type:varchar(42);default:'/';" json:"Root"`   // parent folder uid
+	UID   string `gorm:"type:varchar(42);index;" json:"uid"`
+	Title string `gorm:"type:varchar(255);" json:"title"`
+	Path  string `gorm:"type:varchar(1024);default:'/';" json:"path"` // folderA/folderB/***
+	Root  string `gorm:"type:varchar(42);default:'/';" json:"root"`   // parent folder uid
 }
 
 // TableName returns the entity table name.

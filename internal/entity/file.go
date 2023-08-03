@@ -20,7 +20,7 @@ type File struct {
 	Name      string `gorm:"type:varchar(1024);" json:"name"`
 	Root      string `gorm:"type:varchar(42);default:'/';" json:"root"` // parent folder uid
 	Mime      string `gorm:"type:varchar(64)" json:"mimeType"`
-	Size      int64  `json:"Size"`
+	Size      int64  `json:"size"`
 	MediaType string `gorm:"type:varchar(16)" json:"mediaType"`
 }
 
