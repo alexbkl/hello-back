@@ -49,7 +49,21 @@ func (m *File) BeforeCreate(db *gorm.DB) error {
 		return nil
 	}
 
-	db.Statement.SetColumn("UID", rnd.GenerateUID(FileUID))
+	m.UID = rnd.GenerateUID(FileUID)
+	db.Statement.SetColumn("UID", m.UID)
 
 	return nil
+}
+
+func FirstOrCreateFile(m *File) *File {
+	result := File{}
+
+	if err := db.Db().Where("uid = ?", m.UID).First(&result).Error; err == nil {
+		return &result
+	} else if err := m.Create(); err != nil {
+		log.Errorf("file: %s", err)
+		return nil
+	}
+
+	return m
 }

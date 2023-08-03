@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Hello-Storage/hello-back/internal/config"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,6 +27,15 @@ func Start(ctx context.Context) {
 
 	// Register common middleware.
 	router.Use(gin.Recovery(), Logger())
+
+	// cors config
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "https://api.joinhello.app/api"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "hello backend api endpoints")

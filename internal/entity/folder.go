@@ -29,8 +29,8 @@ func (m *Folder) BeforeCreate(db *gorm.DB) error {
 	if rnd.IsUnique(m.UID, 'd') {
 		return nil
 	}
-
-	db.Statement.SetColumn("UID", rnd.GenerateUID(FolderUID))
+	m.UID = rnd.GenerateUID(FolderUID)
+	db.Statement.SetColumn("UID", m.UID)
 
 	return nil
 }
