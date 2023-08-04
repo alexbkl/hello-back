@@ -17,8 +17,8 @@ services:
         condition: service_healthy
     # expose:
     #   - 8080
-    # ports:
-    #   - "8080:8080"
+    ports:
+      - "8080:8080"
     env_file:
       - .env
     networks: 
@@ -44,22 +44,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  proxy:
-    container_name: proxy
-    image: nginx:latest
-    volumes:
-      - type: bind
-        source: ./proxy/nginx.conf
-        target: /etc/nginx/conf.d/default.conf
-        read_only: true
-    ports:
-      - 80:80
-      - 443:443
-    depends_on: 
-      - backend
-    networks: 
-     - network-backend
 
 networks:
   network-backend:
