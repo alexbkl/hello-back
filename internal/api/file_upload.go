@@ -68,6 +68,7 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 			if err := UploadFile(file, "uryccyssiQy3GIjtG6dWg4AXFTkqVMd1", f.UID); err != nil {
+				log.Errorf("api: upload %s", err)
 				AbortInternalServerError(ctx)
 				return
 			}
