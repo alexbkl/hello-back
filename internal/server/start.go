@@ -30,7 +30,7 @@ func Start(ctx context.Context) {
 
 	// cors config
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173/", "https://joinhello.on.fleek.co/", "https://staging-joinhello.on.fleek.co/"},
+		AllowOrigins:     []string{"http://localhost:5173", "https://joinhello.on.fleek.co", "https://staging-joinhello.on.fleek.co"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
 		AllowCredentials: false,
