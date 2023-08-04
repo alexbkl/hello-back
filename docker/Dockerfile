@@ -28,7 +28,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/cache \
     go build -o build/backend cmd/main.go
 
 # Final stage
-FROM scratch
+FROM alpine:3.17
 
 # Copy the binary from the builder stage
 COPY --from=builder /app/build/backend /app/backend
