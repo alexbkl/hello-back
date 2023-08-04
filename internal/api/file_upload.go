@@ -38,6 +38,7 @@ func UploadFiles(router *gin.RouterGroup) {
 		var r string
 		if len(root) > 0 {
 			r = root[0]
+			log.Infof("file: %s", r)
 		} else {
 			r = "/"
 		}

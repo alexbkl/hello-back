@@ -34,7 +34,7 @@ func UploadObject(s3Config aws.Config, file *multipart.FileHeader, bucket, user_
 	// create put object input
 	putObjectInput := &s3.PutObjectInput{
 		Body:   src,
-		Bucket: aws.String("eroist"), // bucket name
+		Bucket: aws.String(bucket), // bucket name
 		Key:    aws.String(fmt.Sprintf("%s/%s", user_uid, key)),
 	}
 

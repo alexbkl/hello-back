@@ -41,6 +41,7 @@ func LoadEnv() (err error) {
 		DBUser:             os.Getenv("POSTGRES_USER"),
 		DBPassword:         os.Getenv("POSTGRES_PASSWORD"),
 		DBPort:             os.Getenv("POSTGRES_PORT"),
+		FilebaseBucket:     os.Getenv("FILEBASE_BUCKET"),
 		FilebaseAccessKey:  os.Getenv("FILEBASE_ACCESS_KEY"),
 		FilebaseSecretKey:  os.Getenv("FILEBASE_SECRET_KEY"),
 		FilebasePinningKey: os.Getenv("FILEBASE_PINNING_KEY"),

@@ -16,12 +16,12 @@ type Files []File
 
 type File struct {
 	gorm.Model
-	UID       string `gorm:"type:varchar(42);index;" json:"UID"`
+	UID       string `gorm:"type:varchar(42);index;" json:"uid"`
 	Name      string `gorm:"type:varchar(1024);" json:"name"`
 	Root      string `gorm:"type:varchar(42);default:'/';" json:"root"` // parent folder uid
-	Mime      string `gorm:"type:varchar(64)" json:"mime"`
-	Size      int64  `json:"Size"`
-	MediaType string `gorm:"type:varchar(16)" json:"MediaType"`
+	Mime      string `gorm:"type:varchar(64)" json:"mimeType"`
+	Size      int64  `json:"size"`
+	MediaType string `gorm:"type:varchar(16)" json:"mediaType"`
 }
 
 // TableName returns the entity table name.
@@ -49,7 +49,21 @@ func (m *File) BeforeCreate(db *gorm.DB) error {
 		return nil
 	}
 
-	db.Statement.SetColumn("UID", rnd.GenerateUID(FileUID))
+	m.UID = rnd.GenerateUID(FileUID)
+	db.Statement.SetColumn("UID", m.UID)
 
 	return nil
+}
+
+func FirstOrCreateFile(m *File) *File {
+	result := File{}
+
+	if err := db.Db().Where("uid = ?", m.UID).First(&result).Error; err == nil {
+		return &result
+	} else if err := m.Create(); err != nil {
+		log.Errorf("file: %s", err)
+		return nil
+	}
+
+	return m
 }

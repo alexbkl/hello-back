@@ -21,9 +21,9 @@ const (
 
 type User struct {
 	gorm.Model
-	UserUID string `gorm:"type:varchar(42);column:user_uid;uniqueIndex"`
-	Name    string `gorm:"unique;not null;max:50" json:"name"`
-	Role    role   `gorm:"not null;default:user" json:"role"`
+	UID  string `gorm:"type:varchar(42);column:user_uid;uniqueIndex"`
+	Name string `gorm:"unique;not null;max:50" json:"name"`
+	Role role   `gorm:"not null;default:user" json:"role"`
 }
 
 // TableName returns the entity table name.
@@ -41,13 +41,12 @@ func (m *User) Save() error {
 
 // BeforeCreate sets a random UID if needed before inserting a new row to the database.
 func (m *User) BeforeCreate(db *gorm.DB) error {
-
-	if rnd.IsUnique(m.UserUID, UserUID) {
+	if rnd.IsUnique(m.UID, UserUID) {
 		return nil
 	}
 
-	m.UserUID = rnd.GenerateUID(UserUID)
-	db.Statement.SetColumn("UserUID", m.UserUID)
+	m.UID = rnd.GenerateUID(UserUID)
+	db.Statement.SetColumn("UID", m.UID)
 
 	return nil
 	// return db.Scopes().SetColumn("UserUID", m.UserUID)
