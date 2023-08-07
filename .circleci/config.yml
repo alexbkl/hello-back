@@ -79,11 +79,11 @@ jobs:
 workflows:
   joinhello-staging:
     jobs:
-      - build
-      # filters:
-      #   branches:
-      #     only:
-      #       - staging
+      - build:
+          filters:
+            branches:
+              only:
+                - staging
       - publish:
           context:
             - docker-hub-credential
