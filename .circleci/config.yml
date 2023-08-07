@@ -28,6 +28,7 @@ commands:
             echo "$DOCKERHUB_ACCESS_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
             docker tag joinhello/backend:0.0.1 $DOCKERHUB_USER/joinhello-backend:0.0.1
             docker push $DOCKERHUB_USER/joinhello-backend:0.0.1
+  deploy-to-ec2:
 
 jobs:
   build:
@@ -46,13 +47,25 @@ jobs:
           version: 20.10.14
           docker_layer_caching: true
       - publish-docker-image
+  deploy:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY
+          aws-secret-access-key: AWS_SECRET_KEY
+          aws-region: AWS_REGION
 
 workflows:
   joinhello-staging:
     jobs:
-      - build
-      - publish:
+      # - build
+      # - publish:
+      #     context:
+      #       - docker-hub-credential
+      #     requires:
+      #       - build
+      - deploy:
           context:
-            - docker-hub-credential
-          requires:
-            - build
+            - aws-credential
+          # requires:
+          #   - build
