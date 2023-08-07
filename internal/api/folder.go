@@ -12,7 +12,7 @@ import (
 var folderMutex = sync.Mutex{}
 
 func CreateFolder(router *gin.RouterGroup) {
-	router.POST("/create", func(ctx *gin.Context) {
+	router.POST("/folder/create", func(ctx *gin.Context) {
 		var f form.CreateFolder
 
 		if err := ctx.BindJSON(&f); err != nil {
