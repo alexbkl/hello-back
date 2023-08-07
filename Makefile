@@ -9,9 +9,9 @@ GOTEST=go test
 
 # 
 develop:
-	$(DOCKER_COMPOSE) -f docker-compose.dev.yml up -d --build --wait
+	$(DOCKER_COMPOSE) -f compose.dev.yml up -d --build --wait
 stop-develop:
-	$(DOCKER_COMPOSE) -f docker-compose.dev.yml stop
+	$(DOCKER_COMPOSE) -f compose.dev.yml stop
 production:
 	$(DOCKER_COMPOSE) up -d --build
 stop-production:

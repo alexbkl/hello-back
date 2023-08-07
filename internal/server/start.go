@@ -38,7 +38,7 @@ func Start(ctx context.Context) {
 	}))
 
 	router.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, "hello backend api endpoints")
+		ctx.JSON(http.StatusOK, "hello backend api endpoints \n version: 0.0.1")
 	})
 	// Create REST API router group.
 	APIv1 = router.Group("/api")
