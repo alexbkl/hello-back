@@ -56,10 +56,10 @@ jobs:
   deploy:
     executor: aws-cli/default
     steps:
+      - checkout
       - aws-cli/setup:
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_SECRET_KEY
-          aws-region: AWS_REGION
+          profile_name: example
+      - deploy-to-ec2
 
 workflows:
   joinhello-staging:
