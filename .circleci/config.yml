@@ -19,15 +19,15 @@ commands:
       - run:
           name: Build Latest Docker Image
           command: |
-            docker build -t joinhello/backend:latest -f ./docker/Dockerfile .
+            docker build -t joinhello/backend:staging -f ./docker/Dockerfile .
   publish-docker-image:
     steps:
       - run:
           name: Publish Docker Image to Docker Hub
           command: |
             echo "$DOCKERHUB_ACCESS_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
-            docker tag joinhello/backend:latest $DOCKERHUB_USER/joinhello-backend:latest
-            docker push $DOCKERHUB_USER/joinhello-backend:latest
+            docker tag joinhello/backend:staging $DOCKERHUB_USER/joinhello-backend:staging
+            docker push $DOCKERHUB_USER/joinhello-backend:staging
   deploy-to-ec2:
     steps:
       - run:
@@ -35,7 +35,7 @@ commands:
           command: |
             EC2_USERNAME=ubuntu
             EC2_PUBLIC_DNS=api-staging.joinhello.app
-            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS "cd workspace/joinhello-backend-staging && sudo docker compose up -d --build"
+            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS "cd workspace/joinhello-backend-staging && sudo docker compose up -d --build --wait"
 
 jobs:
   build:
@@ -68,16 +68,20 @@ jobs:
 workflows:
   joinhello-staging:
     jobs:
-      # - build
-      # - publish:
-      #     context:
-      #       - docker-hub-credential
-      #     requires:
-      #       - build
+      - build:
+          filters:
+            branches:
+              only:
+                - staging
+      - publish:
+          context:
+            - docker-hub-credential
+          requires:
+            - build
       - deploy:
           context:
             - aws-credential
             - docker-hub-credential
-          # requires:
-          #   - build
-          #   - publish
+          requires:
+            - build
+            - publish
