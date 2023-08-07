@@ -18,7 +18,7 @@ commands:
       - run:
           name: Build Latest Docker Image
           command: |
-            docker build -t joinhello/backend:0.0.1 ./docker/Dockerfile
+            docker build -t joinhello/backend:0.0.1 ./docker
 
 jobs:
   build:
