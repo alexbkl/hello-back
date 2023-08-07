@@ -20,6 +20,12 @@ commands:
           name: Build Latest Docker Image
           command: |
             docker build -t joinhello/backend:0.0.1 -f ./docker/Dockerfile .
+  publish-docker-image:
+    steps:
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            docker login -u "$DOCKERHUB_USER" --password-stdin "$DOCKERHUB_ACCESS_TOKEN"
 
 jobs:
   build:
@@ -30,3 +36,16 @@ jobs:
           version: 20.10.14
           docker_layer_caching: true
       - build-docker-image
+  publish:
+    context:
+      - docker-hub-credential
+    steps:
+      - publish-docker-image
+
+workflows:
+  joinhello-staging:
+    jobs:
+      - build:
+      - publish:
+          requires:
+            - build
