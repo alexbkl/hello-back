@@ -59,9 +59,9 @@ jobs:
       - checkout
       - aws-cli/setup:
           profile_name: example
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_SECRET_KEY
-          aws-region: AWS_REGION
+          aws_access_key_id: AWS_ACCESS_KEY
+          aws_secret_access_key: AWS_SECRET_KEY
+          region: AWS_REGION
       - deploy-to-ec2
 
 workflows:
