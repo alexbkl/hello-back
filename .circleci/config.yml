@@ -75,18 +75,14 @@ jobs:
           aws_secret_access_key: AWS_SECRET_KEY
           region: AWS_REGION
       - deploy-to-ec2
-  notify:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - slack/notify:
-          event: fail
-          mentions: "@here"
-          template: basic_fail_1
       - slack/notify:
           event: pass
           mentions: "@here"
           template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          mentions: "@here"
+          template: basic_fail_1
 
 workflows:
   joinhello-staging:
@@ -105,10 +101,6 @@ workflows:
           context:
             - aws-credential
             - docker-hub-credential
+            - slack-secrets
           requires:
             - publish
-  notification:
-    jobs:
-      - notify:
-          context:
-            - slack-secrets
