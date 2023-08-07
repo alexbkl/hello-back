@@ -74,3 +74,7 @@ func AbortFeatureDisabled(c *gin.Context) {
 func AbortBusy(c *gin.Context) {
 	Abort(c, http.StatusTooManyRequests, "Busy, please try again later")
 }
+
+func ErrorResponse(err error) gin.H {
+	return gin.H{"error": err.Error()}
+}

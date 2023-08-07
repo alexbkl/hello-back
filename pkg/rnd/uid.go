@@ -12,11 +12,7 @@ const (
 
 // GenerateUID returns a unique id with prefix as string.
 func GenerateUID(prefix byte) string {
-
-	rnd, err := GenerateRandomString(25)
-	if err != nil {
-		panic(err)
-	}
+	rnd := GenerateRandomString(25)
 
 	result := make([]byte, 0, 32)
 	result = append(result, prefix)
