@@ -11,6 +11,7 @@ executors:
       - image: cimg/go:1.19.3
     environment:
       CGO_ENABLED: 0
+      DOCKER_BUILDKIT: 1
 
 commands:
   build-docker-image:
