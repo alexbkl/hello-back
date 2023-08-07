@@ -35,6 +35,8 @@ commands:
           command: |
             EC2_USERNAME=ubuntu
             EC2_PUBLIC_DNS=api-staging.joinhello.app
+            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS \
+            docker pull $DOCKERHUB_USER/joinhello-backend:0.0.1
 
 jobs:
   build:
@@ -76,5 +78,6 @@ workflows:
       - deploy:
           context:
             - aws-credential
+            - docker-hub-credential
           # requires:
           #   - build
