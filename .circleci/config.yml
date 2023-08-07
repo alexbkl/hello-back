@@ -78,6 +78,6 @@ workflows:
           context:
             - aws-credential
             - docker-hub-credential
-          requires:
-            - build
-            - publish
+          # requires:
+          #   - build
+          #   - publish
