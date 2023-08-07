@@ -1,0 +1,28 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.2.0
+  aws-cli: circleci/aws-cli@4.0.0
+  slack: circleci/slack@4.12.5
+
+executors:
+  go:
+    docker:
+      - image: cimg/go:1.19.3
+    environment:
+      CGO_ENABLED: 0
+
+commands:
+  build-docker-image:
+    steps:
+      - run:
+          name: Build Latest Docker Image
+          command: |
+            docker build -t joinhello/backend:0.0.1 ./docker/Dockerfile
+
+jobs:
+  build:
+    executor: go
+    steps:
+      - checkout
+      - build-docker-image
