@@ -25,7 +25,7 @@ commands:
       - run:
           name: Publish Docker Image to Docker Hub
           command: |
-            echo "$DOCKERHUB_USER" "$DOCKERHUB_ACCESS_TOKEN" |
+            echo "$DOCKERHUB_USER" "$DOCKERHUB_ACCESS_TOKEN"
             docker login -u $DOCKERHUB_USER --password-stdin $DOCKERHUB_ACCESS_TOKEN
 
 jobs:
