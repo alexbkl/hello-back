@@ -13,9 +13,9 @@ develop:
 stop-develop:
 	$(DOCKER_COMPOSE) -f compose.dev.yml stop
 production:
-	$(DOCKER_COMPOSE) up -d --build
+	$(DOCKER_COMPOSE) -f compose.prod.yml up -d --build
 stop-production:
-	$(DOCKER_COMPOSE) stop
+	$(DOCKER_COMPOSE) -f compose.prod.yml stop
 build:
 	scripts/docker/build.sh develop
 buildx:

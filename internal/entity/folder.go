@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"github.com/Hello-Storage/hello-back/internal/db"
 	"github.com/Hello-Storage/hello-back/pkg/rnd"
 	"gorm.io/gorm"
 )
@@ -22,6 +23,10 @@ type Folder struct {
 // TableName returns the entity table name.
 func (Folder) TableName() string {
 	return "folders"
+}
+
+func (m *Folder) Create() error {
+	return db.Db().Create(m).Error
 }
 
 // BeforeCreate creates a random UID if needed before inserting a new row to the database.

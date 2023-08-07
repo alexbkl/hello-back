@@ -19,12 +19,14 @@ func registerRoutes(router *gin.Engine) {
 	api.LoginUser(APIv1)
 	api.RegisterUser(APIv1)
 
-	//
+	// user routes
 	api.UpdateUser(APIv1)
-	api.GetFile(APIv1)
 
+	// file routes
+	api.GetFile(APIv1)
 	api.UploadFiles(APIv1)
 
+	// folder routes
 	api.SearchFolderByRoot(APIv1)
-
+	api.CreateFolder(APIv1)
 }
