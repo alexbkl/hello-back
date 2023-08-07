@@ -83,5 +83,4 @@ workflows:
             - aws-credential
             - docker-hub-credential
           requires:
-            - build
             - publish
