@@ -1,17 +1,17 @@
 version: 2.1
 
 orbs:
-  docker: circleci/docker@2.2.0
   aws-cli: circleci/aws-cli@4.0.0
   slack: circleci/slack@4.12.5
 
 executors:
   go:
     docker:
-      - image: cimg/go:1.19.3
+      - image: docker:stable
     environment:
       CGO_ENABLED: 0
       DOCKER_BUILDKIT: 1
+      IMAGE_TAG: $DOCKERHUB_USER/joinhello-backend:staging
 
 commands:
   build-docker-image:
@@ -19,15 +19,14 @@ commands:
       - run:
           name: Build Latest Docker Image
           command: |
-            docker build -t joinhello/backend:staging -f ./docker/Dockerfile .
+            docker build -t "${IMAGE_TAG}" -f ./docker/Dockerfile .
   publish-docker-image:
     steps:
       - run:
           name: Publish Docker Image to Docker Hub
           command: |
             echo "$DOCKERHUB_ACCESS_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
-            docker tag joinhello/backend:staging $DOCKERHUB_USER/joinhello-backend:staging
-            docker push $DOCKERHUB_USER/joinhello-backend:staging
+            docker push "${IMAGE_TAG}"
   deploy-to-ec2:
     steps:
       - run:
@@ -46,6 +45,13 @@ jobs:
           version: 20.10.14
           docker_layer_caching: true
       - build-docker-image
+      - run:
+          name: Archive Docker image
+          command: docker save --output image.tar "${IMAGE_TAG}"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
   publish:
     executor: go
     steps:
@@ -53,6 +59,11 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
           docker_layer_caching: true
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Load Docker image
+          command: docker load --input /tmp/workspace/image.tar
       - publish-docker-image
   deploy:
     executor: aws-cli/default
@@ -68,11 +79,11 @@ jobs:
 workflows:
   joinhello-staging:
     jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - staging
+      - build
+      # filters:
+      #   branches:
+      #     only:
+      #       - staging
       - publish:
           context:
             - docker-hub-credential
