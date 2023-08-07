@@ -25,8 +25,9 @@ commands:
       - run:
           name: Publish Docker Image to Docker Hub
           command: |
-            echo "$DOCKERHUB_USER" "$DOCKERHUB_ACCESS_TOKEN"
-            docker login -u $DOCKERHUB_USER --password-stdin $DOCKERHUB_ACCESS_TOKEN
+            echo "$DOCKERHUB_ACCESS_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
+            docker tag joinhello/backend:0.0.1 $DOCKERHUB_USER/joinhello-backend:0.0.1
+            docker push $DOCKERHUB_USER/joinhello-backend:0.0.1
 
 jobs:
   build:
