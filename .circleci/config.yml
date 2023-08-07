@@ -31,13 +31,11 @@ commands:
   deploy-to-ec2:
     steps:
       - run:
-          name: Deploy
+          name: Deploy over SSH
           command: |
             EC2_USERNAME=ubuntu
             EC2_PUBLIC_DNS=api-staging.joinhello.app
-            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS \
-            cd workspace/joinhello-backend-staging \
-            sudo docker compose up -d --build
+            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS "cd workspace/joinhello-backend-staging && sudo docker compose up -d --build"
 
 jobs:
   build:
@@ -70,12 +68,12 @@ jobs:
 workflows:
   joinhello-staging:
     jobs:
-      - build
-      - publish:
-          context:
-            - docker-hub-credential
-          requires:
-            - build
+      # - build
+      # - publish:
+      #     context:
+      #       - docker-hub-credential
+      #     requires:
+      #       - build
       - deploy:
           context:
             - aws-credential
