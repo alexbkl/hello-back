@@ -89,7 +89,7 @@ func TestAuthMiddleware(t *testing.T) {
 			app, router := api.NewApiTest()
 
 			TokenSymmetricKey := rnd.GenerateRandomString(32)
-			tokenMaker, err := token.NewPasetoMaker(TokenSymmetricKey)
+			tokenMaker, _ := token.NewPasetoMaker(TokenSymmetricKey)
 			authPath := "/auth"
 			router.GET(
 				authPath,
@@ -98,9 +98,9 @@ func TestAuthMiddleware(t *testing.T) {
 					ctx.JSON(http.StatusOK, gin.H{})
 				},
 			)
-
+			// fmt.Sprintf("/api/%s", authPath)
 			recorder := httptest.NewRecorder()
-			request, err := http.NewRequest(http.MethodGet, authPath, nil)
+			request, err := http.NewRequest(http.MethodGet, "/api/auth", nil)
 			require.NoError(t, err)
 
 			tc.setupAuth(t, request, tokenMaker)
