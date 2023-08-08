@@ -1,12 +1,17 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 
+	"github.com/Hello-Storage/hello-back/internal/config"
+	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
 	"github.com/Hello-Storage/hello-back/internal/form"
 	"github.com/Hello-Storage/hello-back/internal/query"
+	"github.com/Hello-Storage/hello-back/pkg/token"
+	"github.com/Hello-Storage/hello-back/pkg/web3"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +20,7 @@ var authMutex = sync.Mutex{}
 // LoginUser
 //
 // POST /api/login
-func LoginUser(router *gin.RouterGroup) {
+func LoginUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 	router.POST("/login", func(ctx *gin.Context) {
 		var f form.LoginUserRequest
 		if err := ctx.BindJSON(&f); err != nil {
@@ -26,24 +31,61 @@ func LoginUser(router *gin.RouterGroup) {
 		authMutex.Lock()
 		defer authMutex.Unlock()
 
-		u := entity.User{
-			Name: f.Name,
-		}
-
-		// TO-DO check exists user info, if
-		if user := query.FindUser(u); user != nil {
-			Abort(ctx, http.StatusBadRequest, "user already exists!")
-		}
-
-		if err := u.Create(); err != nil {
-			AbortInternalServerError(ctx)
+		u := query.FindUserByWalletAddress(f.WalletAddress)
+		if u == nil {
+			Abort(ctx, http.StatusNotFound, "user not exists!")
 			return
 		}
 
-		ctx.JSON(
-			http.StatusOK,
-			"user created!",
+		// retrieve nonce
+		nonce, err := u.RetrieveNonce(false)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+			return
+		}
+
+		log.Infof("nonce: %s", nonce)
+
+		// validate signature
+		result := web3.ValidateMessageSignature(f.WalletAddress, f.Signature, constant.BuildLoginMessage(nonce))
+		if !result {
+			ctx.JSON(http.StatusBadRequest, "invalide signature")
+			return
+		}
+
+		// authorization token
+		accessToken, accessPayload, err := tokenMaker.CreateToken(
+			u.Name,
+			config.Env().AccessTokenDuration,
 		)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+			return
+		}
+
+		refreshToken, refreshPayload, err := tokenMaker.CreateToken(
+			u.Name,
+			config.Env().RefreshTokenDuration,
+		)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+			return
+		}
+
+		// TO-DO create session part
+
+		rsp := form.LoginUserResponse{
+			// SessionID:             session.ID,
+			AccessToken:           accessToken,
+			AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+			RefreshToken:          refreshToken,
+			RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
+			User: form.UserResponse{
+				Name: u.Name,
+				Role: fmt.Sprintf("%v", u.Role),
+			},
+		}
+		ctx.JSON(http.StatusOK, rsp)
 	})
 
 }

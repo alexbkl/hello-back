@@ -66,6 +66,7 @@ func (m *User) RetrieveNonce(renew bool) (string, error) {
 				return "", err
 			}
 		}
+		w = u.Wallet
 		return w.Nonce, nil
 	} else {
 		m.Name = m.Wallet.Address

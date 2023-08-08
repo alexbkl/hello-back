@@ -31,7 +31,7 @@ func registerRoutes(router *gin.Engine) {
 	api.Ping(APIv1)
 
 	// auth routes
-	api.LoginUser(APIv1)
+	api.LoginUser(APIv1, tokenMaker)
 	api.RegisterUser(APIv1)
 	api.RenewAccessToken(APIv1, tokenMaker)
 	api.RequestNonce(APIv1)

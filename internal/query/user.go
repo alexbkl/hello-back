@@ -40,3 +40,13 @@ func FindUser(find entity.User) *entity.User {
 	return m
 
 }
+
+func FindUserByWalletAddress(walletAddress string) *entity.User {
+	u := &entity.User{}
+
+	if err := db.Db().Model(u).Preload("Wallet").Where("id IN (?)", db.Db().Table("wallets").Select("user_id").Where("address = ?", walletAddress)).First(u).Error; err == nil {
+		return u
+	} else {
+		return nil
+	}
+}
