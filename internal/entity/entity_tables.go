@@ -18,6 +18,7 @@ var Entities = Tables{
 	Folder{}.TableName():     &Folder{},
 	FileUser{}.TableName():   &FileUser{},
 	FolderUser{}.TableName(): &FolderUser{},
+	Wallet{}.TableName():     &Wallet{},
 }
 
 // WaitForMigration waits for the database migration to be successful.

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -12,6 +13,10 @@ type EnvVar struct {
 	// App env
 	AppPort string `mapstructure:"APP_PORT"`
 	AppEnv  string `mapstructure:"APP_ENV"`
+	// token env
+	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
+	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 	// Postgres
 	DBHost     string `mapstructure:"POSTGRES_HOST"`
 	DBName     string `mapstructure:"POSTGRES_DB"`
@@ -31,16 +36,36 @@ func LoadEnv() (err error) {
 	// skip load env when docker
 	if os.Getenv("APP_PORT") == "" {
 		err = godotenv.Load(".env")
+		if err != nil {
+			return err
+		}
+	}
+
+	atd, err := time.ParseDuration(os.Getenv("ACCESS_TOKEN_DURATION"))
+	if err != nil {
+		return err
+	}
+
+	rtd, err := time.ParseDuration(os.Getenv("REFRESH_TOKEN_DURATION"))
+	if err != nil {
+		return err
 	}
 
 	env = EnvVar{
-		AppPort:            os.Getenv("APP_PORT"),
-		AppEnv:             os.Getenv("APP_ENV"),
-		DBHost:             os.Getenv("POSTGRES_HOST"),
-		DBName:             os.Getenv("POSTGRES_DB"),
-		DBUser:             os.Getenv("POSTGRES_USER"),
-		DBPassword:         os.Getenv("POSTGRES_PASSWORD"),
-		DBPort:             os.Getenv("POSTGRES_PORT"),
+		// App env
+		AppPort: os.Getenv("APP_PORT"),
+		AppEnv:  os.Getenv("APP_ENV"),
+		// token env
+		TokenSymmetricKey:    os.Getenv("TOKEN_SYMMETRIC_KEY"),
+		AccessTokenDuration:  atd,
+		RefreshTokenDuration: rtd,
+		// Postgres
+		DBHost:     os.Getenv("POSTGRES_HOST"),
+		DBName:     os.Getenv("POSTGRES_DB"),
+		DBUser:     os.Getenv("POSTGRES_USER"),
+		DBPassword: os.Getenv("POSTGRES_PASSWORD"),
+		DBPort:     os.Getenv("POSTGRES_PORT"),
+		// Filebase credential
 		FilebaseBucket:     os.Getenv("FILEBASE_BUCKET"),
 		FilebaseAccessKey:  os.Getenv("FILEBASE_ACCESS_KEY"),
 		FilebaseSecretKey:  os.Getenv("FILEBASE_SECRET_KEY"),
