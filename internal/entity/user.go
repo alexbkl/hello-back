@@ -21,9 +21,10 @@ const (
 
 type User struct {
 	gorm.Model
-	UID  string `gorm:"type:varchar(42);column:user_uid;uniqueIndex"`
-	Name string `gorm:"unique;not null;max:50" json:"name"`
-	Role role   `gorm:"not null;default:user" json:"role"`
+	UID    string `gorm:"type:varchar(42);uniqueIndex"`
+	Name   string `gorm:"unique;not null;max:50" json:"name"`
+	Role   role   `gorm:"not null;default:user" json:"role"`
+	Wallet Wallet `json:"wallet"`
 }
 
 // TableName returns the entity table name.
@@ -50,4 +51,30 @@ func (m *User) BeforeCreate(db *gorm.DB) error {
 
 	return nil
 	// return db.Scopes().SetColumn("UserUID", m.UserUID)
+}
+
+func (m *User) RetrieveNonce(renew bool) (string, error) {
+	u := User{}
+	w := Wallet{}
+
+	// query for find user from wallet address
+	if err := db.Db().Model(&u).Preload("Wallet").Where("id IN (?)", db.Db().Table("wallets").Select("user_id").Where("address = ?", m.Wallet.Address)).First(&u).Error; err == nil {
+		if renew {
+			w = u.Wallet
+			w.Nonce = rnd.GenerateRandomString(16)
+			if err := w.Save(); err != nil {
+				return "", err
+			}
+		}
+		w = u.Wallet
+		return w.Nonce, nil
+	} else {
+		m.Name = m.Wallet.Address
+
+		if err := m.Create(); err != nil {
+			return "", err
+		}
+	}
+
+	return m.Wallet.Nonce, nil
 }

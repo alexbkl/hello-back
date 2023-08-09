@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Hello-Storage/hello-back/internal/config"
@@ -30,18 +31,19 @@ func Start(ctx context.Context) {
 
 	// cors config
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "https://joinhello.on.fleek.co", "https://staging-joinhello.on.fleek.co"},
+		AllowOrigins:     []string{"http://localhost:5173", "https://staging.joinhello.app", "https://joinhello.app", "https://joinhello.vercel.app"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
 		AllowCredentials: false,
-		MaxAge:           12 * time.Hour,
+		AllowOriginFunc: func(origin string) bool {
+			return strings.Contains(origin, "hello-storage.vercel.app")
+		},
+		MaxAge: 12 * time.Hour,
 	}))
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "hello backend api endpoints \n version: 0.0.1")
 	})
-	// Create REST API router group.
-	APIv1 = router.Group("/api")
 
 	config.LoadEnv()
 	// Register HTTP route handlers.
