@@ -37,6 +37,7 @@ func registerRoutes(router *gin.Engine) {
 	api.RequestNonce(APIv1)
 
 	// user routes
+	api.LoadUser(AuthAPIv1)
 	api.UpdateUser(AuthAPIv1)
 
 	// file routes

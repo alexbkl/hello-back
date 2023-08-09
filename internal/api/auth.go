@@ -17,6 +17,23 @@ import (
 
 var authMutex = sync.Mutex{}
 
+// LoadUser
+//
+// POST /api/load
+func LoadUser(router *gin.RouterGroup) {
+	router.POST("/load", func(ctx *gin.Context) {
+		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
+
+		u := query.FindUserByName(authPayload.Username)
+		if u == nil {
+			ctx.JSON(http.StatusNotFound, "user not found")
+			return
+		}
+
+		ctx.JSON(http.StatusOK, u)
+	})
+}
+
 // LoginUser
 //
 // POST /api/login

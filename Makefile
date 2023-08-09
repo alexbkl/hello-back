@@ -7,6 +7,10 @@ APP_NAME=hello
 DOCKER_COMPOSE=docker compose
 GOTEST=go test
 
+run: 
+	go run cmd/main.go
+dev:
+	air -c .air.toml
 # 
 develop:
 	$(DOCKER_COMPOSE) -f compose.dev.yml up -d --build --wait
