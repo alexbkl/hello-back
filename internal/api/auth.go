@@ -29,7 +29,19 @@ func LoadUser(router *gin.RouterGroup) {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, u)
+		var resp = struct {
+			UID           string `json:"uid"`
+			Name          string `json:"name"`
+			Role          string `json:"role"`
+			WalletAddress string `json:"walletAddress"`
+		}{
+			UID:           u.UID,
+			Name:          u.Name,
+			Role:          string(u.Role),
+			WalletAddress: u.Wallet.Address,
+		}
+
+		ctx.JSON(http.StatusOK, resp)
 	})
 }
 

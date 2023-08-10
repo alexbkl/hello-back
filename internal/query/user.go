@@ -46,7 +46,7 @@ func FindUserByName(name string) *entity.User {
 
 	stmt := db.UnscopedDb()
 
-	stmt = stmt.Where("name = ?", name)
+	stmt = stmt.Where("name = ?", name).Preload("Wallet")
 
 	if err := stmt.First(m).Error; err != nil {
 		return nil
