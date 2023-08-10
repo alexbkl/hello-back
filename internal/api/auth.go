@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -19,9 +18,9 @@ var authMutex = sync.Mutex{}
 
 // LoadUser
 //
-// POST /api/load
+// GET /api/load
 func LoadUser(router *gin.RouterGroup) {
-	router.POST("/load", func(ctx *gin.Context) {
+	router.GET("/load", func(ctx *gin.Context) {
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
 		u := query.FindUserByName(authPayload.Username)
@@ -97,10 +96,6 @@ func LoginUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 			AccessTokenExpiresAt:  accessPayload.ExpiredAt,
 			RefreshToken:          refreshToken,
 			RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
-			User: form.UserResponse{
-				Name: u.Name,
-				Role: fmt.Sprintf("%v", u.Role),
-			},
 		}
 		ctx.JSON(http.StatusOK, rsp)
 	})

@@ -21,7 +21,7 @@ const (
 
 type User struct {
 	gorm.Model
-	UID    string `gorm:"type:varchar(42);uniqueIndex"`
+	UID    string `gorm:"type:varchar(42);uniqueIndex" json:"uid"`
 	Name   string `gorm:"unique;not null;max:50" json:"name"`
 	Role   role   `gorm:"not null;default:user" json:"role"`
 	Wallet Wallet `json:"wallet"`
@@ -54,19 +54,18 @@ func (m *User) BeforeCreate(db *gorm.DB) error {
 }
 
 func (m *User) RetrieveNonce(renew bool) (string, error) {
-	u := User{}
-	w := Wallet{}
+	u := &User{}
+	w := &Wallet{}
 
 	// query for find user from wallet address
 	if err := db.Db().Model(&u).Preload("Wallet").Where("id IN (?)", db.Db().Table("wallets").Select("user_id").Where("address = ?", m.Wallet.Address)).First(&u).Error; err == nil {
+		w = &u.Wallet
 		if renew {
-			w = u.Wallet
 			w.Nonce = rnd.GenerateRandomString(16)
 			if err := w.Save(); err != nil {
 				return "", err
 			}
 		}
-		w = u.Wallet
 		return w.Nonce, nil
 	} else {
 		m.Name = m.Wallet.Address
