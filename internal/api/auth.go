@@ -117,7 +117,7 @@ func LoginUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 // RegisterUser
 //
 // POST /api/register
-func RegisterUser(router *gin.RouterGroup) {
+func RegisterUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 	router.POST("/register", func(ctx *gin.Context) {
 		var f form.RegisterUserRequest
 		if err := ctx.BindJSON(&f); err != nil {

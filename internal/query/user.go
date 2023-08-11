@@ -26,6 +26,8 @@ func FindUser(find entity.User) *entity.User {
 		stmt = stmt.Where("id = ?", find.ID)
 	} else if rnd.IsUID(find.UID, entity.UserUID) {
 		stmt = stmt.Where("uid = ?", find.UID)
+	} else if find.Email != "" {
+		stmt = stmt.Where("email = ?", find.Email)
 	} else if find.Name != "" {
 		stmt = stmt.Where("name = ?", find.Name)
 	} else {
