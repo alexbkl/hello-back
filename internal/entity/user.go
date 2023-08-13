@@ -21,10 +21,12 @@ const (
 
 type User struct {
 	gorm.Model
-	UID    string `gorm:"type:varchar(42);uniqueIndex" json:"uid"`
-	Name   string `gorm:"unique;not null;max:50" json:"name"`
-	Role   role   `gorm:"not null;default:user" json:"role"`
-	Wallet Wallet `json:"wallet"`
+	UID      string `gorm:"type:varchar(42);uniqueIndex" json:"uid"`
+	Name     string `gorm:"unique;not null;max:50" json:"name"`
+	Email    string `gorm:"unique;" json:"email"`
+	Password string `gorm:"type:varchar(64)" json:"password"`
+	Role     role   `gorm:"not null;default:user" json:"role"`
+	Wallet   Wallet `json:"wallet"`
 }
 
 // TableName returns the entity table name.
