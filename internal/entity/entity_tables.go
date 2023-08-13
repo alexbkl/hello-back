@@ -14,11 +14,13 @@ type Tables map[string]interface{}
 var Entities = Tables{
 	Error{}.TableName():      &Error{},
 	User{}.TableName():       &User{},
+	Email{}.TableName():      &Email{},
+	Wallet{}.TableName():     &Wallet{},
+	Github{}.TableName():     &Github{},
 	File{}.TableName():       &File{},
 	Folder{}.TableName():     &Folder{},
 	FileUser{}.TableName():   &FileUser{},
 	FolderUser{}.TableName(): &FolderUser{},
-	Wallet{}.TableName():     &Wallet{},
 }
 
 // WaitForMigration waits for the database migration to be successful.

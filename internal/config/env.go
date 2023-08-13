@@ -11,23 +11,25 @@ import (
 
 type EnvVar struct {
 	// App env
-	AppPort string `mapstructure:"APP_PORT"`
-	AppEnv  string `mapstructure:"APP_ENV"`
+	AppPort string
+	AppEnv  string
 	// token env
-	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
-	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
-	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
-	// Postgres
-	DBHost     string `mapstructure:"POSTGRES_HOST"`
-	DBName     string `mapstructure:"POSTGRES_DB"`
-	DBUser     string `mapstructure:"POSTGRES_USER"`
-	DBPassword string `mapstructure:"POSTGRES_PASSWORD"`
-	DBPort     string `mapstructure:"POSTGRES_PORT"`
+	TokenSymmetricKey    string
+	AccessTokenDuration  time.Duration
+	RefreshTokenDuration time.Duration
+	DBHost               string
+	DBName               string
+	DBUser               string
+	DBPassword           string
+	DBPort               string
 	// Filebase credential
-	FilebaseBucket     string `mapstructure:"FILEBASE_BUCKET"`
-	FilebaseAccessKey  string `mapstructure:"FILEBASE_ACCESS_KEY"`
-	FilebaseSecretKey  string `mapstructure:"FILEBASE_SECRET_KEY"`
-	FilebasePinningKey string `mapstructure:"FILEBASE_PINNING_KEY"`
+	FilebaseBucket     string
+	FilebaseAccessKey  string
+	FilebaseSecretKey  string
+	FilebasePinningKey string
+	// Github OAuth credential
+	GithubClientID     string
+	GithubClientSecret string
 }
 
 var env EnvVar
@@ -70,6 +72,9 @@ func LoadEnv() (err error) {
 		FilebaseAccessKey:  os.Getenv("FILEBASE_ACCESS_KEY"),
 		FilebaseSecretKey:  os.Getenv("FILEBASE_SECRET_KEY"),
 		FilebasePinningKey: os.Getenv("FILEBASE_PINNING_KEY"),
+		// Github OAuth credentail
+		GithubClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+		GithubClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 	}
 
 	values := reflect.ValueOf(env)
