@@ -168,6 +168,7 @@ func RequestNonce(router *gin.RouterGroup) {
 			},
 		}
 
+		log.Info("renew", u)
 		nonce, err := u.RetrieveNonce(true)
 		if err != nil {
 			ctx.JSON(

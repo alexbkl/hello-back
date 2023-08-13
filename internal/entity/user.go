@@ -21,12 +21,12 @@ const (
 
 type User struct {
 	gorm.Model
-	UID      string `gorm:"type:varchar(42);uniqueIndex" json:"uid"`
-	Name     string `gorm:"unique;not null;max:50" json:"name"`
-	Email    string `gorm:"unique;" json:"email"`
-	Password string `gorm:"type:varchar(64)" json:"password"`
-	Role     role   `gorm:"not null;default:user" json:"role"`
-	Wallet   Wallet `json:"wallet"`
+	UID    string `gorm:"type:varchar(42);uniqueIndex" json:"uid"`
+	Name   string `gorm:"unique;not null;max:50" json:"name"`
+	Role   role   `gorm:"not null;default:user" json:"role"`
+	Email  Email  `json:"email"`
+	Wallet Wallet `json:"wallet"`
+	Github Github `json:"github"`
 }
 
 // TableName returns the entity table name.
@@ -61,6 +61,8 @@ func (m *User) RetrieveNonce(renew bool) (string, error) {
 
 	// query for find user from wallet address
 	if err := db.Db().Model(&u).Preload("Wallet").Where("id IN (?)", db.Db().Table("wallets").Select("user_id").Where("address = ?", m.Wallet.Address)).First(&u).Error; err == nil {
+
+		log.Info("err: ", err)
 		w = &u.Wallet
 		if renew {
 			w.Nonce = rnd.GenerateRandomString(16)
