@@ -6,9 +6,11 @@ import (
 	"net/http"
 
 	"github.com/Hello-Storage/hello-back/internal/config"
+	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
 	"github.com/Hello-Storage/hello-back/pkg/fs"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
+	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/gin-gonic/gin"
@@ -23,6 +25,7 @@ import (
 func UploadFiles(router *gin.RouterGroup) {
 	router.POST("/upload", func(ctx *gin.Context) {
 		// TO-DO check user auth & add user uid
+		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
 		// Multipart form
 		form, err := ctx.MultipartForm()
@@ -61,13 +64,15 @@ func UploadFiles(router *gin.RouterGroup) {
 				Size: file.Size,
 			}
 
-			if err := f.Create(); err != nil {
+			// upload file
+			if err := UploadFile(file, authPayload.UID, f.UID); err != nil {
 				log.Errorf("api: upload %s", err)
 				AbortInternalServerError(ctx)
 				return
 			}
 
-			if err := UploadFile(file, "uryccyssiQy3GIjtG6dWg4AXFTkqVMd1", f.UID); err != nil {
+			// save file info to db
+			if err := f.Create(); err != nil {
 				log.Errorf("api: upload %s", err)
 				AbortInternalServerError(ctx)
 				return

@@ -29,6 +29,7 @@ func RenewAccessToken(router *gin.RouterGroup, tokenMaker token.Maker) {
 		// TO-DO check session
 
 		accessToken, accessPayload, err := tokenMaker.CreateToken(
+			refreshPayload.UID,
 			refreshPayload.Username,
 			config.Env().AccessTokenDuration,
 		)

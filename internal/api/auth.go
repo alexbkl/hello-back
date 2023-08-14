@@ -83,6 +83,7 @@ func LoginUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 
 		// authorization token
 		accessToken, accessPayload, err := tokenMaker.CreateToken(
+			u.UID,
 			u.Name,
 			config.Env().AccessTokenDuration,
 		)
@@ -92,6 +93,7 @@ func LoginUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 		}
 
 		refreshToken, refreshPayload, err := tokenMaker.CreateToken(
+			u.UID,
 			u.Name,
 			config.Env().RefreshTokenDuration,
 		)
