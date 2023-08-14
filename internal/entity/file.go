@@ -55,7 +55,7 @@ func (m *File) BeforeCreate(db *gorm.DB) error {
 	return nil
 }
 
-func FirstOrCreateFile(m *File) *File {
+func (m *File) FirstOrCreateFile() *File {
 	result := File{}
 
 	if err := db.Db().Where("uid = ?", m.UID).First(&result).Error; err == nil {

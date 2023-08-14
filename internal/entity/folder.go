@@ -39,3 +39,16 @@ func (m *Folder) BeforeCreate(db *gorm.DB) error {
 
 	return nil
 }
+
+func (m *Folder) FirstOrCreateFolderByTitleAndRoot() *Folder {
+	result := Folder{}
+
+	if err := db.Db().Where("title = ? AND root = ?", m.Title, m.Root).First(&result).Error; err == nil {
+		return &result
+	} else if err := m.Create(); err != nil {
+		log.Errorf("Folder: %s", err)
+		return nil
+	}
+
+	return m
+}

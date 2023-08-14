@@ -1,14 +1,17 @@
 package api
 
 import (
+	"errors"
 	"fmt"
+	"mime"
 	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
-	"github.com/Hello-Storage/hello-back/pkg/fs"
+	"github.com/Hello-Storage/hello-back/internal/query"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/aws/aws-sdk-go/aws"
@@ -27,6 +30,8 @@ func UploadFiles(router *gin.RouterGroup) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
+		u := query.FindUser(entity.User{UID: authPayload.UID})
+		log.Infof("u : ", authPayload.UID)
 		// Multipart form
 		form, err := ctx.MultipartForm()
 
@@ -41,49 +46,62 @@ func UploadFiles(router *gin.RouterGroup) {
 		var r string
 		if len(root) > 0 {
 			r = root[0]
-			log.Infof("file: %s", r)
 		} else {
 			r = "/"
 		}
 
 		for _, file := range files {
-			log.Infof("api: upload %s", file.Filename)
-
-			mime, err := fs.GetFileContentType(file)
-
+			_, params, err := mime.ParseMediaType(file.Header.Get("Content-Disposition"))
 			if err != nil {
-				log.Errorf("api: upload %s", err)
+				log.Errorf("parse media type: %s", err)
 				AbortInternalServerError(ctx)
 				return
 			}
+
+			mime := file.Header.Get("Content-Type")
+
+			file_path := params["filename"]
+			actual_root, err := GetAndProcessFileRoot(file_path, r, u.ID)
+			log.Infof("actual_root: %s", actual_root)
 
 			f := entity.File{
 				Name: file.Filename,
-				Root: r,
+				Root: actual_root,
 				Mime: mime,
 				Size: file.Size,
 			}
+			if err := f.Create(); err != nil {
+				AbortInternalServerError(ctx)
+				return
+			}
+			log.Infof("file: ", f)
+
+			// create file_user relation
+			f_u := entity.FileUser{
+				FileID: f.ID,
+				UserID: u.ID,
+			}
+			if err := f_u.Create(); err != nil {
+				AbortInternalServerError(ctx)
+				return
+			}
 
 			// upload file
-			if err := UploadFile(file, authPayload.UID, f.UID); err != nil {
-				log.Errorf("api: upload %s", err)
-				AbortInternalServerError(ctx)
-				return
-			}
+			// if err := UploadFileToS3(file, authPayload.UID, f.UID); err != nil {
+			// 	log.Errorf("api: upload %s", err)
+			// 	AbortInternalServerError(ctx)
+			// 	return
+			// }
 
 			// save file info to db
-			if err := f.Create(); err != nil {
-				log.Errorf("api: upload %s", err)
-				AbortInternalServerError(ctx)
-				return
-			}
+
 		}
 		ctx.JSON(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 	})
 }
 
 // internal upload one file
-func UploadFile(file *multipart.FileHeader, user_uid, key string) error {
+func UploadFileToS3(file *multipart.FileHeader, user_uid, key string) error {
 
 	s3Config := aws.Config{
 		Credentials:      credentials.NewStaticCredentials(config.Env().FilebaseAccessKey, config.Env().FilebaseSecretKey, ""),
@@ -95,4 +113,38 @@ func UploadFile(file *multipart.FileHeader, user_uid, key string) error {
 	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, user_uid, key)
 
 	return err
+}
+
+// internal
+// here root => uid format
+func GetAndProcessFileRoot(file_path, root string, user_id uint) (string, error) {
+	res := strings.Split(file_path, "/")
+	if len(res) == 1 {
+		return root, nil
+	}
+
+	sub_file_path := strings.Join(res[1:], "/")
+	sub_title := res[0]
+
+	f := (&entity.Folder{
+		Title: sub_title,
+		Root:  root,
+	}).FirstOrCreateFolderByTitleAndRoot()
+
+	if f == nil {
+		return "", errors.New("can't create folder")
+	}
+
+	// create folder_user relation
+	f_u := &entity.FolderUser{
+		FolderID:   f.ID,
+		UserID:     user_id,
+		Permission: entity.OwnerPermission,
+	}
+
+	if err := f_u.Create(); err != nil {
+		return "", errors.New("can't create folder_user relation")
+	}
+
+	return GetAndProcessFileRoot(sub_file_path, f.UID, user_id)
 }
