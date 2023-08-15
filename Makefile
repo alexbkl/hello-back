@@ -16,6 +16,8 @@ develop:
 	$(DOCKER_COMPOSE) -f compose.dev.yml up -d --build --wait
 stop-develop:
 	$(DOCKER_COMPOSE) -f compose.dev.yml stop
+down-develop:
+	$(DOCKER_COMPOSE) -f compose.dev.yml down --volumes
 production:
 	$(DOCKER_COMPOSE) -f compose.prod.yml up -d --build
 stop-production:

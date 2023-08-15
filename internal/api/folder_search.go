@@ -28,10 +28,18 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 		resp := FolderResponse{Root: root}
 
 		// TO-DO folders
+		if folders, err := query.FoldersByRoot(root); err != nil {
+			log.Errorf("folder: %s", err)
+
+			AbortInternalServerError(ctx)
+			return
+		} else {
+			resp.Folders = folders
+		}
 
 		// files
 		if files, err := query.FilesByRoot(root); err != nil {
-			log.Errorf("folder: %s", err)
+			log.Errorf("file: %s", err)
 
 			AbortInternalServerError(ctx)
 			return
