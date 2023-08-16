@@ -3,8 +3,10 @@ package api
 import (
 	"net/http"
 
+	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
 	"github.com/Hello-Storage/hello-back/internal/query"
+	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -55,7 +57,14 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 	})
 
 	router.GET("/folder/:uid", func(ctx *gin.Context) {
+		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 		uid := ctx.Param("uid")
+
+		// check if user own this root
+		if perm := query.CheckFolderPermByUser(uid, authPayload.UserID); !perm {
+			ctx.JSON(http.StatusForbidden, "don't have access")
+			return
+		}
 
 		handler(ctx, uid)
 	})

@@ -52,6 +52,7 @@ func OAuthGoogle(router *gin.RouterGroup, tokenMaker token.Maker) {
 
 		// authorization token
 		accessToken, accessPayload, err := tokenMaker.CreateToken(
+			u.ID,
 			u.UID,
 			u.Name,
 			config.Env().AccessTokenDuration,
@@ -62,6 +63,7 @@ func OAuthGoogle(router *gin.RouterGroup, tokenMaker token.Maker) {
 		}
 
 		refreshToken, refreshPayload, err := tokenMaker.CreateToken(
+			u.ID,
 			u.UID,
 			u.Name,
 			config.Env().RefreshTokenDuration,
@@ -130,6 +132,7 @@ func OAuthGithub(router *gin.RouterGroup, tokenMaker token.Maker) {
 
 		// authorization token
 		accessToken, accessPayload, err := tokenMaker.CreateToken(
+			u.ID,
 			u.UID,
 			u.Name,
 			config.Env().AccessTokenDuration,
@@ -140,6 +143,7 @@ func OAuthGithub(router *gin.RouterGroup, tokenMaker token.Maker) {
 		}
 
 		refreshToken, refreshPayload, err := tokenMaker.CreateToken(
+			u.ID,
 			u.UID,
 			u.Name,
 			config.Env().RefreshTokenDuration,

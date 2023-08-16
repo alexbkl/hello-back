@@ -11,7 +11,6 @@ import (
 	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
-	"github.com/Hello-Storage/hello-back/internal/query"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/aws/aws-sdk-go/aws"
@@ -30,8 +29,6 @@ func UploadFiles(router *gin.RouterGroup) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUser(entity.User{UID: authPayload.UID})
-		log.Infof("u : ", authPayload.UID)
 		// Multipart form
 		form, err := ctx.MultipartForm()
 
@@ -61,7 +58,7 @@ func UploadFiles(router *gin.RouterGroup) {
 			mime := file.Header.Get("Content-Type")
 
 			file_path := params["filename"]
-			actual_root, err := GetAndProcessFileRoot(file_path, r, u.ID)
+			actual_root, err := GetAndProcessFileRoot(file_path, r, authPayload.UserID)
 			log.Infof("actual_root: %s", actual_root)
 
 			f := entity.File{
@@ -74,12 +71,11 @@ func UploadFiles(router *gin.RouterGroup) {
 				AbortInternalServerError(ctx)
 				return
 			}
-			log.Infof("file: ", f)
 
 			// create file_user relation
 			f_u := entity.FileUser{
 				FileID: f.ID,
-				UserID: u.ID,
+				UserID: authPayload.UserID,
 			}
 			if err := f_u.Create(); err != nil {
 				AbortInternalServerError(ctx)

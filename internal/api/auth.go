@@ -12,6 +12,7 @@ import (
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/Hello-Storage/hello-back/pkg/web3"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 var authMutex = sync.Mutex{}
@@ -23,7 +24,7 @@ func LoadUser(router *gin.RouterGroup) {
 	router.GET("/load", func(ctx *gin.Context) {
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUserByName(authPayload.Username)
+		u := query.FindUser(entity.User{Model: gorm.Model{ID: authPayload.UserID}})
 		if u == nil {
 			ctx.JSON(http.StatusNotFound, "user not found")
 			return
@@ -83,6 +84,7 @@ func LoginUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 
 		// authorization token
 		accessToken, accessPayload, err := tokenMaker.CreateToken(
+			u.ID,
 			u.UID,
 			u.Name,
 			config.Env().AccessTokenDuration,
@@ -93,6 +95,7 @@ func LoginUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 		}
 
 		refreshToken, refreshPayload, err := tokenMaker.CreateToken(
+			u.ID,
 			u.UID,
 			u.Name,
 			config.Env().RefreshTokenDuration,

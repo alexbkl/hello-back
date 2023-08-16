@@ -58,7 +58,8 @@ func FindUserByName(name string) *entity.User {
 func FindUserByEmail(email string) *entity.User {
 	u := &entity.User{}
 
-	if err := db.Db().Model(u).Preload("Email").Where("id IN (?)", db.Db().Table("emails").Select("user_id").Where("email = ?", email)).First(u).Error; err == nil {
+	subquery := db.Db().Table("emails").Select("user_id").Where("email = ?", email)
+	if err := db.Db().Model(u).Preload("Email").Where("id IN (?)", subquery).First(u).Error; err == nil {
 		return u
 	} else {
 		return nil
@@ -68,7 +69,8 @@ func FindUserByEmail(email string) *entity.User {
 func FindUserByWalletAddress(walletAddress string) *entity.User {
 	u := &entity.User{}
 
-	if err := db.Db().Model(u).Preload("Wallet").Where("id IN (?)", db.Db().Table("wallets").Select("user_id").Where("address = ?", walletAddress)).First(u).Error; err == nil {
+	subquery := db.Db().Table("wallets").Select("user_id").Where("address = ?", walletAddress)
+	if err := db.Db().Model(u).Preload("Wallet").Where("id IN (?)", subquery).First(u).Error; err == nil {
 		return u
 	} else {
 		return nil
@@ -78,7 +80,8 @@ func FindUserByWalletAddress(walletAddress string) *entity.User {
 func FindUserByGithub(github_id uint) *entity.User {
 	u := &entity.User{}
 
-	if err := db.Db().Model(u).Preload("Github").Where("id IN (?)", db.Db().Table("githubs").Select("user_id").Where("github_id = ?", github_id)).First(u).Error; err == nil {
+	subquery := db.Db().Table("githubs").Select("user_id").Where("github_id = ?", github_id)
+	if err := db.Db().Model(u).Preload("Github").Where("id IN (?)", subquery).First(u).Error; err == nil {
 		return u
 	} else {
 		return nil
