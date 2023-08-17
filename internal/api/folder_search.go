@@ -12,9 +12,10 @@ import (
 
 // FolderResponse represents the folder API response.
 type FolderResponse struct {
-	Root    string          `json:"root"`
-	Folders []entity.Folder `json:"folders"`
-	Files   []entity.File   `json:"files"`
+	Root    string         `json:"root"`
+	Path    entity.Folders `json:"path"`
+	Folders entity.Folders `json:"folders"`
+	Files   entity.Files   `json:"files"`
 }
 
 // SearchFolders returns folders & files under request foldera s JSON.
@@ -49,6 +50,7 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 			} else {
 				resp.Files = files
 			}
+
 		} else {
 			if folders, err := query.FoldersByRoot(root); err != nil {
 				log.Errorf("folder: %s", err)
@@ -69,6 +71,9 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 				resp.Files = files
 			}
 		}
+
+		// add path
+		resp.Path = query.FindFolderPathByRoot(root)
 
 		ctx.JSON(http.StatusOK, resp)
 	}
