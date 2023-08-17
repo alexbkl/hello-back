@@ -28,7 +28,7 @@ func UploadFiles(router *gin.RouterGroup) {
 	router.POST("/upload", func(ctx *gin.Context) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
-    
+
 		// Multipart form
 		form, err := ctx.MultipartForm()
 
@@ -100,7 +100,11 @@ func UploadFiles(router *gin.RouterGroup) {
 func UploadFileToS3(file *multipart.FileHeader, key string) error {
 
 	s3Config := aws.Config{
-		Credentials:      credentials.NewStaticCredentials(config.Env().FilebaseAccessKey, config.Env().FilebaseSecretKey, ""),
+		Credentials: credentials.NewStaticCredentials(
+			config.Env().FilebaseAccessKey,
+			config.Env().FilebaseSecretKey,
+			"",
+		),
 		Endpoint:         aws.String("https://s3.filebase.com"),
 		Region:           aws.String("us-east-1"),
 		S3ForcePathStyle: aws.Bool(true),

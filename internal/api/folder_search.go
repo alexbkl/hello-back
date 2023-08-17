@@ -30,6 +30,9 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 		resp := FolderResponse{Root: root}
 
 		// TO-DO folders
+		if root == "/" {
+
+		}
 		if folders, err := query.FoldersByRoot(root); err != nil {
 			log.Errorf("folder: %s", err)
 
