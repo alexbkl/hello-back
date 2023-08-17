@@ -31,7 +31,7 @@ func UploadFiles(router *gin.RouterGroup) {
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
 		u := query.FindUser(entity.User{UID: authPayload.UID})
-		log.Infof("u : ", authPayload.UID)
+		log.Infof("u : %s", authPayload.UID)
 		// Multipart form
 		form, err := ctx.MultipartForm()
 
@@ -74,7 +74,7 @@ func UploadFiles(router *gin.RouterGroup) {
 				AbortInternalServerError(ctx)
 				return
 			}
-			log.Infof("file: ", f)
+			log.Infof("file: %s", f.UID)
 
 			// create file_user relation
 			f_u := entity.FileUser{
@@ -87,11 +87,11 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 			// upload file
-			// if err := UploadFileToS3(file, authPayload.UID, f.UID); err != nil {
-			// 	log.Errorf("api: upload %s", err)
-			// 	AbortInternalServerError(ctx)
-			// 	return
-			// }
+			if err := UploadFileToS3(file, f.UID); err != nil {
+				log.Errorf("api: upload %s", err)
+				AbortInternalServerError(ctx)
+				return
+			}
 
 			// save file info to db
 
@@ -101,7 +101,7 @@ func UploadFiles(router *gin.RouterGroup) {
 }
 
 // internal upload one file
-func UploadFileToS3(file *multipart.FileHeader, user_uid, key string) error {
+func UploadFileToS3(file *multipart.FileHeader, key string) error {
 
 	s3Config := aws.Config{
 		Credentials:      credentials.NewStaticCredentials(config.Env().FilebaseAccessKey, config.Env().FilebaseSecretKey, ""),
@@ -110,7 +110,7 @@ func UploadFileToS3(file *multipart.FileHeader, user_uid, key string) error {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, user_uid, key)
+	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, key)
 
 	return err
 }
