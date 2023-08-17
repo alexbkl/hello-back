@@ -28,3 +28,17 @@ func FilesByRoot(root string) (files entity.Files, err error) {
 
 	return files, err
 }
+
+// DeleteFileByUID deletes a file by its UID.
+func DeleteFileByUID(fileUid string) error {
+	if fileUid == "" {
+		return fmt.Errorf("file uid required")
+	}
+
+	return db.Db().Where("uid = ?", fileUid).Delete(&entity.File{}).Error
+}
+
+// DeleteFileUser
+func DeleteFileUser(f_u entity.FileUser) error {
+	return db.Db().Where("file_id = ? AND user_id = ?", f_u.FileID, f_u.UserID).Delete(&entity.FileUser{}).Error
+}
