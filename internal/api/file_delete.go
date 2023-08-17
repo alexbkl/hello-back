@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // DownloadFile download file from filebase s3
@@ -24,7 +25,7 @@ func DeleteFile(router *gin.RouterGroup) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUser(entity.User{UID: authPayload.UID})
+		u := query.FindUser(entity.User{Model: gorm.Model{ID: authPayload.UserID}})
 		log.Infof("user: %v", u)
 
 		fileUid := ctx.Param("uid")
@@ -63,14 +64,11 @@ func DeleteFile(router *gin.RouterGroup) {
 			return
 		}
 
-
-
 		ctx.JSON(200, gin.H{
 			"message": "ok",
 		})
 	})
 }
-
 
 // internal delete one file
 func DeleteFileFromS3(fileUid string) error {

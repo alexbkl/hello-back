@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	awsS3 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // UploadFiles upload files to filebase using s3
@@ -28,9 +29,9 @@ func DownloadFile(router *gin.RouterGroup) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUser(entity.User{UID: authPayload.UID})
+		u := query.FindUser(entity.User{Model: gorm.Model{ID: authPayload.UserID}})
 		key := ctx.Param("uid")
-		log.Infof("u : %v", authPayload.UID)
+		log.Infof("u : %v", authPayload.UserID)
 		// Multipart form
 		out, error := DownloadFileFromS3(key)
 
