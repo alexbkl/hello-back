@@ -11,6 +11,7 @@ import (
 	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
+	"github.com/Hello-Storage/hello-back/internal/query"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/aws/aws-sdk-go/aws"
@@ -74,8 +75,9 @@ func UploadFiles(router *gin.RouterGroup) {
 
 			// create file_user relation
 			f_u := entity.FileUser{
-				FileID: f.ID,
-				UserID: authPayload.UserID,
+				FileID:     f.ID,
+				UserID:     authPayload.UserID,
+				Permission: entity.OwnerPermission,
 			}
 			if err := f_u.Create(); err != nil {
 				AbortInternalServerError(ctx)
@@ -83,11 +85,11 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 			// upload file
-			if err := UploadFileToS3(file, f.UID); err != nil {
-				log.Errorf("api: upload %s", err)
-				AbortInternalServerError(ctx)
-				return
-			}
+			// if err := UploadFileToS3(file, f.UID); err != nil {
+			// 	log.Errorf("api: upload %s", err)
+			// 	AbortInternalServerError(ctx)
+			// 	return
+			// }
 
 			// save file info to db
 
@@ -126,24 +128,28 @@ func GetAndProcessFileRoot(file_path, root string, user_id uint) (string, error)
 	sub_file_path := strings.Join(res[1:], "/")
 	sub_title := res[0]
 
-	f := (&entity.Folder{
-		Title: sub_title,
-		Root:  root,
-	}).FirstOrCreateFolderByTitleAndRoot()
+	f := query.FindFolderByTitleAndRoot(sub_title, root)
 
+	log.Infof("folder: %v", f)
 	if f == nil {
-		return "", errors.New("can't create folder")
-	}
+		f = &entity.Folder{
+			Title: sub_title,
+			Root:  root,
+		}
 
-	// create folder_user relation
-	f_u := &entity.FolderUser{
-		FolderID:   f.ID,
-		UserID:     user_id,
-		Permission: entity.OwnerPermission,
-	}
+		if err := f.Create(); err != nil {
+			return "", errors.New("can't create folder")
+		}
+		// create folder_user relation
+		f_u := &entity.FolderUser{
+			FolderID:   f.ID,
+			UserID:     user_id,
+			Permission: entity.OwnerPermission,
+		}
 
-	if err := f_u.Create(); err != nil {
-		return "", errors.New("can't create folder_user relation")
+		if err := f_u.Create(); err != nil {
+			return "", errors.New("can't create folder_user relation")
+		}
 	}
 
 	return GetAndProcessFileRoot(sub_file_path, f.UID, user_id)

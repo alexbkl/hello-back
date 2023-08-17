@@ -29,6 +29,18 @@ func FilesByRoot(root string) (files entity.Files, err error) {
 	return files, err
 }
 
+func FindRootFilesByUser(user_id uint) (files entity.Files, err error) {
+	if err := db.Db().
+		Table("files").
+		Joins("LEFT JOIN files_users on files_users.file_id = files.id").
+		Where("files.root = '/' AND files_users.permission = 'owner' AND files_users.user_id = ?", user_id).
+		Find(&files).Error; err != nil {
+		return files, err
+	}
+
+	return files, nil
+}
+
 // DeleteFileByUID deletes a file by its UID.
 func DeleteFileByUID(fileUid string) error {
 	if fileUid == "" {
@@ -40,5 +52,8 @@ func DeleteFileByUID(fileUid string) error {
 
 // DeleteFileUser
 func DeleteFileUser(f_u entity.FileUser) error {
-	return db.Db().Where("file_id = ? AND user_id = ?", f_u.FileID, f_u.UserID).Delete(&entity.FileUser{}).Error
+	return db.Db().
+		Where("file_id = ? AND user_id = ?", f_u.FileID, f_u.UserID).
+		Delete(&entity.FileUser{}).
+		Error
 }

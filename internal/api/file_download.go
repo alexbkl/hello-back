@@ -69,7 +69,11 @@ func DownloadFile(router *gin.RouterGroup) {
 func DownloadFileFromS3(key string) (*awsS3.GetObjectOutput, error) {
 
 	s3Config := aws.Config{
-		Credentials:      credentials.NewStaticCredentials(config.Env().FilebaseAccessKey, config.Env().FilebaseSecretKey, ""),
+		Credentials: credentials.NewStaticCredentials(
+			config.Env().FilebaseAccessKey,
+			config.Env().FilebaseSecretKey,
+			"",
+		),
 		Endpoint:         aws.String("https://s3.filebase.com"),
 		Region:           aws.String("us-east-1"),
 		S3ForcePathStyle: aws.Bool(true),

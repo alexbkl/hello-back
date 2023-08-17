@@ -26,30 +26,48 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 
 	handler := func(ctx *gin.Context, root string) {
 		// TO-DO check access grant
-
+		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 		resp := FolderResponse{Root: root}
 
 		// TO-DO folders
 		if root == "/" {
+			if folders, err := query.FindRootFoldersByUser(authPayload.UserID); err != nil {
+				log.Errorf("folder: %s", err)
 
-		}
-		if folders, err := query.FoldersByRoot(root); err != nil {
-			log.Errorf("folder: %s", err)
+				AbortInternalServerError(ctx)
+				return
+			} else {
+				resp.Folders = folders
+			}
 
-			AbortInternalServerError(ctx)
-			return
+			// files
+			if files, err := query.FindRootFilesByUser(authPayload.UserID); err != nil {
+				log.Errorf("file: %s", err)
+
+				AbortInternalServerError(ctx)
+				return
+			} else {
+				resp.Files = files
+			}
 		} else {
-			resp.Folders = folders
-		}
+			if folders, err := query.FoldersByRoot(root); err != nil {
+				log.Errorf("folder: %s", err)
 
-		// files
-		if files, err := query.FilesByRoot(root); err != nil {
-			log.Errorf("file: %s", err)
+				AbortInternalServerError(ctx)
+				return
+			} else {
+				resp.Folders = folders
+			}
 
-			AbortInternalServerError(ctx)
-			return
-		} else {
-			resp.Files = files
+			// files
+			if files, err := query.FilesByRoot(root); err != nil {
+				log.Errorf("file: %s", err)
+
+				AbortInternalServerError(ctx)
+				return
+			} else {
+				resp.Files = files
+			}
 		}
 
 		ctx.JSON(http.StatusOK, resp)
