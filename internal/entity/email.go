@@ -5,8 +5,8 @@ import (
 )
 
 type Email struct {
-	ID       uint   `gorm:"primarykey"`
-	Email    string `gorm:"unique;" json:"email"`
+	ID       uint   `gorm:"primarykey"       json:"id"`
+	Email    string `gorm:"uniqueIndex;"     json:"email"`
 	Password string `gorm:"type:varchar(64)" json:"password"`
 	UserID   uint
 }

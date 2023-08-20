@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/Hello-Storage/hello-back/internal/db"
 	"github.com/Hello-Storage/hello-back/pkg/media"
 	"github.com/Hello-Storage/hello-back/pkg/rnd"
@@ -15,13 +17,16 @@ const (
 type Files []File
 
 type File struct {
-	gorm.Model
-	UID       string `gorm:"type:varchar(42);index;" json:"uid"`
-	Name      string `gorm:"type:varchar(1024);" json:"name"`
-	Root      string `gorm:"type:varchar(42);default:'/';" json:"root"` // parent folder uid
-	Mime      string `gorm:"type:varchar(64)" json:"mimeType"`
-	Size      int64  `json:"size"`
-	MediaType string `gorm:"type:varchar(16)" json:"mediaType"`
+	ID        uint           `gorm:"primarykey"                          json:"id"`
+	UID       string         `gorm:"type:varchar(42);uniqueIndex;"       json:"uid"`
+	Name      string         `gorm:"type:varchar(1024);"                 json:"name"`
+	Root      string         `gorm:"type:varchar(42);index;default:'/';" json:"root"` // parent folder uid
+	Mime      string         `gorm:"type:varchar(64)"                    json:"mimeType"`
+	Size      int64          `                                           json:"size"`
+	MediaType string         `gorm:"type:varchar(16)"                    json:"mediaType"`
+	CreatedAt time.Time      `                                           json:"created_at"`
+	UpdatedAt time.Time      `                                           json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index"                               json:"deleted_at"`
 }
 
 // TableName returns the entity table name.

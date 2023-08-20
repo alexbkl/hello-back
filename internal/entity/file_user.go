@@ -14,10 +14,10 @@ const (
 // FileUser represents a one-to-many relation between File and User.
 
 type FileUser struct {
-	ID         uint       `gorm:"primarykey"`
-	FileID     uint       `gorm:"column:file_id" json:"file_id"`
-	UserID     uint       `gorm:"column:user_id" json:"user_id"`
-	Permission permission `gorm:"not null;" json:"permission"`
+	ID         uint       `gorm:"primarykey"           json:"id"`
+	FileID     uint       `gorm:"index;column:file_id" json:"file_id"`
+	UserID     uint       `gorm:"index;column:user_id" json:"user_id"`
+	Permission permission `gorm:"not null;"            json:"permission"`
 }
 
 // TableName returns the entity table name.

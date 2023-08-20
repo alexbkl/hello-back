@@ -3,10 +3,10 @@ package entity
 import "github.com/Hello-Storage/hello-back/internal/db"
 
 type Github struct {
-	ID       uint   `gorm:"primarykey"`
-	GithubID uint   `gorm:"column:github_id" json:"github_id"`
-	Name     string `gorm:"type:varchar(50);not null;uniqueIndex" json:"name"`
-	Avatar   string `gorm:"type:varchar(200);" json:"avatar"`
+	ID       uint   `gorm:"primarykey"                   json:"id"`
+	GithubID uint   `gorm:"uniqueIndex;column:github_id" json:"github_id"`
+	Name     string `gorm:"type:varchar(50);not null"    json:"name"`
+	Avatar   string `gorm:"type:varchar(200)"            json:"avatar"`
 	UserID   uint
 }
 

@@ -6,9 +6,9 @@ import "github.com/Hello-Storage/hello-back/internal/db"
 
 type FolderUser struct {
 	ID         uint       `gorm:"primarykey"`
-	FolderID   uint       `gorm:"column:folder_id" json:"folder_id"`
-	UserID     uint       `gorm:"column:user_id" json:"user_id"`
-	Permission permission `gorm:"not null;" json:"permission"`
+	FolderID   uint       `gorm:"index;column:folder_id" json:"folder_id"`
+	UserID     uint       `gorm:"index;column:user_id"   json:"user_id"`
+	Permission permission `gorm:"not null;"              json:"permission"`
 }
 
 // TableName returns the entity table name.

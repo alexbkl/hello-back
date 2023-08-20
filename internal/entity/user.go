@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/Hello-Storage/hello-back/internal/db"
 	"github.com/Hello-Storage/hello-back/pkg/rnd"
 	"gorm.io/gorm"
@@ -20,13 +22,16 @@ const (
 )
 
 type User struct {
-	gorm.Model
-	UID    string `gorm:"type:varchar(42);uniqueIndex" json:"uid"`
-	Name   string `gorm:"unique;not null;max:50" json:"name"`
-	Role   role   `gorm:"not null;default:user" json:"role"`
-	Email  Email  `json:"email"`
-	Wallet Wallet `json:"wallet"`
-	Github Github `json:"github"`
+	ID        uint           `gorm:"primarykey"                   json:"id"`
+	UID       string         `gorm:"type:varchar(42);uniqueIndex" json:"uid"`
+	Name      string         `gorm:"not null;max:50"              json:"name"`
+	Role      role           `gorm:"not null;default:user"        json:"role"`
+	Email     Email          `                                    json:"email"`
+	Wallet    Wallet         `                                    json:"wallet"`
+	Github    Github         `                                    json:"github"`
+	CreatedAt time.Time      `                                    json:"created_at"`
+	UpdatedAt time.Time      `                                    json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index"                        json:"deleted_at"`
 }
 
 // TableName returns the entity table name.

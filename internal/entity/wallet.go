@@ -7,10 +7,10 @@ import (
 )
 
 type Wallet struct {
-	ID      uint   `gorm:"primarykey"`
+	ID      uint   `gorm:"primarykey"                            json:"id"`
 	Address string `gorm:"type:varchar(50);not null;uniqueIndex" json:"address"`
 	Type    string `gorm:"type:varchar(30);not null;default:eth" json:"type"`
-	Nonce   string `gorm:"type:varchar(16);not null" json:"nonce"`
+	Nonce   string `gorm:"type:varchar(16);not null"             json:"nonce"`
 	UserID  uint
 }
 

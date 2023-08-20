@@ -11,11 +11,11 @@ import (
 )
 
 type GoogleUser struct {
-	Sub           string `json:"sub"`
-	Name          string `json:"name" binding:"required"`
-	GivenName     string `json:"given_name"`
-	FamilyName    string `json:"family_name"`
-	Email         string `json:"email" binding:"required"`
+	Sub  string `json:"sub"`
+	Name string `json:"name"           binding:"required"`
+	// GivenName     string `json:"given_name"`
+	// FamilyName    string `json:"family_name"`
+	Email         string `json:"email"          binding:"required"`
 	EmailVerified bool   `json:"email_verified"`
 	Picture       string `json:"picture"`
 	Locale        string `json:"locale"`
@@ -55,11 +55,11 @@ func GetGoogleUser(token string) (*GoogleUser, error) {
 		Sub:           GoogleUserRes["sub"].(string),
 		Name:          GoogleUserRes["name"].(string),
 		Email:         GoogleUserRes["email"].(string),
-		GivenName:     GoogleUserRes["given_name"].(string),
-		FamilyName:    GoogleUserRes["family_name"].(string),
 		EmailVerified: GoogleUserRes["email_verified"].(bool),
-		Picture:       GoogleUserRes["picture"].(string),
-		Locale:        GoogleUserRes["locale"].(string),
+		// GivenName:     GoogleUserRes["given_name"].(string),
+		// FamilyName:    GoogleUserRes["family_name"].(string),
+		Picture: GoogleUserRes["picture"].(string),
+		Locale:  GoogleUserRes["locale"].(string),
 	}
 
 	return userBody, nil

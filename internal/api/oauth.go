@@ -21,7 +21,10 @@ func OAuthGoogle(router *gin.RouterGroup, tokenMaker token.Maker) {
 		code := ctx.Query("code")
 
 		if code == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Authorization code not provided!"})
+			ctx.JSON(
+				http.StatusUnauthorized,
+				gin.H{"status": "fail", "message": "Authorization code not provided!"},
+			)
 			return
 		}
 
@@ -94,7 +97,10 @@ func OAuthGithub(router *gin.RouterGroup, tokenMaker token.Maker) {
 		code := ctx.Query("code")
 
 		if code == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Authorization code not provided!"})
+			ctx.JSON(
+				http.StatusUnauthorized,
+				gin.H{"status": "fail", "message": "Authorization code not provided!"},
+			)
 			return
 		}
 
@@ -123,7 +129,10 @@ func OAuthGithub(router *gin.RouterGroup, tokenMaker token.Maker) {
 			}
 
 			if err := new.Create(); err != nil {
-				ctx.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": err.Error()})
+				ctx.JSON(
+					http.StatusInternalServerError,
+					gin.H{"status": "fail", "message": err.Error()},
+				)
 				return
 			}
 
