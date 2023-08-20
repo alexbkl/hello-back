@@ -12,7 +12,6 @@ import (
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/Hello-Storage/hello-back/pkg/web3"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 var authMutex = sync.Mutex{}
@@ -24,7 +23,7 @@ func LoadUser(router *gin.RouterGroup) {
 	router.GET("/load", func(ctx *gin.Context) {
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUser(entity.User{Model: gorm.Model{ID: authPayload.UserID}})
+		u := query.FindUser(entity.User{ID: authPayload.UserID})
 		if u == nil {
 			ctx.JSON(http.StatusNotFound, "user not found")
 			return
@@ -76,7 +75,11 @@ func LoginUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 		log.Infof("nonce: %s", nonce)
 
 		// validate signature
-		result := web3.ValidateMessageSignature(f.WalletAddress, f.Signature, constant.BuildLoginMessage(nonce))
+		result := web3.ValidateMessageSignature(
+			f.WalletAddress,
+			f.Signature,
+			constant.BuildLoginMessage(nonce),
+		)
 		if !result {
 			ctx.JSON(http.StatusBadRequest, "invalide signature")
 			return
