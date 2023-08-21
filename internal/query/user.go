@@ -18,16 +18,16 @@ func RegisteredUsers() (result entity.Users) {
 func FindUser(find entity.User) *entity.User {
 	m := &entity.User{}
 
-	stmt := db.UnscopedDb()
+	stmt := db.Db()
 
 	if find.ID != 0 && find.Name != "" {
-		stmt = stmt.Where("id = ? OR user_name = ?", find.ID, find.Name)
+		stmt = stmt.Where("id = ? OR name = ?", find.ID, find.Name)
 	} else if find.ID != 0 {
 		stmt = stmt.Where("id = ?", find.ID)
 	} else if rnd.IsUID(find.UID, entity.UserUID) {
-		stmt = stmt.Where("user_uid = ?", find.UID)
+		stmt = stmt.Where("uid = ?", find.UID)
 	} else if find.Name != "" {
-		stmt = stmt.Where("user_name = ?", find.Name)
+		stmt = stmt.Where("name = ?", find.Name)
 	} else {
 		return nil
 	}
@@ -39,4 +39,51 @@ func FindUser(find entity.User) *entity.User {
 
 	return m
 
+}
+
+func FindUserByName(name string) *entity.User {
+	m := &entity.User{}
+
+	stmt := db.Db()
+
+	stmt = stmt.Where("name = ?", name).Preload("Email").Preload("Wallet").Preload("Github")
+
+	if err := stmt.First(m).Error; err != nil {
+		return nil
+	}
+
+	return m
+}
+
+func FindUserByEmail(email string) *entity.User {
+	u := &entity.User{}
+
+	subquery := db.Db().Table("emails").Select("user_id").Where("email = ?", email)
+	if err := db.Db().Model(u).Preload("Email").Where("id IN (?)", subquery).First(u).Error; err == nil {
+		return u
+	} else {
+		return nil
+	}
+}
+
+func FindUserByWalletAddress(walletAddress string) *entity.User {
+	u := &entity.User{}
+
+	subquery := db.Db().Table("wallets").Select("user_id").Where("address = ?", walletAddress)
+	if err := db.Db().Model(u).Preload("Wallet").Where("id IN (?)", subquery).First(u).Error; err == nil {
+		return u
+	} else {
+		return nil
+	}
+}
+
+func FindUserByGithub(github_id uint) *entity.User {
+	u := &entity.User{}
+
+	subquery := db.Db().Table("githubs").Select("user_id").Where("github_id = ?", github_id)
+	if err := db.Db().Model(u).Preload("Github").Where("id IN (?)", subquery).First(u).Error; err == nil {
+		return u
+	} else {
+		return nil
+	}
 }

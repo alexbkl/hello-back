@@ -7,22 +7,17 @@ name: hello
 services:
   backend:
     container_name: backend
-    image: hello-backend
-    build:
-      context: ./
-      dockerfile: docker/Dockerfile
+    image: eroist/joinhello-backend:latest
     restart: always
     depends_on:
       postgres:
         condition: service_healthy
-    # expose:
-    #   - 8080
     ports:
       - "8080:8080"
     env_file:
       - .env
-    networks: 
-     - network-backend
+    networks:
+      - network-backend
 
   postgres:
     container_name: postgres
@@ -31,14 +26,12 @@ services:
     restart: always
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    expose:
-      - 5432
     ports:
-      - "5432:5432" # database port (host:container)
+      - "5432:5432"
     env_file:
       - .env
-    networks: 
-     - network-backend
+    networks:
+      - network-backend
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s

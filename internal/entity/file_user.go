@@ -1,28 +1,23 @@
 package entity
 
 import (
-	"time"
-
 	"github.com/Hello-Storage/hello-back/internal/db"
 )
 
 type permission string
 
 const (
-	OwnerPermission  role = "owner"
-	SharedPermission role = "shared"
+	OwnerPermission  permission = "owner"
+	SharedPermission permission = "shared"
 )
 
 // FileUser represents a one-to-many relation between File and User.
 
 type FileUser struct {
-	FileID     uint       `gorm:"primary_key;auto_increment:false"`
-	UserID     uint       `gorm:"primary_key;auto_increment:false"`
-	Permission permission `gorm:"not null;" json:"permission"`
-	File       *File
-	User       *User
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID         uint       `gorm:"primarykey"           json:"id"`
+	FileID     uint       `gorm:"index;column:file_id" json:"file_id"`
+	UserID     uint       `gorm:"index;column:user_id" json:"user_id"`
+	Permission permission `gorm:"not null;"            json:"permission"`
 }
 
 // TableName returns the entity table name.

@@ -1,0 +1,106 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@4.0.0
+  slack: circleci/slack@4.12.5
+
+executors:
+  go:
+    docker:
+      - image: docker:stable
+    environment:
+      CGO_ENABLED: 0
+      DOCKER_BUILDKIT: 1
+      IMAGE_TAG: eroist/joinhello-backend:staging
+
+commands:
+  build-docker-image:
+    steps:
+      - run:
+          name: Build Latest Docker Image
+          command: |
+            docker build -t "${IMAGE_TAG}" -f ./docker/Dockerfile .
+  publish-docker-image:
+    steps:
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_ACCESS_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
+            docker push "${IMAGE_TAG}"
+  deploy-to-ec2:
+    steps:
+      - run:
+          name: Deploy over SSH
+          command: |
+            EC2_USERNAME=ubuntu
+            EC2_PUBLIC_DNS=api-staging.joinhello.app
+            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS "cd workspace/joinhello-backend-staging && sudo docker compose pull && sudo docker system prune && sudo docker compose up -d --build --wait"
+
+jobs:
+  build:
+    executor: go
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - build-docker-image
+      - run:
+          name: Archive Docker image
+          command: docker save --output image.tar "${IMAGE_TAG}"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
+  publish:
+    executor: go
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Load Docker image
+          command: docker load --input /tmp/workspace/image.tar
+      - publish-docker-image
+  deploy:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - aws-cli/setup:
+          profile_name: eroist
+          aws_access_key_id: AWS_ACCESS_KEY
+          aws_secret_access_key: AWS_SECRET_KEY
+          region: AWS_REGION
+      - deploy-to-ec2
+      - slack/notify:
+          event: pass
+          mentions: "@here"
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          mentions: "@here"
+          template: basic_fail_1
+
+workflows:
+  joinhello-staging:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - staging
+      - publish:
+          context:
+            - docker-hub-credential
+          requires:
+            - build
+      - deploy:
+          context:
+            - aws-credential
+            - docker-hub-credential
+            - slack-secrets
+          requires:
+            - publish

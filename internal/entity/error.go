@@ -10,10 +10,10 @@ import (
 
 // Error represents an error message log.
 type Error struct {
-	ID           uint      `gorm:"primary_key" json:"ID" yaml:"ID"`
-	ErrorTime    time.Time `sql:"index" json:"Time" yaml:"Time"`
-	ErrorLevel   string    `gorm:"type:varchar(32)" json:"Level" yaml:"Level"`
-	ErrorMessage string    `gorm:"type:varchar(2048)" json:"Message" yaml:"Message"`
+	ID           uint      `gorm:"primary_key"        json:"id"`
+	ErrorTime    time.Time `                          json:"time"    sql:"index"`
+	ErrorLevel   string    `gorm:"type:varchar(32)"   json:"level"`
+	ErrorMessage string    `gorm:"type:varchar(2048)" json:"message"`
 }
 
 // Errors represents a list of error log messages.
