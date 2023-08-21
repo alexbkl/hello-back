@@ -1,6 +1,7 @@
 package s3
 
 import (
+	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
