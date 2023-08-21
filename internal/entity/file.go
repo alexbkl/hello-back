@@ -27,6 +27,7 @@ type File struct {
 	CreatedAt time.Time      `                                           json:"created_at"`
 	UpdatedAt time.Time      `                                           json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index"                               json:"deleted_at"`
+	Path      string         `gorm:"type:varchar(1024);"                 json:"path"` // full path
 }
 
 // TableName returns the entity table name.

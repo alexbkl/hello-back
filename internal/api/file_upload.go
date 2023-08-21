@@ -85,11 +85,11 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 			// upload file
-			// if err := UploadFileToS3(file, f.UID); err != nil {
-			// 	log.Errorf("api: upload %s", err)
-			// 	AbortInternalServerError(ctx)
-			// 	return
-			// }
+			if err := UploadFileToS3(file, f.UID); err != nil {
+				log.Errorf("api: upload %s", err)
+				AbortInternalServerError(ctx)
+				return
+			}
 
 			// save file info to db
 
