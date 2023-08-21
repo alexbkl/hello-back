@@ -29,6 +29,7 @@ type User struct {
 	Email     Email          `                                    json:"email"`
 	Wallet    Wallet         `                                    json:"wallet"`
 	Github    Github         `                                    json:"github"`
+	Detail    UserDetail     `                                    json:"detail"`
 	CreatedAt time.Time      `                                    json:"created_at"`
 	UpdatedAt time.Time      `                                    json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index"                        json:"deleted_at"`

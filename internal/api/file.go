@@ -13,11 +13,11 @@ import (
 // Params:
 // - uid
 func GetFile(router *gin.RouterGroup) {
-	router.GET("/file/:uid", func(c *gin.Context) {
+	router.GET("/:uid", func(c *gin.Context) {
 		// To Do check access grant
 		uid := c.Param("uid")
 
-		p, err := query.FileByUID(uid)
+		p, err := query.FindFileByUID(uid)
 
 		if err != nil {
 			AbortEntityNotFound(c)

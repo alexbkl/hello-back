@@ -12,15 +12,18 @@ type Tables map[string]interface{}
 
 // Entities contains database entities and their table names.
 var Entities = Tables{
-	Error{}.TableName():      &Error{},
-	User{}.TableName():       &User{},
-	Email{}.TableName():      &Email{},
-	Wallet{}.TableName():     &Wallet{},
-	Github{}.TableName():     &Github{},
-	File{}.TableName():       &File{},
-	Folder{}.TableName():     &Folder{},
-	FileUser{}.TableName():   &FileUser{},
-	FolderUser{}.TableName(): &FolderUser{},
+	Error{}.TableName():        &Error{},
+	User{}.TableName():         &User{},
+	UserDetail{}.TableName():   &UserDetail{},
+	Plan{}.TableName():         &Plan{},
+	Subscription{}.TableName(): &Subscription{},
+	Email{}.TableName():        &Email{},
+	Wallet{}.TableName():       &Wallet{},
+	Github{}.TableName():       &Github{},
+	File{}.TableName():         &File{},
+	Folder{}.TableName():       &Folder{},
+	FileUser{}.TableName():     &FileUser{},
+	FolderUser{}.TableName():   &FolderUser{},
 }
 
 // WaitForMigration waits for the database migration to be successful.

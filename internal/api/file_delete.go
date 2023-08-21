@@ -29,7 +29,7 @@ func DeleteFile(router *gin.RouterGroup) {
 
 		fileUid := ctx.Param("uid")
 
-		f, err := query.FileByUID(fileUid)
+		f, err := query.FindFileByUID(fileUid)
 
 		if err != nil {
 			AbortEntityNotFound(ctx)
@@ -71,7 +71,7 @@ func DeleteFile(router *gin.RouterGroup) {
 
 // internal delete one file
 func DeleteFileFromS3(fileUid string) error {
-	f, err := query.FileByUID(fileUid)
+	f, err := query.FindFileByUID(fileUid)
 
 	if err != nil {
 		log.Errorf("DeleteFileFromS3: file entity not found: %v", err)

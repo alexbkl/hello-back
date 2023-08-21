@@ -27,7 +27,6 @@ import (
 // - root
 func UploadFiles(router *gin.RouterGroup) {
 	router.POST("/upload", func(ctx *gin.Context) {
-		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
 		// Multipart form
@@ -55,13 +54,14 @@ func UploadFiles(router *gin.RouterGroup) {
 				AbortInternalServerError(ctx)
 				return
 			}
-
 			mime := file.Header.Get("Content-Type")
 
+			// create corresponding folders to locate this file at proper path
 			file_path := params["filename"]
 			actual_root, err := GetAndProcessFileRoot(file_path, r, authPayload.UserID)
 			log.Infof("actual_root: %s", actual_root)
 
+			// create file
 			f := entity.File{
 				Name: file.Filename,
 				Root: actual_root,
@@ -85,13 +85,33 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 			// upload file
-			if err := UploadFileToS3(file, f.UID); err != nil {
-				log.Errorf("api: upload %s", err)
+			if err := UploadFileToS3(file, authPayload.UserUID, f.UID); err != nil {
+				log.Errorf("uploading file to s3: %s", err)
 				AbortInternalServerError(ctx)
 				return
 			}
 
-			// save file info to db
+			// add user storage quantity
+			user_detail := query.FindUserDetailByUserID(authPayload.UserID)
+
+			if user_detail == nil {
+				user_detail = &entity.UserDetail{
+					StorageUsed: uint(file.Size),
+					UserID:      authPayload.UserID,
+				}
+
+				if err := user_detail.Create(); err != nil {
+					log.Errorf("creating storage_used: %s", err)
+					AbortInternalServerError(ctx)
+					return
+				}
+			} else {
+				if err := user_detail.Update("storage_used", user_detail.StorageUsed+uint(file.Size)); err != nil {
+					log.Errorf("updating storage_used: %s", err)
+					AbortInternalServerError(ctx)
+					return
+				}
+			}
 
 		}
 		ctx.JSON(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
@@ -99,7 +119,7 @@ func UploadFiles(router *gin.RouterGroup) {
 }
 
 // internal upload one file
-func UploadFileToS3(file *multipart.FileHeader, key string) error {
+func UploadFileToS3(file *multipart.FileHeader, user_uid, file_uid string) error {
 
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
@@ -112,7 +132,7 @@ func UploadFileToS3(file *multipart.FileHeader, key string) error {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, key)
+	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, user_uid, file_uid)
 
 	return err
 }
