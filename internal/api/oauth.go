@@ -50,6 +50,20 @@ func OAuthGoogle(router *gin.RouterGroup, tokenMaker token.Maker) {
 				return
 			}
 
+			// initialize user detail
+			user_detail := entity.UserDetail{
+				StorageUsed: 0,
+				UserID:      new.ID,
+			}
+
+			if err := user_detail.Create(); err != nil {
+				ctx.JSON(
+					http.StatusInternalServerError,
+					gin.H{"status": "fail", "message": err.Error()},
+				)
+				return
+			}
+
 			u = &new
 		}
 
@@ -126,9 +140,26 @@ func OAuthGithub(router *gin.RouterGroup, tokenMaker token.Maker) {
 					Name:     github_user.Name,
 					Avatar:   github_user.Avatar,
 				},
+				Detail: entity.UserDetail{
+					StorageUsed: 0,
+				},
 			}
 
 			if err := new.Create(); err != nil {
+				ctx.JSON(
+					http.StatusInternalServerError,
+					gin.H{"status": "fail", "message": err.Error()},
+				)
+				return
+			}
+
+			// initialize user detail
+			user_detail := entity.UserDetail{
+				StorageUsed: 0,
+				UserID:      new.ID,
+			}
+
+			if err := user_detail.Create(); err != nil {
 				ctx.JSON(
 					http.StatusInternalServerError,
 					gin.H{"status": "fail", "message": err.Error()},
