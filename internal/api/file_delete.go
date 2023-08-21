@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
@@ -42,7 +40,7 @@ func DeleteFile(router *gin.RouterGroup) {
 		}
 
 		//delete file from s3
-		keyPath := u.UID + "/" + f.UID
+		keyPath := authPayload.UserUID + "/" + f.UID
 		if err := DeleteFileFromS3(keyPath); err != nil {
 			AbortInternalServerError(ctx)
 			log.Errorf("delete file from s3 error: %v", err)
@@ -98,7 +96,7 @@ func DeleteFileFromS3(keyPath string) error {
 	}
 
 	//delete file from s3
-	if err := s3.DeleteObject(s3Config, keyPath); err != nil {
+	if err := s3.DeleteObject(s3Config, config.Env().WasabiBucket, keyPath); err != nil {
 		log.Errorf("DeleteFileFromS3: delete file from s3 error: %v", err)
 		return err
 	}

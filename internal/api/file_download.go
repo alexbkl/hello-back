@@ -28,13 +28,11 @@ func DownloadFile(router *gin.RouterGroup) {
 		file_uid := ctx.Param("uid")
 
 		// Multipart form
-		keyPath := u.UID + "/" + key
+		keyPath := authPayload.UserUID + "/" + file_uid
 		out, error := DownloadFileFromS3(keyPath)
 
 		if error != nil {
 			log.Errorf("download file: %s", error)
-			//log key:
-			log.Infof("key : %v", key)
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": error.Error(),
 			})
