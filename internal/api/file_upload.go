@@ -85,7 +85,7 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 			// upload file
-			if err := UploadFileToS3(file, f.UID); err != nil {
+			if err := UploadFileToS3(file, authPayload.UserUID, f.UID); err != nil {
 				log.Errorf("uploading file to s3: %s", err)
 				AbortInternalServerError(ctx)
 				return
@@ -119,7 +119,7 @@ func UploadFiles(router *gin.RouterGroup) {
 }
 
 // internal upload one file
-func UploadFileToS3(file *multipart.FileHeader, key string) error {
+func UploadFileToS3(file *multipart.FileHeader, user_uid, file_uid string) error {
 
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
@@ -132,7 +132,7 @@ func UploadFileToS3(file *multipart.FileHeader, key string) error {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, key)
+	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, user_uid, file_uid)
 
 	return err
 }

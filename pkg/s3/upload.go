@@ -9,7 +9,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func UploadObject(s3Config aws.Config, file *multipart.FileHeader, bucket, key string) error {
+func UploadObject(
+	s3Config aws.Config,
+	file *multipart.FileHeader,
+	bucket, user_uid, file_uid string,
+) error {
 
 	// create a new session using the config above and profile
 	goSession, err := session.NewSessionWithOptions(session.Options{
@@ -35,7 +39,7 @@ func UploadObject(s3Config aws.Config, file *multipart.FileHeader, bucket, key s
 	putObjectInput := &s3.PutObjectInput{
 		Body:   src,
 		Bucket: aws.String(bucket), // bucket name
-		Key:    aws.String(fmt.Sprintf("%s", key)),
+		Key:    aws.String(fmt.Sprintf("%s/%s", user_uid, file_uid)),
 	}
 
 	// upload file
