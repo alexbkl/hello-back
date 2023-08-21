@@ -1,13 +1,12 @@
 package s3
 
 import (
-	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func DownloadObject(s3Config aws.Config, key string) (*s3.GetObjectOutput, error) {
+func DownloadObject(s3Config aws.Config, bucket, key string) (*s3.GetObjectOutput, error) {
 	// create a new session using the config above and profile
 	goSession, err := session.NewSessionWithOptions(session.Options{
 		Config:  s3Config,
@@ -24,7 +23,7 @@ func DownloadObject(s3Config aws.Config, key string) (*s3.GetObjectOutput, error
 
 	// create put object input
 	getObjectInput := &s3.GetObjectInput{
-		Bucket: aws.String(config.Env().FilebaseBucket),
+		Bucket: aws.String(bucket),
 		Key:    aws.String(key), //object-key
 	}
 

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
@@ -24,12 +26,9 @@ func DeleteFile(router *gin.RouterGroup) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUser(entity.User{ID: authPayload.UserID})
-		log.Infof("user: %v", u)
+		file_uid := ctx.Param("uid")
 
-		fileUid := ctx.Param("uid")
-
-		f, err := query.FindFileByUID(fileUid)
+		f, err := query.FindFileByUID(file_uid)
 
 		if err != nil {
 			AbortEntityNotFound(ctx)
@@ -39,11 +38,11 @@ func DeleteFile(router *gin.RouterGroup) {
 
 		f_u := entity.FileUser{
 			FileID: f.ID,
-			UserID: u.ID,
+			UserID: authPayload.UserID,
 		}
 
 		//delete file from s3
-		if err := DeleteFileFromS3(fileUid); err != nil {
+		if err := DeleteFileFromS3(fmt.Sprintf("%s/%s", authPayload.UserUID, file_uid)); err != nil {
 			AbortInternalServerError(ctx)
 			log.Errorf("delete file from s3 error: %v", err)
 			return
@@ -63,6 +62,15 @@ func DeleteFile(router *gin.RouterGroup) {
 			return
 		}
 
+		// remove user storage quantity
+		user_detail := query.FindUserDetailByUserID(authPayload.UserID)
+
+		if err := user_detail.Update("storage_used", user_detail.StorageUsed-uint(f.Size)); err != nil {
+			log.Errorf("removing storage_used: %s", err)
+			AbortInternalServerError(ctx)
+			return
+		}
+
 		ctx.JSON(200, gin.H{
 			"message": "ok",
 		})
@@ -70,14 +78,7 @@ func DeleteFile(router *gin.RouterGroup) {
 }
 
 // internal delete one file
-func DeleteFileFromS3(fileUid string) error {
-	f, err := query.FindFileByUID(fileUid)
-
-	if err != nil {
-		log.Errorf("DeleteFileFromS3: file entity not found: %v", err)
-		return err
-	}
-
+func DeleteFileFromS3(key string) error {
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
 			config.Env().FilebaseAccessKey,
@@ -90,7 +91,7 @@ func DeleteFileFromS3(fileUid string) error {
 	}
 
 	//delete file from s3
-	if err := s3.DeleteObject(s3Config, f.UID); err != nil {
+	if err := s3.DeleteObject(s3Config, config.Env().FilebaseBucket, key); err != nil {
 		log.Errorf("DeleteFileFromS3: delete file from s3 error: %v", err)
 		return err
 	}
