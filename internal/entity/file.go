@@ -21,12 +21,13 @@ type File struct {
 	UID       string         `gorm:"type:varchar(42);uniqueIndex;"       json:"uid"`
 	Name      string         `gorm:"type:varchar(1024);"                 json:"name"`
 	Root      string         `gorm:"type:varchar(42);index;default:'/';" json:"root"` // parent folder uid
-	Mime      string         `gorm:"type:varchar(64)"                    json:"mimeType"`
+	Mime      string         `gorm:"type:varchar(64)"                    json:"mime_type"`
 	Size      int64          `                                           json:"size"`
-	MediaType string         `gorm:"type:varchar(16)"                    json:"mediaType"`
+	MediaType string         `gorm:"type:varchar(16)"                    json:"media_type"`
 	CreatedAt time.Time      `                                           json:"created_at"`
 	UpdatedAt time.Time      `                                           json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index"                               json:"deleted_at"`
+	Path      string         `gorm:"type:varchar(1024);"                 json:"path"` // full path
 }
 
 // TableName returns the entity table name.
