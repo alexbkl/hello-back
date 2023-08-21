@@ -18,7 +18,7 @@ func RegisteredUsers() (result entity.Users) {
 func FindUser(find entity.User) *entity.User {
 	m := &entity.User{}
 
-	stmt := db.UnscopedDb()
+	stmt := db.Db()
 
 	if find.ID != 0 && find.Name != "" {
 		stmt = stmt.Where("id = ? OR name = ?", find.ID, find.Name)
@@ -44,7 +44,7 @@ func FindUser(find entity.User) *entity.User {
 func FindUserByName(name string) *entity.User {
 	m := &entity.User{}
 
-	stmt := db.UnscopedDb()
+	stmt := db.Db()
 
 	stmt = stmt.Where("name = ?", name).Preload("Email").Preload("Wallet").Preload("Github")
 

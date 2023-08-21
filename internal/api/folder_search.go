@@ -62,7 +62,7 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 			}
 
 			// files
-			if files, err := query.FilesByRoot(root); err != nil {
+			if files, err := query.FindFilesByRoot(root); err != nil {
 				log.Errorf("file: %s", err)
 
 				AbortInternalServerError(ctx)

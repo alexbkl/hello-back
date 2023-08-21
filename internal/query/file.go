@@ -8,7 +8,7 @@ import (
 )
 
 // FileByUID returns file for the given UID.
-func FileByUID(uid string) (*entity.File, error) {
+func FindFileByUID(uid string) (*entity.File, error) {
 	f := entity.File{}
 
 	if uid == "" {
@@ -21,7 +21,7 @@ func FileByUID(uid string) (*entity.File, error) {
 }
 
 // FilesByRoot return files in a given folder root.
-func FilesByRoot(root string) (files entity.Files, err error) {
+func FindFilesByRoot(root string) (files entity.Files, err error) {
 	if err := db.Db().Where("root = ?", root).Find(&files).Error; err != nil {
 		return files, err
 	}
@@ -48,12 +48,4 @@ func DeleteFileByUID(fileUid string) error {
 	}
 
 	return db.Db().Where("uid = ?", fileUid).Delete(&entity.File{}).Error
-}
-
-// DeleteFileUser
-func DeleteFileUser(f_u entity.FileUser) error {
-	return db.Db().
-		Where("file_id = ? AND user_id = ?", f_u.FileID, f_u.UserID).
-		Delete(&entity.FileUser{}).
-		Error
 }

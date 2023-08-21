@@ -9,7 +9,7 @@ import (
 func FindFolder(find entity.Folder) *entity.Folder {
 	m := &entity.Folder{}
 
-	stmt := db.UnscopedDb()
+	stmt := db.Db()
 
 	if find.ID != 0 && find.Title != "" {
 		stmt = stmt.Where("id = ? OR title = ?", find.ID, find.Title)
@@ -56,7 +56,7 @@ func FindRootFoldersByUser(user_id uint) (folders entity.Folders, err error) {
 func FindFolderByTitleAndRoot(title, root string) *entity.Folder {
 	m := &entity.Folder{}
 
-	stmt := db.UnscopedDb()
+	stmt := db.Db()
 	stmt = stmt.Where("title = ? AND root = ?", title, root)
 
 	// Find matching record.
