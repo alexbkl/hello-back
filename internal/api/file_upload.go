@@ -85,7 +85,7 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 			// upload file
-			if err := UploadFileToS3(file, authPayload.UserUID, f.UID); err != nil {
+			if err := UploadFileToS3(file, fmt.Sprintf("%s/%s", authPayload.UserUID, f.UID)); err != nil {
 				log.Errorf("uploading file to s3: %s", err)
 				AbortInternalServerError(ctx)
 				return
@@ -95,7 +95,7 @@ func UploadFiles(router *gin.RouterGroup) {
 			user_detail := query.FindUserDetailByUserID(authPayload.UserID)
 
 			if err := user_detail.Update("storage_used", user_detail.StorageUsed+uint(file.Size)); err != nil {
-				log.Errorf("updating storage_used: %s", err)
+				log.Errorf("adding storage_used: %s", err)
 				AbortInternalServerError(ctx)
 				return
 			}
@@ -106,7 +106,7 @@ func UploadFiles(router *gin.RouterGroup) {
 }
 
 // internal upload one file
-func UploadFileToS3(file *multipart.FileHeader, user_uid, file_uid string) error {
+func UploadFileToS3(file *multipart.FileHeader, key string) error {
 
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(

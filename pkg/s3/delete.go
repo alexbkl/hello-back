@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func DeleteObject(s3Config aws.Config, key string) error {
+func DeleteObject(s3Config aws.Config, bucket, key string) error {
 	// create a new session using the config above and profile
 	goSession, err := session.NewSessionWithOptions(session.Options{
 		Config:  s3Config,

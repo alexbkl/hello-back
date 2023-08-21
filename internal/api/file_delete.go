@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
@@ -24,12 +26,9 @@ func DeleteFile(router *gin.RouterGroup) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUser(entity.User{ID: authPayload.UserID})
-		log.Infof("user: %v", u)
+		file_uid := ctx.Param("uid")
 
-		fileUid := ctx.Param("uid")
-
-		f, err := query.FindFileByUID(fileUid)
+		f, err := query.FindFileByUID(file_uid)
 
 		if err != nil {
 			AbortEntityNotFound(ctx)
@@ -39,7 +38,7 @@ func DeleteFile(router *gin.RouterGroup) {
 
 		f_u := entity.FileUser{
 			FileID: f.ID,
-			UserID: u.ID,
+			UserID: authPayload.UserID,
 		}
 
 		//delete file from s3
@@ -61,6 +60,15 @@ func DeleteFile(router *gin.RouterGroup) {
 		if err := query.DeleteFileUser(f_u); err != nil {
 			AbortInternalServerError(ctx)
 			log.Errorf("delete file user error: %v", err)
+			return
+		}
+
+		// remove user storage quantity
+		user_detail := query.FindUserDetailByUserID(authPayload.UserID)
+
+		if err := user_detail.Update("storage_used", user_detail.StorageUsed-uint(f.Size)); err != nil {
+			log.Errorf("removing storage_used: %s", err)
+			AbortInternalServerError(ctx)
 			return
 		}
 
