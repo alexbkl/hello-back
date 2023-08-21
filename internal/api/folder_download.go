@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/db"
 	"github.com/Hello-Storage/hello-back/internal/entity"
+	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -58,6 +60,7 @@ func getAllFiles(folderUID string, allFiles *[]entity.File, currentPath string) 
 // GET /api/folder/download/:uid
 func DownloadFolder(router *gin.RouterGroup) {
 	router.GET("/folder/download/:uid", func(ctx * gin.Context) {
+		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 		folderUID := ctx.Param("uid")
 
 		// Find the folder by UID
@@ -81,7 +84,8 @@ func DownloadFolder(router *gin.RouterGroup) {
 		fileData := make([]map[string]interface{}, len(allFiles))
 
 		for i, file := range allFiles {
-			out, err := DownloadFileFromS3(file.UID)
+			keyPath := authPayload.UserUID + "/" + file.UID
+			out, err := DownloadFileFromS3(keyPath)
 			if err != nil {
 				ctx.JSON(http.StatusInternalServerError, gin.H{
 					"message": err.Error(),

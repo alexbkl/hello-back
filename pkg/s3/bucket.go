@@ -15,7 +15,7 @@ func CreateBucket(s3Config aws.Config, bucket string) error {
 
 	goSession, err := session.NewSessionWithOptions(session.Options{
 		Config:  s3Config,
-		Profile: "filebase",
+		Profile: "wasabi",
 	})
 
 	// check if the session was created correctly.
