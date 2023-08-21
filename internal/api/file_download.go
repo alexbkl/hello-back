@@ -17,12 +17,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// UploadFiles upload files to filebase using s3
+// DownloadFile downloads file from filebase using s3
 //
-// POST /api/file/upload
-// Form: MultipartForm
-// - files
-// - root
+// GET /api/file/download/:uid
+// @param uid path string true "file uid"
+// @return 200 {string} string "ok"
 func DownloadFile(router *gin.RouterGroup) {
 	router.GET("/download/:uid", func(ctx *gin.Context) {
 		// TO-DO check user auth & add user uid
