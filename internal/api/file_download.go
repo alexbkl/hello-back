@@ -7,8 +7,6 @@ import (
 
 	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/Hello-Storage/hello-back/internal/constant"
-	"github.com/Hello-Storage/hello-back/internal/entity"
-	"github.com/Hello-Storage/hello-back/internal/query"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/aws/aws-sdk-go/aws"
@@ -27,11 +25,10 @@ func DownloadFile(router *gin.RouterGroup) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUser(entity.User{ID: authPayload.UserID})
-		key := ctx.Param("uid")
-		log.Infof("u : %v", authPayload.UserID)
+		file_uid := ctx.Param("uid")
+
 		// Multipart form
-		out, error := DownloadFileFromS3(key)
+		out, error := DownloadFileFromS3(fmt.Sprintf("%s/%s", authPayload.UserUID, file_uid))
 
 		if error != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -40,12 +37,9 @@ func DownloadFile(router *gin.RouterGroup) {
 			return
 		}
 
-		// fix u declared and not used error
-		log.Infof("u : %v", u)
-
 		// Set the correct content type and file name
 		ctx.Header("Content-Type", *out.ContentType)
-		ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", key))
+		ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", file_uid))
 
 		// Copy the file data to the response
 		_, error = io.Copy(ctx.Writer, out.Body)
@@ -65,7 +59,6 @@ func DownloadFile(router *gin.RouterGroup) {
 
 // internal upload one file
 func DownloadFileFromS3(key string) (*awsS3.GetObjectOutput, error) {
-
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
 			config.Env().FilebaseAccessKey,
@@ -77,7 +70,7 @@ func DownloadFileFromS3(key string) (*awsS3.GetObjectOutput, error) {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	out, err := s3.DownloadObject(s3Config, key)
+	out, err := s3.DownloadObject(s3Config, config.Env().FilebaseBucket, key)
 
 	return out, err
 }

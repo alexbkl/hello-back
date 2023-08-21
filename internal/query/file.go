@@ -42,10 +42,10 @@ func FindRootFilesByUser(user_id uint) (files entity.Files, err error) {
 }
 
 // DeleteFileByUID deletes a file by its UID.
-func DeleteFileByUID(fileUid string) error {
-	if fileUid == "" {
+func DeleteFileByUID(file_uid string) error {
+	if file_uid == "" {
 		return fmt.Errorf("file uid required")
 	}
 
-	return db.Db().Where("uid = ?", fileUid).Delete(&entity.File{}).Error
+	return db.Db().Where("uid = ?", file_uid).Delete(&entity.File{}).Error
 }
