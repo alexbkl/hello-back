@@ -24,12 +24,9 @@ func DeleteFile(router *gin.RouterGroup) {
 		// TO-DO check user auth & add user uid
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		u := query.FindUser(entity.User{ID: authPayload.UserID})
-		log.Infof("user: %v", u)
+		file_uid := ctx.Param("uid")
 
-		fileUid := ctx.Param("uid")
-
-		f, err := query.FindFileByUID(fileUid)
+		f, err := query.FindFileByUID(file_uid)
 
 		if err != nil {
 			AbortEntityNotFound(ctx)
@@ -39,11 +36,12 @@ func DeleteFile(router *gin.RouterGroup) {
 
 		f_u := entity.FileUser{
 			FileID: f.ID,
-			UserID: u.ID,
+			UserID: authPayload.UserID,
 		}
 
 		//delete file from s3
-		if err := DeleteFileFromS3(fileUid); err != nil {
+		keyPath := authPayload.UserUID + "/" + f.UID
+		if err := DeleteFileFromS3(keyPath); err != nil {
 			AbortInternalServerError(ctx)
 			log.Errorf("delete file from s3 error: %v", err)
 			return
@@ -63,6 +61,15 @@ func DeleteFile(router *gin.RouterGroup) {
 			return
 		}
 
+		// remove user storage quantity
+		user_detail := query.FindUserDetailByUserID(authPayload.UserID)
+
+		if err := user_detail.Update("storage_used", user_detail.StorageUsed-uint(f.Size)); err != nil {
+			log.Errorf("removing storage_used: %s", err)
+			AbortInternalServerError(ctx)
+			return
+		}
+
 		ctx.JSON(200, gin.H{
 			"message": "ok",
 		})
@@ -70,27 +77,26 @@ func DeleteFile(router *gin.RouterGroup) {
 }
 
 // internal delete one file
-func DeleteFileFromS3(fileUid string) error {
-	f, err := query.FindFileByUID(fileUid)
+func DeleteFileFromS3(keyPath string) error {
 
-	if err != nil {
-		log.Errorf("DeleteFileFromS3: file entity not found: %v", err)
-		return err
+	if keyPath == "" {
+		log.Errorf("DeleteFileFromS3: file uid is empty")
+		return nil
 	}
 
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
-			config.Env().FilebaseAccessKey,
-			config.Env().FilebaseSecretKey,
+			config.Env().WasabiAccessKey,
+			config.Env().WasabiSecretKey,
 			"",
 		),
-		Endpoint:         aws.String("https://s3.filebase.com"),
-		Region:           aws.String("us-east-1"),
+		Endpoint:         aws.String(config.Env().WasabiEndpoint),
+		Region:           aws.String(config.Env().WasabiRegion),
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
 	//delete file from s3
-	if err := s3.DeleteObject(s3Config, f.UID); err != nil {
+	if err := s3.DeleteObject(s3Config, config.Env().WasabiBucket, keyPath); err != nil {
 		log.Errorf("DeleteFileFromS3: delete file from s3 error: %v", err)
 		return err
 	}

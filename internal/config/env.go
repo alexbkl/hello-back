@@ -22,14 +22,15 @@ type EnvVar struct {
 	DBUser               string
 	DBPassword           string
 	DBPort               string
-	// Filebase credential
-	FilebaseBucket     string
-	FilebaseAccessKey  string
-	FilebaseSecretKey  string
-	FilebasePinningKey string
 	// Github OAuth credential
 	GithubClientID     string
 	GithubClientSecret string
+	// Wasabi keys
+	WasabiAccessKey string
+	WasabiSecretKey string
+	WasabiBucket    string
+	WasabiEndpoint  string
+	WasabiRegion    string
 }
 
 var env EnvVar
@@ -67,14 +68,15 @@ func LoadEnv() (err error) {
 		DBUser:     os.Getenv("POSTGRES_USER"),
 		DBPassword: os.Getenv("POSTGRES_PASSWORD"),
 		DBPort:     os.Getenv("POSTGRES_PORT"),
-		// Filebase credential
-		FilebaseBucket:     os.Getenv("FILEBASE_BUCKET"),
-		FilebaseAccessKey:  os.Getenv("FILEBASE_ACCESS_KEY"),
-		FilebaseSecretKey:  os.Getenv("FILEBASE_SECRET_KEY"),
-		FilebasePinningKey: os.Getenv("FILEBASE_PINNING_KEY"),
 		// Github OAuth credentail
 		GithubClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		GithubClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+		//Wasabi keys
+		WasabiAccessKey: os.Getenv("WASABI_ACCESS_KEY"),
+		WasabiSecretKey: os.Getenv("WASABI_SECRET_KEY"),
+		WasabiBucket:    os.Getenv("WASABI_BUCKET"),
+		WasabiEndpoint:  os.Getenv("WASABI_ENDPOINT"),
+		WasabiRegion:    os.Getenv("WASABI_REGION"),
 	}
 
 	values := reflect.ValueOf(env)
