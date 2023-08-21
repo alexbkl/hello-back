@@ -11,7 +11,7 @@ func DeleteObject(s3Config aws.Config, key string) error {
 	// create a new session using the config above and profile
 	goSession, err := session.NewSessionWithOptions(session.Options{
 		Config:  s3Config,
-		Profile: "filebase",
+		Profile: "wasabi",
 	})
 
 	// check if the session was created correctly.
@@ -24,7 +24,7 @@ func DeleteObject(s3Config aws.Config, key string) error {
 
 	// create put object input
 	deleteObjectInput := &s3.DeleteObjectInput{
-		Bucket: aws.String(config.Env().FilebaseBucket),
+		Bucket: aws.String(config.Env().WasabiBucket),
 		Key:    aws.String(key),
 	}
 

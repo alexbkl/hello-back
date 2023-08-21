@@ -18,7 +18,7 @@ func UploadObject(
 	// create a new session using the config above and profile
 	goSession, err := session.NewSessionWithOptions(session.Options{
 		Config:  s3Config,
-		Profile: "filebase",
+		Profile: "wasabi",
 	})
 
 	// check if the session was created correctly.

@@ -19,7 +19,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// UploadFiles upload files to filebase using s3
+// UploadFiles upload files to wasabi using s3
 //
 // POST /api/file/upload
 // Form: MultipartForm
@@ -110,16 +110,16 @@ func UploadFileToS3(file *multipart.FileHeader, user_uid, file_uid string) error
 
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
-			config.Env().FilebaseAccessKey,
-			config.Env().FilebaseSecretKey,
+			config.Env().WasabiAccessKey,
+			config.Env().WasabiSecretKey,
 			"",
 		),
-		Endpoint:         aws.String("https://s3.filebase.com"),
-		Region:           aws.String("us-east-1"),
+		Endpoint:         aws.String(config.Env().WasabiEndpoint),
+		Region:           aws.String(config.Env().WasabiRegion),
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(s3Config, file, config.Env().FilebaseBucket, user_uid, file_uid)
+	err := s3.UploadObject(s3Config, file, config.Env().WasabiBucket, user_uid, file_uid)
 
 	return err
 }

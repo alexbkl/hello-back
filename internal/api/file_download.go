@@ -31,9 +31,13 @@ func DownloadFile(router *gin.RouterGroup) {
 		key := ctx.Param("uid")
 		log.Infof("u : %v", authPayload.UserID)
 		// Multipart form
-		out, error := DownloadFileFromS3(key)
+		keyPath := u.UID + "/" + key
+		out, error := DownloadFileFromS3(keyPath)
 
 		if error != nil {
+			log.Errorf("download file: %s", error)
+			//log key:
+			log.Infof("key : %v", key)
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": error.Error(),
 			})
@@ -68,12 +72,12 @@ func DownloadFileFromS3(key string) (*awsS3.GetObjectOutput, error) {
 
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
-			config.Env().FilebaseAccessKey,
-			config.Env().FilebaseSecretKey,
+			config.Env().WasabiAccessKey,
+			config.Env().WasabiSecretKey,
 			"",
 		),
-		Endpoint:         aws.String("https://s3.filebase.com"),
-		Region:           aws.String("us-east-1"),
+		Endpoint:         aws.String(config.Env().WasabiEndpoint),
+		Region:           aws.String(config.Env().WasabiRegion),
 		S3ForcePathStyle: aws.Bool(true),
 	}
 

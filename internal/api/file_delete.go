@@ -43,7 +43,8 @@ func DeleteFile(router *gin.RouterGroup) {
 		}
 
 		//delete file from s3
-		if err := DeleteFileFromS3(fileUid); err != nil {
+		keyPath := u.UID + "/" + f.UID
+		if err := DeleteFileFromS3(keyPath); err != nil {
 			AbortInternalServerError(ctx)
 			log.Errorf("delete file from s3 error: %v", err)
 			return
@@ -70,27 +71,26 @@ func DeleteFile(router *gin.RouterGroup) {
 }
 
 // internal delete one file
-func DeleteFileFromS3(fileUid string) error {
-	f, err := query.FindFileByUID(fileUid)
+func DeleteFileFromS3(keyPath string) error {
 
-	if err != nil {
-		log.Errorf("DeleteFileFromS3: file entity not found: %v", err)
-		return err
+	if keyPath == "" {
+		log.Errorf("DeleteFileFromS3: file uid is empty")
+		return nil
 	}
 
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
-			config.Env().FilebaseAccessKey,
-			config.Env().FilebaseSecretKey,
+			config.Env().WasabiAccessKey,
+			config.Env().WasabiSecretKey,
 			"",
 		),
-		Endpoint:         aws.String("https://s3.filebase.com"),
-		Region:           aws.String("us-east-1"),
+		Endpoint:         aws.String(config.Env().WasabiEndpoint),
+		Region:           aws.String(config.Env().WasabiRegion),
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
 	//delete file from s3
-	if err := s3.DeleteObject(s3Config, f.UID); err != nil {
+	if err := s3.DeleteObject(s3Config, keyPath); err != nil {
 		log.Errorf("DeleteFileFromS3: delete file from s3 error: %v", err)
 		return err
 	}

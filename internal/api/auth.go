@@ -144,6 +144,7 @@ func RegisterUser(router *gin.RouterGroup, tokenMaker token.Maker) {
 		if user := query.FindUser(u); user != nil {
 			Abort(ctx, http.StatusBadRequest, "user already exists!")
 		}
+		
 
 		if err := u.Create(); err != nil {
 			AbortInternalServerError(ctx)
