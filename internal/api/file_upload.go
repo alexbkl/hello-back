@@ -94,23 +94,10 @@ func UploadFiles(router *gin.RouterGroup) {
 			// add user storage quantity
 			user_detail := query.FindUserDetailByUserID(authPayload.UserID)
 
-			if user_detail == nil {
-				user_detail = &entity.UserDetail{
-					StorageUsed: uint(file.Size),
-					UserID:      authPayload.UserID,
-				}
-
-				if err := user_detail.Create(); err != nil {
-					log.Errorf("creating storage_used: %s", err)
-					AbortInternalServerError(ctx)
-					return
-				}
-			} else {
-				if err := user_detail.Update("storage_used", user_detail.StorageUsed+uint(file.Size)); err != nil {
-					log.Errorf("updating storage_used: %s", err)
-					AbortInternalServerError(ctx)
-					return
-				}
+			if err := user_detail.Update("storage_used", user_detail.StorageUsed+uint(file.Size)); err != nil {
+				log.Errorf("updating storage_used: %s", err)
+				AbortInternalServerError(ctx)
+				return
 			}
 
 		}
