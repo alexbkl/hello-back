@@ -19,7 +19,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// UploadFiles upload files to filebase using s3
+// UploadFiles upload files to wasabi using s3
 //
 // POST /api/file/upload
 // Form: MultipartForm
@@ -84,8 +84,9 @@ func UploadFiles(router *gin.RouterGroup) {
 				return
 			}
 
+			keyPath := authPayload.UserUID + "/" + f.UID
 			// upload file
-			if err := UploadFileToS3(file, fmt.Sprintf("%s/%s", authPayload.UserUID, f.UID)); err != nil {
+			if err := UploadFileToS3(file, keyPath); err != nil {
 				log.Errorf("uploading file to s3: %s", err)
 				AbortInternalServerError(ctx)
 				return
@@ -110,21 +111,16 @@ func UploadFileToS3(file *multipart.FileHeader, key string) error {
 
 	s3Config := aws.Config{
 		Credentials: credentials.NewStaticCredentials(
-			config.Env().FilebaseAccessKey,
-			config.Env().FilebaseSecretKey,
+			config.Env().WasabiAccessKey,
+			config.Env().WasabiSecretKey,
 			"",
 		),
-		Endpoint:         aws.String("https://s3.filebase.com"),
-		Region:           aws.String("us-east-1"),
+		Endpoint:         aws.String(config.Env().WasabiEndpoint),
+		Region:           aws.String(config.Env().WasabiRegion),
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(
-		s3Config,
-		file,
-		config.Env().FilebaseBucket,
-		key,
-	)
+	err := s3.UploadObject(s3Config, file, config.Env().WasabiBucket, key)
 
 	return err
 }

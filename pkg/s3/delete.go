@@ -1,6 +1,7 @@
 package s3
 
 import (
+	"github.com/Hello-Storage/hello-back/internal/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -10,7 +11,7 @@ func DeleteObject(s3Config aws.Config, bucket, key string) error {
 	// create a new session using the config above and profile
 	goSession, err := session.NewSessionWithOptions(session.Options{
 		Config:  s3Config,
-		Profile: "filebase",
+		Profile: "wasabi",
 	})
 
 	// check if the session was created correctly.
@@ -23,7 +24,7 @@ func DeleteObject(s3Config aws.Config, bucket, key string) error {
 
 	// create put object input
 	deleteObjectInput := &s3.DeleteObjectInput{
-		Bucket: aws.String(bucket),
+		Bucket: aws.String(config.Env().WasabiBucket),
 		Key:    aws.String(key),
 	}
 
