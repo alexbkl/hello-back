@@ -72,7 +72,7 @@ func DownloadFileFromS3(key string) (*awsS3.GetObjectOutput, error) {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	out, err := s3.DownloadObject(s3Config, config.Env().FilebaseBucket, key)
+	out, err := s3.DownloadObject(s3Config, config.Env().WasabiBucket, key)
 
 	return out, err
 }
