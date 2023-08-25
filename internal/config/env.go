@@ -17,11 +17,15 @@ type EnvVar struct {
 	TokenSymmetricKey    string
 	AccessTokenDuration  time.Duration
 	RefreshTokenDuration time.Duration
-	DBHost               string
-	DBName               string
-	DBUser               string
-	DBPassword           string
-	DBPort               string
+	// Postgres env
+	DBHost     string
+	DBName     string
+	DBUser     string
+	DBPassword string
+	DBPort     string
+	// Redis env
+	RedisUrl      string
+	RedisPassword string
 	// Github OAuth credential
 	GithubClientID     string
 	GithubClientSecret string

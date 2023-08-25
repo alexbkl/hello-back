@@ -9,19 +9,27 @@ import (
 var rdsConn RdsConn
 
 type RdsConn struct {
-	url      string
-	password string
+	Url      string
+	Password string
 
 	rds *redis.Client
-	ctx context
+	ctx context.Context
 }
 
 func (g *RdsConn) Open() {
 	rds := redis.NewClient(&redis.Options{
-		Addr:     g.url,
-		Password: g.password, // no password set
+		Addr:     g.Url,
+		Password: g.Password, // no password set
 		DB:       0,
 	})
 
 	var ctx = context.Background()
+
+	g.rds = rds
+	g.ctx = ctx
+}
+
+// SetRedisProvider sets the Gorm database connection provider.
+func SetRedisProvider(conn RdsConn) {
+	rdsConn = conn
 }
