@@ -120,7 +120,7 @@ func UploadFileToS3(file *multipart.FileHeader, key string) error {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(s3Config, file, config.Env().WasabiBucket, key)
+	err := s3.UploadObjectV2(s3Config, file, config.Env().WasabiBucket, key)
 
 	return err
 }
