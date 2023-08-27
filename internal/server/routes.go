@@ -54,4 +54,5 @@ func registerRoutes(router *gin.Engine) {
 	api.SearchFolderByRoot(AuthAPIv1)
 	api.CreateFolder(AuthAPIv1)
 	api.DownloadFolder(AuthAPIv1)
+	api.DeleteFolder(AuthAPIv1)
 }

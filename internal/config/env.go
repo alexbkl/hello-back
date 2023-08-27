@@ -17,11 +17,15 @@ type EnvVar struct {
 	TokenSymmetricKey    string
 	AccessTokenDuration  time.Duration
 	RefreshTokenDuration time.Duration
-	DBHost               string
-	DBName               string
-	DBUser               string
-	DBPassword           string
-	DBPort               string
+	// Postgres env
+	DBHost     string
+	DBName     string
+	DBUser     string
+	DBPassword string
+	DBPort     string
+	// Redis env
+	RedisUrl      string
+	RedisPassword string
 	// Github OAuth credential
 	GithubClientID     string
 	GithubClientSecret string
@@ -77,6 +81,8 @@ func LoadEnv() (err error) {
 		WasabiBucket:    os.Getenv("WASABI_BUCKET"),
 		WasabiEndpoint:  os.Getenv("WASABI_ENDPOINT"),
 		WasabiRegion:    os.Getenv("WASABI_REGION"),
+		RedisUrl: 	  os.Getenv("REDIS_URL"),
+		RedisPassword: 	  os.Getenv("REDIS_PASSWORD"),
 	}
 
 	values := reflect.ValueOf(env)
