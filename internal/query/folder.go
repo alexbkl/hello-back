@@ -76,3 +76,51 @@ func FindFolderPathByRoot(root string) entity.Folders {
 
 	return append(FindFolderPathByRoot(m.Root), *m)
 }
+
+
+// FindFolderByUID finds a folder by UID.
+func FindFolderByUID(uid string) (*entity.Folder, error) {
+	m := &entity.Folder{}
+
+	if err := db.Db().Where("uid = ?", uid).First(m).Error; err != nil {
+		return nil, err
+	}
+
+
+	return m, nil
+}
+
+// DeleteFolderByUID deletes a folder by UID.
+func DeleteFolderByUID(uid string) error {
+	if err := db.Db().Where("uid = ?", uid).Delete(&entity.Folder{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+
+// FindFolderUsers finds a user with a certain permission level for a folder
+func FindFolderUser(folderID, userID uint) (*entity.FolderUser, error) {
+	fu := &entity.FolderUser{}
+	if err := db.Db().Where("folder_id = ? AND user_id = ?", folderID, userID).First(fu).Error; err != nil {
+		return nil, err
+	}
+	return fu, nil
+}
+
+
+// GetChildFoldersByUID returns child folders of a given folder.
+func GetChildFoldersByUID(uid string) (folders entity.Folders, err error) {
+	if err := db.Db().Where("root = ?", uid).Find(&folders).Error; err != nil {
+		return folders, err
+	}
+	return folders, nil
+}
+
+
+func GetFolderFilesByUID(folderUID string) (files entity.Files, err error) {
+	if err := db.Db().Where("root = ?", folderUID).Find(&files).Error; err != nil {
+		return files, err
+	}
+	return files, nil
+}
