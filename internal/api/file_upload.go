@@ -12,6 +12,7 @@ import (
 	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
 	"github.com/Hello-Storage/hello-back/internal/query"
+	"github.com/Hello-Storage/hello-back/internal/rds"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/aws/aws-sdk-go/aws"
@@ -92,6 +93,9 @@ func UploadFiles(router *gin.RouterGroup) {
 				return
 			}
 
+			// update upload progress at redis
+			rds.DelUploadProgress(keyPath)
+
 			// add user storage quantity
 			user_detail := query.FindUserDetailByUserID(authPayload.UserID)
 
@@ -120,7 +124,7 @@ func UploadFileToS3(file *multipart.FileHeader, key string) error {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObjectV2(s3Config, file, config.Env().WasabiBucket, key)
+	err := s3.UploadObject(s3Config, file, config.Env().WasabiBucket, key, rds.SetUploadProgress)
 
 	return err
 }

@@ -13,6 +13,7 @@ func UploadObject(
 	s3Config aws.Config,
 	file *multipart.FileHeader,
 	bucket, key string,
+	cb func(key string, val int),
 ) error {
 
 	// create a new session using the config above and profile
@@ -36,13 +37,14 @@ func UploadObject(
 	uploader := s3manager.NewUploader(goSession, func(u *s3manager.Uploader) {
 		u.PartSize = 5 * 1024 * 1024
 		u.LeavePartsOnError = true
-
 	})
 
 	// Create a progress reader that wraps the file reader
 	reader := &progressReader{
-		Reader:     src,
-		TotalBytes: file.Size,
+		fp:   src,
+		size: file.Size,
+		key:  key,
+		cb:   cb,
 	}
 
 	// Set the S3 upload input parameters
