@@ -5,12 +5,12 @@ import (
 	"sync"
 
 	"github.com/Hello-Storage/hello-back/internal/constant"
+	"github.com/Hello-Storage/hello-back/internal/db"
 	"github.com/Hello-Storage/hello-back/internal/entity"
 	"github.com/Hello-Storage/hello-back/internal/form"
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/gin-gonic/gin"
 )
-
 
 var fileMutex = sync.Mutex{}
 
@@ -45,11 +45,15 @@ func UpdateFileRoot(router *gin.RouterGroup) {
 			return
 		}
 
+		file := entity.File{}
 
-		file := entity.File{
-			UID: form.Uid,
-			Root:  form.Root,
+		// Query the database to populate the 'File' entity with existing data.
+		if err := db.Db().Where("UID = ?", form.Uid).First(&file).Error; err != nil {
+			AbortBadRequest(ctx)
+			return
 		}
+		file.UID = form.Uid
+		file.Root = form.Root
 
 		if err := file.UpdateRootOnly(); err != nil {
 			AbortBadRequest(ctx)
@@ -57,7 +61,7 @@ func UpdateFileRoot(router *gin.RouterGroup) {
 		}
 
 		file_user := entity.FileUser{
-			FileID:   file.ID,
+			FileID:     file.ID,
 			UserID:     authPayload.UserID,
 			Permission: entity.OwnerPermission,
 		}
