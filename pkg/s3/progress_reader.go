@@ -1,31 +1,44 @@
 package s3
 
 import (
-	"fmt"
-	"io"
-	"log"
+	"mime/multipart"
+	"sync/atomic"
+
+	"github.com/Hello-Storage/hello-back/internal/rds"
 )
 
 type progressReader struct {
-	Reader     io.Reader
-	TotalBytes int64
-	BytesRead  int64
+	file *multipart.FileHeader
+	src  multipart.File
+	size int64
+	read int64
+	key  string
+	cb   func(key string, val rds.UploadProgressValue)
 }
 
 func (pr *progressReader) Read(p []byte) (n int, err error) {
-	n, err = pr.Reader.Read(p)
-	pr.BytesRead += int64(n)
-	log.Printf("Upload progress: %d/%d bytes", pr.BytesRead, pr.TotalBytes)
+	return pr.src.Read(p)
+}
+
+func (pr *progressReader) ReadAt(p []byte, off int64) (int, error) {
+	n, err := pr.src.ReadAt(p, off)
+	if err != nil {
+		return n, err
+	}
+
+	// Got the length have read( or means has uploaded), and you can construct your message
+	atomic.AddInt64(&pr.read, int64(n))
+
+	v := rds.UploadProgressValue{
+		Name: pr.file.Filename,
+		Size: pr.size,
+		Read: int64(float32(pr.read / 2)),
+	}
+	go pr.cb(pr.key, v)
+
 	return n, err
 }
 
-type ProgressListener struct {
-	TotalBytes       int64
-	BytesTransferred int64
-	UploadID         string
-}
-
-func (pl *ProgressListener) OnPartUploadCompleted(partNum int, numBytes int64) {
-	pl.BytesTransferred += numBytes
-	fmt.Printf("Uploaded part %d: %d / %d bytes\n", partNum, pl.BytesTransferred, pl.TotalBytes)
+func (pr *progressReader) Seek(offset int64, whence int) (int64, error) {
+	return pr.src.Seek(offset, whence)
 }

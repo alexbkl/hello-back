@@ -1,15 +1,15 @@
 package config
 
-import "github.com/Hello-Storage/hello-back/internal/db"
+import "github.com/Hello-Storage/hello-back/internal/rds"
 
 func ConnectRedis() error {
-	rdsConn := db.RdsConn{
+	rdsConn := rds.RdsConn{
 		Url:      env.RedisUrl,
-		Password: env.RedisPassword,
+		Password: "", // env.RedisPassword
 	}
 
 	rdsConn.Open()
-	db.SetRedisProvider(rdsConn)
+	rds.SetRedisProvider(rdsConn)
 
 	return nil
 }
