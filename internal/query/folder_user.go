@@ -12,7 +12,6 @@ func CheckFolderPermByUser(folder_uid string, user_id uint) bool {
 	subquery := db.Db().Table("folders").Select("id").Where("uid = ?", folder_uid)
 
 	if err := db.Db().Model(m).Where("folder_id = (?) AND user_id = ? AND permission = 'owner'", subquery, user_id).First(m).Error; err == nil {
-		log.Infof("folder perm: ", m)
 		return true
 	}
 

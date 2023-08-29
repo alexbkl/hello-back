@@ -84,6 +84,8 @@ func LoadEnv() (err error) {
 		WasabiBucket:    os.Getenv("WASABI_BUCKET"),
 		WasabiEndpoint:  os.Getenv("WASABI_ENDPOINT"),
 		WasabiRegion:    os.Getenv("WASABI_REGION"),
+		RedisUrl: 	  os.Getenv("REDIS_URL"),
+		RedisPassword: 	  os.Getenv("REDIS_PASSWORD"),
 	}
 
 	values := reflect.ValueOf(env)

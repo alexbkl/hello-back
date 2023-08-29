@@ -23,3 +23,7 @@ func (m *FolderUser) Create() error {
 func (m *FolderUser) Save() error {
 	return db.Db().Save(m).Error
 }
+//update
+func (m *FolderUser) Update() error {
+	return db.Db().Model(m).Updates(m).Error
+}
