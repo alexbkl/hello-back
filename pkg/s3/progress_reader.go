@@ -4,22 +4,25 @@ import (
 	"log"
 	"mime/multipart"
 	"sync/atomic"
+
+	"github.com/Hello-Storage/hello-back/internal/rds"
 )
 
 type progressReader struct {
-	fp   multipart.File
+	file *multipart.FileHeader
+	src  multipart.File
 	size int64
 	read int64
 	key  string
-	cb   func(key string, val int)
+	cb   func(key string, val rds.UploadProgressValue)
 }
 
 func (pr *progressReader) Read(p []byte) (n int, err error) {
-	return pr.fp.Read(p)
+	return pr.src.Read(p)
 }
 
 func (pr *progressReader) ReadAt(p []byte, off int64) (int, error) {
-	n, err := pr.fp.ReadAt(p, off)
+	n, err := pr.src.ReadAt(p, off)
 	if err != nil {
 		return n, err
 	}
@@ -36,11 +39,16 @@ func (pr *progressReader) ReadAt(p []byte, off int64) (int, error) {
 		int(float32(pr.read*100/2)/float32(pr.size)),
 	)
 
-	go pr.cb(pr.key, int(float32(pr.read*100/2)/float32(pr.size)))
+	v := rds.UploadProgressValue{
+		FileName: pr.file.Filename,
+		Size:     pr.size,
+		Read:     int64(float32(pr.read / 2)),
+	}
+	go pr.cb(pr.key, v)
 
 	return n, err
 }
 
 func (pr *progressReader) Seek(offset int64, whence int) (int64, error) {
-	return pr.fp.Seek(offset, whence)
+	return pr.src.Seek(offset, whence)
 }

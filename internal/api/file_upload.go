@@ -166,3 +166,9 @@ func GetAndProcessFileRoot(file_path, root string, user_id uint) (string, error)
 
 	return GetAndProcessFileRoot(sub_file_path, f.UID, user_id)
 }
+
+func GetUploadProgressValue(router *gin.RouterGroup) {
+	router.GET("/upload", func(ctx *gin.Context) {
+
+	})
+}

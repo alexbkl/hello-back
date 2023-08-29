@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/Hello-Storage/hello-back/internal/config"
-	"github.com/Hello-Storage/hello-back/internal/socket"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -60,12 +59,6 @@ func Start(ctx context.Context) {
 	config.LoadEnv()
 	// Register HTTP route handlers.
 	registerRoutes(router)
-	// websocket
-	hub := socket.NewHub()
-	go hub.Run()
-	router.GET("/ws", func(ctx *gin.Context) {
-		socket.ServeWs(hub, ctx.Writer, ctx.Request)
-	})
 
 	log.Infof("port: %s", config.Env().AppPort)
 	server := &http.Server{
