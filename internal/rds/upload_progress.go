@@ -8,9 +8,9 @@ import (
 )
 
 type UploadProgressValue struct {
-	FileName string `json:"file_name"`
-	Size     int64  `json:"size"`
-	Read     int64  `json:"read"`
+	Name string `json:"name"`
+	Size int64  `json:"size"`
+	Read int64  `json:"read"`
 }
 
 func (g *RdsConn) InitUploadProgress() {
@@ -103,4 +103,22 @@ func DelUploadProgress(key string) {
 	if err != nil {
 		log.Errorf("failed to delete upload progress at redis \n error: %v", err)
 	}
+}
+
+func GetUploadProgress(user_uid string) (string, error) {
+	if rdsConn.jsonRds == nil {
+		log.Errorf("json redis client nil")
+	}
+	client := rdsConn.jsonRds
+	ctx := rdsConn.ctx
+
+	cmd := client.B().
+		JsonGet().
+		Key(UPLOAD_PROGRESS_LABEL).
+		Path(fmt.Sprintf("$.%s", user_uid)).
+		Build()
+
+	result, err := client.Do(ctx, cmd).ToString()
+
+	return result[1 : len(result)-1], err
 }

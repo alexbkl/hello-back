@@ -40,9 +40,9 @@ func (pr *progressReader) ReadAt(p []byte, off int64) (int, error) {
 	)
 
 	v := rds.UploadProgressValue{
-		FileName: pr.file.Filename,
-		Size:     pr.size,
-		Read:     int64(float32(pr.read / 2)),
+		Name: pr.file.Filename,
+		Size: pr.size,
+		Read: int64(float32(pr.read / 2)),
 	}
 	go pr.cb(pr.key, v)
 

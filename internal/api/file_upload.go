@@ -20,13 +20,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetUploadProgress return progress info of user
+//
+// GET /api/file/upload
+func GetUploadProgress(router *gin.RouterGroup) {
+	router.GET("/upload", func(ctx *gin.Context) {
+		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
+
+		res, err := rds.GetUploadProgress(authPayload.UserUID)
+
+		log.Infof("res: %s", res)
+		if err != nil {
+			log.Errorf("failed to get upload progress at redis \n error: %v", err)
+			AbortInternalServerError(ctx)
+			return
+		}
+		ctx.JSON(http.StatusOK, res)
+	})
+}
+
 // UploadFiles upload files to wasabi using s3
 //
 // POST /api/file/upload
 // Form: MultipartForm
 // - files
 // - root
-func UploadFiles(router *gin.RouterGroup) {
+func PutUploadFiles(router *gin.RouterGroup) {
 	router.POST("/upload", func(ctx *gin.Context) {
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
@@ -165,10 +184,4 @@ func GetAndProcessFileRoot(file_path, root string, user_id uint) (string, error)
 	}
 
 	return GetAndProcessFileRoot(sub_file_path, f.UID, user_id)
-}
-
-func GetUploadProgressValue(router *gin.RouterGroup) {
-	router.GET("/upload", func(ctx *gin.Context) {
-
-	})
 }
