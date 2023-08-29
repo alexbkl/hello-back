@@ -23,8 +23,8 @@ services:
       - .env
     volumes:
       - ./:/app
-    networks: 
-     - network-backend
+    networks:
+      - network-backend
 
   postgres:
     container_name: postgres-dev
@@ -39,14 +39,14 @@ services:
       - "5432:5432" # database port (host:container)
     env_file:
       - .env
-    networks: 
+    networks:
       - network-backend
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
   redis:
     container_name: redis-dev
     image: redis/redis-stack-server:latest
@@ -54,8 +54,8 @@ services:
     ports:
       - '6379:6379'
     volumes:
-      - postgres-data:/var/lib/redis/data
-    networks: 
+      - redis-data:/var/lib/redis/data
+    networks:
       - network-backend
 
 networks:

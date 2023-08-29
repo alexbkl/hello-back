@@ -7,7 +7,7 @@ name: hello
 services:
   backend:
     container_name: backend
-    image: eroist/joinhello-backend:latest
+    image: eroist/joinhello-backend:staging
     restart: always
     depends_on:
       postgres:
@@ -37,6 +37,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  redis:
+    container_name: redis
+    image: redis/redis-stack-server:latest
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - network-backend
 
 networks:
   network-backend:
