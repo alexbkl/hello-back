@@ -73,3 +73,23 @@ func (m *File) FirstOrCreateFile() *File {
 
 	return m
 }
+
+//update
+func (m *File) UpdateRootOnly() error {
+	return db.Db().Model(m).Where("UID = ?", m.UID).Update("Root", m.Root).Error
+}
+
+
+// IsFolderOwner checks if a user is the owner of a folder
+func IsFileOwner(folderUID string, userID uint) (bool, error) {
+	var count int64
+	err := db.Db().Table("files_users").
+		Where("folder_id = ? AND user_id = ? AND permission = ?", folderUID, userID, OwnerPermission).
+		Count(&count).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}

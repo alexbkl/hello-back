@@ -28,3 +28,8 @@ func (FileUser) TableName() string {
 func (m *FileUser) Create() error {
 	return db.Db().Create(m).Error
 }
+
+//update
+func (m *FileUser) Update() error {
+	return db.Db().Model(m).Updates(m).Error
+}
