@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"mime"
@@ -27,15 +28,23 @@ func GetUploadProgress(router *gin.RouterGroup) {
 	router.GET("/upload", func(ctx *gin.Context) {
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
-		res, err := rds.GetUploadProgress(authPayload.UserUID)
+		progress_as_string, err := rds.GetUploadProgress(authPayload.UserUID)
 
-		log.Infof("res: %s", res)
 		if err != nil {
 			log.Errorf("failed to get upload progress at redis \n error: %v", err)
 			AbortInternalServerError(ctx)
 			return
 		}
-		ctx.JSON(http.StatusOK, res)
+
+		if progress_as_string == "" || progress_as_string == "{}" {
+			ctx.JSON(http.StatusNotFound, "not found")
+			return
+		}
+
+		var jsonMap map[string]interface{}
+		json.Unmarshal([]byte(progress_as_string), &jsonMap)
+
+		ctx.JSON(http.StatusOK, jsonMap)
 	})
 }
 

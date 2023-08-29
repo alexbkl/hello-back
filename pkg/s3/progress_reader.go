@@ -1,7 +1,6 @@
 package s3
 
 import (
-	"log"
 	"mime/multipart"
 	"sync/atomic"
 
@@ -29,15 +28,6 @@ func (pr *progressReader) ReadAt(p []byte, off int64) (int, error) {
 
 	// Got the length have read( or means has uploaded), and you can construct your message
 	atomic.AddInt64(&pr.read, int64(n))
-
-	// I have no idea why the read length need to be div 2,
-	// maybe the request read once when Sign and actually send call ReadAt again
-	// It works for me
-	log.Printf(
-		"total read:%d    progress:%d%%\n",
-		pr.read/2,
-		int(float32(pr.read*100/2)/float32(pr.size)),
-	)
 
 	v := rds.UploadProgressValue{
 		Name: pr.file.Filename,
