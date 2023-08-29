@@ -17,11 +17,15 @@ type EnvVar struct {
 	TokenSymmetricKey    string
 	AccessTokenDuration  time.Duration
 	RefreshTokenDuration time.Duration
-	DBHost               string
-	DBName               string
-	DBUser               string
-	DBPassword           string
-	DBPort               string
+	// Postgres env
+	DBHost     string
+	DBName     string
+	DBUser     string
+	DBPassword string
+	DBPort     string
+	// Redis env
+	RedisUrl string
+	// RedisPassword string
 	// Github OAuth credential
 	GithubClientID     string
 	GithubClientSecret string
@@ -68,6 +72,9 @@ func LoadEnv() (err error) {
 		DBUser:     os.Getenv("POSTGRES_USER"),
 		DBPassword: os.Getenv("POSTGRES_PASSWORD"),
 		DBPort:     os.Getenv("POSTGRES_PORT"),
+		// Redis
+		RedisUrl: os.Getenv("Redis_Url"),
+		// RedisPassword: os.Getenv("Redis_Password"),
 		// Github OAuth credentail
 		GithubClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		GithubClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),

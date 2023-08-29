@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"mime"
@@ -12,6 +13,7 @@ import (
 	"github.com/Hello-Storage/hello-back/internal/constant"
 	"github.com/Hello-Storage/hello-back/internal/entity"
 	"github.com/Hello-Storage/hello-back/internal/query"
+	"github.com/Hello-Storage/hello-back/internal/rds"
 	"github.com/Hello-Storage/hello-back/pkg/s3"
 	"github.com/Hello-Storage/hello-back/pkg/token"
 	"github.com/aws/aws-sdk-go/aws"
@@ -19,13 +21,40 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetUploadProgress return progress info of user
+//
+// GET /api/file/upload
+func GetUploadProgress(router *gin.RouterGroup) {
+	router.GET("/upload", func(ctx *gin.Context) {
+		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
+
+		progress_as_string, err := rds.GetUploadProgress(authPayload.UserUID)
+
+		if err != nil {
+			log.Errorf("failed to get upload progress at redis \n error: %v", err)
+			AbortInternalServerError(ctx)
+			return
+		}
+
+		if progress_as_string == "" || progress_as_string == "{}" {
+			ctx.JSON(http.StatusNotFound, "not found")
+			return
+		}
+
+		var jsonMap map[string]interface{}
+		json.Unmarshal([]byte(progress_as_string), &jsonMap)
+
+		ctx.JSON(http.StatusOK, jsonMap)
+	})
+}
+
 // UploadFiles upload files to wasabi using s3
 //
 // POST /api/file/upload
 // Form: MultipartForm
 // - files
 // - root
-func UploadFiles(router *gin.RouterGroup) {
+func PutUploadFiles(router *gin.RouterGroup) {
 	router.POST("/upload", func(ctx *gin.Context) {
 		authPayload := ctx.MustGet(constant.AuthorizationPayloadKey).(*token.Payload)
 
@@ -92,6 +121,9 @@ func UploadFiles(router *gin.RouterGroup) {
 				return
 			}
 
+			// update upload progress at redis
+			rds.DelUploadProgress(keyPath)
+
 			// add user storage quantity
 			user_detail := query.FindUserDetailByUserID(authPayload.UserID)
 
@@ -120,7 +152,7 @@ func UploadFileToS3(file *multipart.FileHeader, key string) error {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 
-	err := s3.UploadObject(s3Config, file, config.Env().WasabiBucket, key)
+	err := s3.UploadObject(s3Config, file, config.Env().WasabiBucket, key, rds.SetUploadProgress)
 
 	return err
 }
