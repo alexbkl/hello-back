@@ -88,7 +88,6 @@ func PutUploadFiles(router *gin.RouterGroup) {
 			// create corresponding folders to locate this file at proper path
 			file_path := params["filename"]
 			actual_root, err := GetAndProcessFileRoot(file_path, r, authPayload.UserID)
-			log.Infof("actual_root: %s", actual_root)
 
 			// create file
 			f := entity.File{
@@ -122,7 +121,7 @@ func PutUploadFiles(router *gin.RouterGroup) {
 			}
 
 			// update upload progress at redis
-			rds.DelUploadProgress(keyPath)
+			// rds.DelUploadProgress(keyPath)
 
 			// add user storage quantity
 			user_detail := query.FindUserDetailByUserID(authPayload.UserID)

@@ -53,8 +53,6 @@ services:
     restart: always
     ports:
       - '6379:6379'
-    volumes:
-      - redis-data:/var/lib/redis/data
     networks:
       - network-backend
 
@@ -64,7 +62,3 @@ volumes:
   postgres-data:
     external: true
     name: postgres-data
-
-  redis-data:
-    external: true
-    name: redis-data
