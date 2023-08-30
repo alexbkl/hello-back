@@ -122,7 +122,7 @@ func PutUploadFiles(router *gin.RouterGroup) {
 			}
 
 			// update upload progress at redis
-			rds.DelUploadProgress(keyPath)
+			// rds.DelUploadProgress(keyPath)
 
 			// add user storage quantity
 			user_detail := query.FindUserDetailByUserID(authPayload.UserID)
