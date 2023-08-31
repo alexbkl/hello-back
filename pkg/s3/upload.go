@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"mime/multipart"
 
-	"github.com/Hello-Storage/hello-back/internal/rds"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -14,7 +13,6 @@ func UploadObject(
 	s3Config aws.Config,
 	file *multipart.FileHeader,
 	bucket, key string,
-	cb func(key string, val rds.UploadProgressValue),
 ) error {
 
 	// create a new session using the config above and profile
@@ -41,19 +39,19 @@ func UploadObject(
 	})
 
 	// Create a progress reader that wraps the file reader
-	reader := &progressReader{
-		file: file,
-		src:  src,
-		size: file.Size,
-		key:  key,
-		cb:   cb,
-	}
+	// reader := &progressReader{
+	// 	file: file,
+	// 	src:  src,
+	// 	size: file.Size,
+	// 	key:  key,
+
+	// }
 
 	// Set the S3 upload input parameters
 	input := &s3manager.UploadInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
-		Body:   reader,
+		Body:   src,
 	}
 
 	// Upload the file to S3.
