@@ -47,15 +47,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    container_name: redis-dev
-    image: redis/redis-stack-server:latest
-    restart: always
-    ports:
-      - '6379:6379'
-    networks:
-      - network-backend
-
 networks:
   network-backend:
 volumes:
