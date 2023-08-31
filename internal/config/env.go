@@ -24,7 +24,7 @@ type EnvVar struct {
 	DBPassword string
 	DBPort     string
 	// Redis env
-	RedisUrl string
+	// RedisUrl string
 	// RedisPassword string
 	// Github OAuth credential
 	GithubClientID     string
@@ -73,7 +73,7 @@ func LoadEnv() (err error) {
 		DBPassword: os.Getenv("POSTGRES_PASSWORD"),
 		DBPort:     os.Getenv("POSTGRES_PORT"),
 		// Redis
-		RedisUrl: os.Getenv("Redis_Url"),
+		// RedisUrl: os.Getenv("Redis_Url"),
 		// RedisPassword: os.Getenv("Redis_Password"),
 		// Github OAuth credentail
 		GithubClientID:     os.Getenv("GITHUB_CLIENT_ID"),
