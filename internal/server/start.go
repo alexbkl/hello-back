@@ -25,7 +25,7 @@ func Start(ctx context.Context) {
 
 	// Create new HTTP router engine without standard middleware.
 	router := gin.New()
-	router.MaxMultipartMemory = 640 << 20
+	router.MaxMultipartMemory = 5 << 30
 
 	// Register common middleware.
 	router.Use(gin.Recovery(), Logger())
