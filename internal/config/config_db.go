@@ -27,7 +27,7 @@ func ConnectDB() error {
 	}
 
 	dbconn.Open()
-	db.SetDbProvider(dbconn)
+	db.SetDbProvider(&dbconn)
 
 	// Create enum type
 	log.Info("config: creating enum type")
