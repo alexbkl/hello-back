@@ -15,14 +15,15 @@ const (
 type Folders []Folder
 
 type Folder struct {
-	ID        uint           `gorm:"primarykey"                          json:"id"`
-	UID       string         `gorm:"type:varchar(42);uniqueIndex;"       json:"uid"`
-	Title     string         `gorm:"type:varchar(255);"                  json:"title"`
-	Path      string         `gorm:"type:varchar(1024);default:'/';"     json:"path"` // folderA/folderB/***
-	Root      string         `gorm:"type:varchar(42);index;default:'/';" json:"root"` // parent folder uid
-	CreatedAt time.Time      `                                           json:"created_at"`
-	UpdatedAt time.Time      `                                           json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index"                               json:"deleted_at"`
+	ID        uint             `gorm:"primarykey"                          json:"id"`
+	UID       string           `gorm:"type:varchar(42);uniqueIndex;"       json:"uid"`
+	Title     string           `gorm:"type:varchar(255);"                  json:"title"`
+	Path      string           `gorm:"type:varchar(1024);default:'/';"     json:"path"` // folderA/folderB/***
+	Root      string           `gorm:"type:varchar(42);index;default:'/';" json:"root"` // parent folder uid
+	CreatedAt time.Time        `                                           json:"created_at"`
+	UpdatedAt time.Time        `                                           json:"updated_at"`
+	DeletedAt gorm.DeletedAt   `gorm:"index"                               json:"deleted_at"`
+	Status    EncryptionStatus `gorm:"type:encryption_status;default:'public'" json:"status"`
 }
 
 // TableName returns the entity table name.
@@ -51,19 +52,18 @@ func (m *Folder) FirstOrCreateFolderByTitleAndRoot() *Folder {
 	if err := db.Db().Where("title = ? AND root = ?", m.Title, m.Root).First(&result).Error; err == nil {
 		return &result
 	} else if err := m.Create(); err != nil {
-		log.Errorf("Folder: %s", err)
+		log.Errorf("Folder first or create: %s", err)
 		return nil
 	}
 
 	return m
 }
 
-//update
+// update
 func (m *Folder) UpdateRootOnly() error {
 	return db.Db().Model(m).Where("UID = ?", m.UID).Update("Root", m.Root).Error
 
 }
-
 
 // IsFolderOwner checks if a user is the owner of a folder
 func IsFolderOwner(folderUID string, userID uint) (bool, error) {

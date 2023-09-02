@@ -38,6 +38,7 @@ func UploadFiles(router *gin.RouterGroup) {
 		}
 
 		files := form.File["files"]
+
 		root := form.Value["root"]
 
 		var r string
@@ -47,7 +48,18 @@ func UploadFiles(router *gin.RouterGroup) {
 			r = "/"
 		}
 
-		for _, file := range files {
+		// Handle regular files
+		for index, file := range files {
+
+			index := fmt.Sprintf("%d", index)
+
+			//cid of file
+			cid, ok := form.Value["cid["+index+"]"]
+			if !ok || len(cid) == 0 {
+				log.Warnf("Missing or empty cid for index %s", index)
+				continue
+			}
+
 			_, params, err := mime.ParseMediaType(file.Header.Get("Content-Disposition"))
 			if err != nil {
 				log.Errorf("parse media type: %s", err)
@@ -63,10 +75,12 @@ func UploadFiles(router *gin.RouterGroup) {
 
 			// create file
 			f := entity.File{
-				Name: file.Filename,
-				Root: actual_root,
-				Mime: mime,
-				Size: file.Size,
+				Name:   file.Filename,
+				Root:   actual_root,
+				CID:    cid[0],
+				Mime:   mime,
+				Size:   file.Size,
+				Status: entity.Public,
 			}
 			if err := f.Create(); err != nil {
 				AbortInternalServerError(ctx)
@@ -102,6 +116,96 @@ func UploadFiles(router *gin.RouterGroup) {
 			}
 
 		}
+
+		encryptedFiles := form.File["encryptedFiles"]
+
+		for key, encryptedFile := range encryptedFiles {
+			// Ensure the key exists and has values
+
+			index := fmt.Sprintf("%d", key)
+			fmt.Println("Index: " + index)
+
+			//cid of encrypted buffer
+			cid, ok := form.Value["cid["+index+"]"]
+			if !ok || len(cid) == 0 {
+				log.Warnf("Missing or empty cid for index %s", index)
+				continue
+			}
+
+			cidOriginalEncrypted, ok := form.Value["cidOriginalEncrypted["+index+"]"]
+			if !ok || len(cidOriginalEncrypted) == 0 {
+				log.Warnf("Missing or empty cidOriginalEncrypted for index %s", index)
+				continue
+			}
+
+			fmt.Println("Encrypted file name: ", encryptedFile.Filename)
+			fmt.Println("Encrypted file Header: ", encryptedFile.Header)
+			fmt.Println("File size: ", encryptedFile.Size)
+			fmt.Println("CID of encrypted buffer: ", cid)
+			fmt.Println("CID original encrypted: ", cidOriginalEncrypted)
+
+			_, params, err := mime.ParseMediaType(encryptedFile.Header.Get("Content-Disposition"))
+			if err != nil {
+				log.Errorf("parse media type: %s", err)
+				AbortInternalServerError(ctx)
+				return
+			}
+			mime := encryptedFile.Header.Get("Content-Type")
+
+			// create corresponding folders to locate this file at proper path
+			file_path := params["filename"]
+			actual_root, err := GetAndProcessFileRoot(file_path, r, authPayload.UserID)
+			log.Infof("actual_root: %s", actual_root)
+			//log.Infof("Length of CID: %d", len(cid[0]))
+
+			// create file
+			f := entity.File{
+				Name:                 encryptedFile.Filename,
+				Root:                 actual_root,
+				CID:                  cid[0],
+				CIDOriginalEncrypted: &cidOriginalEncrypted[0],
+				Mime:                 mime,
+				Size:                 encryptedFile.Size,
+				Status:               entity.Encrypted,
+			}
+
+			if err := f.Create(); err != nil {
+				log.Errorf("create encrypted file: %s", err)
+				AbortInternalServerError(ctx)
+				return
+			}
+
+			// create file_user relation
+			f_u := entity.FileUser{
+				FileID:     f.ID,
+				UserID:     authPayload.UserID,
+				Permission: entity.OwnerPermission,
+			}
+			if err := f_u.Create(); err != nil {
+				log.Errorf("create file_user relation: %s", err)
+				AbortInternalServerError(ctx)
+				return
+			}
+
+			keyPath := authPayload.UserUID + "/" + f.UID
+			// upload file
+			if err := UploadFileToS3(encryptedFile, keyPath); err != nil {
+				log.Errorf("uploading file to s3: %s", err)
+				AbortInternalServerError(ctx)
+				return
+			}
+
+			// add user storage quantity
+			user_detail := query.FindUserDetailByUserID(authPayload.UserID)
+
+			if err := user_detail.Update("storage_used", user_detail.StorageUsed+uint(encryptedFile.Size)); err != nil {
+				log.Errorf("adding storage_used: %s", err)
+				AbortInternalServerError(ctx)
+				return
+			}
+
+		}
+
 		ctx.JSON(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 	})
 }
@@ -138,7 +242,7 @@ func GetAndProcessFileRoot(file_path, root string, user_id uint) (string, error)
 
 	f := query.FindFolderByTitleAndRoot(sub_title, root)
 
-	log.Infof("folder: %v", f)
+	log.Infof("folder find by title and root: %v", f)
 	if f == nil {
 		f = &entity.Folder{
 			Title: sub_title,
