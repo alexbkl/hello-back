@@ -33,6 +33,7 @@ func UploadFiles(router *gin.RouterGroup) {
 		form, err := ctx.MultipartForm()
 
 		if err != nil {
+			log.Errorf("multipart form: %s", err)
 			AbortBadRequest(ctx)
 			return
 		}
@@ -70,7 +71,7 @@ func UploadFiles(router *gin.RouterGroup) {
 
 			// create corresponding folders to locate this file at proper path
 			file_path := params["filename"]
-			actual_root, err := GetAndProcessFileRoot(file_path, r, authPayload.UserID)
+			actual_root, err := GetAndProcessFileRoot(file_path, r, authPayload.UserID, entity.Public)
 			log.Infof("actual_root: %s", actual_root)
 
 			// create file
@@ -83,8 +84,8 @@ func UploadFiles(router *gin.RouterGroup) {
 				Status: entity.Public,
 			}
 			if err := f.Create(); err != nil {
+				log.Errorf("create file: %s", err)
 				AbortInternalServerError(ctx)
-				return
 			}
 
 			// create file_user relation
@@ -123,7 +124,6 @@ func UploadFiles(router *gin.RouterGroup) {
 			// Ensure the key exists and has values
 
 			index := fmt.Sprintf("%d", key)
-			fmt.Println("Index: " + index)
 
 			//cid of encrypted buffer
 			cid, ok := form.Value["cid["+index+"]"]
@@ -138,23 +138,29 @@ func UploadFiles(router *gin.RouterGroup) {
 				continue
 			}
 
-			fmt.Println("Encrypted file name: ", encryptedFile.Filename)
-			fmt.Println("Encrypted file Header: ", encryptedFile.Header)
-			fmt.Println("File size: ", encryptedFile.Size)
-			fmt.Println("CID of encrypted buffer: ", cid)
-			fmt.Println("CID original encrypted: ", cidOriginalEncrypted)
-
-			_, params, err := mime.ParseMediaType(encryptedFile.Header.Get("Content-Disposition"))
-			if err != nil {
-				log.Errorf("parse media type: %s", err)
-				AbortInternalServerError(ctx)
-				return
+			webkitRelativePath, ok := form.Value["webkitRelativePath["+index+"]"]
+			if !ok || len(webkitRelativePath) == 0 {
+				log.Warnf("Missing or empty webkitRelativePath for index %s", index)
+				continue
 			}
+			/*
+				_, params, err := mime.ParseMediaType(encryptedFile.Header.Get("Content-Disposition"))
+				if err != nil {
+					log.Errorf("parse media type: %s", err)
+					AbortInternalServerError(ctx)
+					return
+				}
+			*/
 			mime := encryptedFile.Header.Get("Content-Type")
 
 			// create corresponding folders to locate this file at proper path
-			file_path := params["filename"]
-			actual_root, err := GetAndProcessFileRoot(file_path, r, authPayload.UserID)
+			file_path := webkitRelativePath[0]
+			actual_root, err := GetAndProcessFileRoot(file_path, r, authPayload.UserID, entity.Encrypted)
+			if err != nil {
+				log.Errorf("get and process file root: %s", err)
+				AbortInternalServerError(ctx)
+				return
+			}
 			log.Infof("actual_root: %s", actual_root)
 			//log.Infof("Length of CID: %d", len(cid[0]))
 
@@ -231,7 +237,7 @@ func UploadFileToS3(file *multipart.FileHeader, key string) error {
 
 // internal
 // here root => uid format
-func GetAndProcessFileRoot(file_path, root string, user_id uint) (string, error) {
+func GetAndProcessFileRoot(file_path, root string, user_id uint, status entity.EncryptionStatus) (string, error) {
 	res := strings.Split(file_path, "/")
 	if len(res) == 1 {
 		return root, nil
@@ -247,6 +253,7 @@ func GetAndProcessFileRoot(file_path, root string, user_id uint) (string, error)
 		f = &entity.Folder{
 			Title: sub_title,
 			Root:  root,
+			Status: status,
 		}
 
 		if err := f.Create(); err != nil {
@@ -264,5 +271,6 @@ func GetAndProcessFileRoot(file_path, root string, user_id uint) (string, error)
 		}
 	}
 
-	return GetAndProcessFileRoot(sub_file_path, f.UID, user_id)
+	return GetAndProcessFileRoot(sub_file_path, f.UID, user_id, status)
 }
+
