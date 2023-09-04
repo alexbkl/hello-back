@@ -34,7 +34,7 @@ func DeleteFolder(router *gin.RouterGroup) {
 		// Check user permission (ownership in this case)
 		folderUser, err := query.FindFolderUser(folder.ID, authPayload.UserID)
 		if err != nil || folderUser.Permission != entity.OwnerPermission {
-			fmt.Printf("folder: %s", err)
+			fmt.Printf("folder find user: %s", err)
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"message": "Permission denied",
 			})
@@ -43,7 +43,7 @@ func DeleteFolder(router *gin.RouterGroup) {
 
 		// Delete folder and its contents recursively
 		if err := DeleteFolderAndContentsRecursive(folderUID, authPayload.UserUID); err != nil {
-			fmt.Printf("folder: %s", err)
+			fmt.Printf("folder delete contents recursive: %s", err)
 			AbortInternalServerError(ctx)
 			return
 		}

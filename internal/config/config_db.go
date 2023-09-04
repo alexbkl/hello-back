@@ -27,7 +27,24 @@ func ConnectDB() error {
 	}
 
 	dbconn.Open()
-	db.SetDbProvider(dbconn)
+	db.SetDbProvider(&dbconn)
+
+	// Create enum type
+	log.Info("config: creating enum type")
+	const createEnumSQL = `
+	DO $$
+	BEGIN
+		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'encryption_status') THEN
+			CREATE TYPE encryption_status AS ENUM ('public', 'encrypted');
+		END IF;
+	END
+	$$;
+	`
+	err := db.Db().Exec(createEnumSQL).Error
+	if err != nil {
+		return fmt.Errorf("config: failed to create enum type: %w", err)
+	}
+	log.Info("config: created enum type")
 
 	return nil
 }
@@ -38,6 +55,7 @@ func MigrateDb(runFailed bool, ids []string) {
 	entity.InitDb(migrate.Opt(true, runFailed, ids))
 
 	go entity.Error{}.LogEvents()
+
 }
 
 // DatabaseDsn returns the database data source name (DSN).
