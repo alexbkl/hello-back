@@ -66,10 +66,10 @@ func (m *Folder) UpdateRootOnly() error {
 }
 
 // IsFolderOwner checks if a user is the owner of a folder
-func IsFolderOwner(folderUID string, userID uint) (bool, error) {
+func IsFolderOwner(folderID uint, userID uint) (bool, error) {
 	var count int64
 	err := db.Db().Table("folders_users").
-		Where("folder_id = ? AND user_id = ? AND permission = ?", folderUID, userID, OwnerPermission).
+		Where("folder_id = ? AND user_id = ? AND permission = ?", folderID, userID, OwnerPermission).
 		Count(&count).Error
 
 	if err != nil {

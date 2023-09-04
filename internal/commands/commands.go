@@ -29,7 +29,7 @@ func Start() {
 	config.InitDb()
 
 	// connect redis
-	config.ConnectRedis()
+	// config.ConnectRedis()
 
 	// Pass this context down the chain.
 	cctx, _ := context.WithCancel(context.Background())

@@ -1,6 +1,11 @@
-package db
+package rds
 
-import "github.com/redis/go-redis/v9"
+import (
+	"github.com/Hello-Storage/hello-back/internal/event"
+	"github.com/redis/go-redis/v9"
+)
+
+var log = event.Log
 
 // Rds returns the default *gorm.DB connection.
 func Rds() *redis.Client {

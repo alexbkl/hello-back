@@ -9,11 +9,11 @@ import (
 
 // GetFile returns file details as JSON.
 //
-// GET /api/file/:uid
+// GET /api/file/info/:uid
 // Params:
 // - uid
 func GetFile(router *gin.RouterGroup) {
-	router.GET("/:uid", func(c *gin.Context) {
+	router.GET("/info/:uid", func(c *gin.Context) {
 		// To Do check access grant
 		uid := c.Param("uid")
 

@@ -24,8 +24,8 @@ type EnvVar struct {
 	DBPassword string
 	DBPort     string
 	// Redis env
-	RedisUrl      string
-	RedisPassword string
+	// RedisUrl string
+	// RedisPassword string
 	// Github OAuth credential
 	GithubClientID     string
 	GithubClientSecret string
@@ -72,6 +72,9 @@ func LoadEnv() (err error) {
 		DBUser:     os.Getenv("POSTGRES_USER"),
 		DBPassword: os.Getenv("POSTGRES_PASSWORD"),
 		DBPort:     os.Getenv("POSTGRES_PORT"),
+		// Redis
+		// RedisUrl: os.Getenv("Redis_Url"),
+		// RedisPassword: os.Getenv("Redis_Password"),
 		// Github OAuth credentail
 		GithubClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		GithubClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
@@ -81,8 +84,6 @@ func LoadEnv() (err error) {
 		WasabiBucket:    os.Getenv("WASABI_BUCKET"),
 		WasabiEndpoint:  os.Getenv("WASABI_ENDPOINT"),
 		WasabiRegion:    os.Getenv("WASABI_REGION"),
-		RedisUrl: 	  os.Getenv("REDIS_URL"),
-		RedisPassword: 	  os.Getenv("REDIS_PASSWORD"),
 	}
 
 	values := reflect.ValueOf(env)

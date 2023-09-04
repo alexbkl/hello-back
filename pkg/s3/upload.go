@@ -36,20 +36,22 @@ func UploadObject(
 	uploader := s3manager.NewUploader(goSession, func(u *s3manager.Uploader) {
 		u.PartSize = 5 * 1024 * 1024
 		u.LeavePartsOnError = true
-
 	})
 
 	// Create a progress reader that wraps the file reader
-	reader := &progressReader{
-		Reader:     src,
-		TotalBytes: file.Size,
-	}
+	// reader := &progressReader{
+	// 	file: file,
+	// 	src:  src,
+	// 	size: file.Size,
+	// 	key:  key,
+
+	// }
 
 	// Set the S3 upload input parameters
 	input := &s3manager.UploadInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
-		Body:   reader,
+		Body:   src,
 	}
 
 	// Upload the file to S3.
