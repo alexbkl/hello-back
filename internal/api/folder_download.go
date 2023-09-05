@@ -114,8 +114,12 @@ func DownloadFolder(router *gin.RouterGroup) {
 				"root": file.Root,
 				"date": file.CreatedAt,
 				"media_type":  file.MediaType,
+				"mime_type": file.Mime,
 				"updated_at": file.UpdatedAt,
 				"path": file.Path,
+				"status": file.Status,
+				"cid": file.CID,
+				"cid_original_encrypted": file.CIDOriginalEncrypted,
 			}
 		}
 
