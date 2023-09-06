@@ -13,21 +13,31 @@ const (
 	FileUID = byte('f')
 )
 
+type EncryptionStatus string
+
+const (
+	Public    EncryptionStatus = "public"
+	Encrypted EncryptionStatus = "encrypted"
+)
+
 // Files represents a file result set.
 type Files []File
 
 type File struct {
-	ID        uint           `gorm:"primarykey"                          json:"id"`
-	UID       string         `gorm:"type:varchar(42);uniqueIndex;"       json:"uid"`
-	Name      string         `gorm:"type:varchar(1024);"                 json:"name"`
-	Root      string         `gorm:"type:varchar(42);index;default:'/';" json:"root"` // parent folder uid
-	Mime      string         `gorm:"type:varchar(64)"                    json:"mime_type"`
-	Size      int64          `                                           json:"size"`
-	MediaType string         `gorm:"type:varchar(16)"                    json:"media_type"`
-	CreatedAt time.Time      `                                           json:"created_at"`
-	UpdatedAt time.Time      `                                           json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index"                               json:"deleted_at"`
-	Path      string         `gorm:"type:varchar(1024);"                 json:"path"` // full path
+	ID                   uint             `gorm:"primarykey"                          json:"id"`
+	UID                  string           `gorm:"type:varchar(42);uniqueIndex;"       json:"uid"`
+	CID                  string           `gorm:"type:varchar(64)" json:"cid"`
+	CIDOriginalEncrypted *string          `gorm:"type:varchar(256)" json:"cid_original_encrypted"`
+	Name                 string           `gorm:"type:varchar(1024);"                 json:"name"`
+	Root                 string           `gorm:"type:varchar(1024);index;default:'/';" json:"root"` // parent folder uid
+	Mime                 string           `gorm:"type:varchar(256)"                    json:"mime_type"`
+	Size                 int64            `                                           json:"size"`
+	MediaType            string           `gorm:"type:varchar(16)"                    json:"media_type"`
+	CreatedAt            time.Time        `                                           json:"created_at"`
+	UpdatedAt            time.Time        `                                           json:"updated_at"`
+	DeletedAt            gorm.DeletedAt   `gorm:"index"                               json:"deleted_at"`
+	Path                 string           `gorm:"type:varchar(1024);"                 json:"path"` // full path
+	Status               EncryptionStatus `gorm:"type:encryption_status;default:'public'" json:"status"`
 }
 
 // TableName returns the entity table name.
@@ -74,17 +84,16 @@ func (m *File) FirstOrCreateFile() *File {
 	return m
 }
 
-//update
+// update
 func (m *File) UpdateRootOnly() error {
 	return db.Db().Model(m).Where("UID = ?", m.UID).Update("Root", m.Root).Error
 }
 
-
 // IsFolderOwner checks if a user is the owner of a folder
-func IsFileOwner(folderUID string, userID uint) (bool, error) {
+func IsFileOwner(folderID uint, userID uint) (bool, error) {
 	var count int64
 	err := db.Db().Table("files_users").
-		Where("folder_id = ? AND user_id = ? AND permission = ?", folderUID, userID, OwnerPermission).
+		Where("file_id = ? AND user_id = ? AND permission = ?", folderID, userID, OwnerPermission).
 		Count(&count).Error
 
 	if err != nil {

@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var dbConn DbConn
+var dbConn *DbConn
 
 // DbConn is a gorm.DB connection provider.
 type DbConn struct {
@@ -66,7 +66,7 @@ func (g *DbConn) Open() {
 }
 
 // SetDbProvider sets the Gorm database connection provider.
-func SetDbProvider(conn DbConn) {
+func SetDbProvider(conn *DbConn) {
 	dbConn = conn
 }
 

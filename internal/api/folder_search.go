@@ -33,7 +33,7 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 		// TO-DO folders
 		if root == "/" {
 			if folders, err := query.FindRootFoldersByUser(authPayload.UserID); err != nil {
-				log.Errorf("folder: %s", err)
+				log.Errorf("folder find root by user: %s", err)
 
 				AbortInternalServerError(ctx)
 				return
@@ -53,7 +53,7 @@ func SearchFolderByRoot(router *gin.RouterGroup) {
 
 		} else {
 			if folders, err := query.FoldersByRoot(root); err != nil {
-				log.Errorf("folder: %s", err)
+				log.Errorf("folders by root: %s", err)
 
 				AbortInternalServerError(ctx)
 				return

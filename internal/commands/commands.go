@@ -20,13 +20,16 @@ func Start() {
 		log.Fatal("cannot load config:", err)
 	}
 
-	// connect db
-	config.ConnectDB()
+	// connect db and define enum types
+	err = config.ConnectDB()
+	if err != nil {
+		log.Fatal("cannot connect to DB and create enums:", err)
+	}
 
 	config.InitDb()
 
 	// connect redis
-	config.ConnectRedis()
+	// config.ConnectRedis()
 
 	// Pass this context down the chain.
 	cctx, _ := context.WithCancel(context.Background())

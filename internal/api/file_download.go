@@ -49,13 +49,8 @@ func DownloadFile(router *gin.RouterGroup) {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": error.Error(),
 			})
-			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "success",
-			"result":  out,
-		})
 	})
 }
 
